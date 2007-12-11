@@ -1,0 +1,73 @@
+#!/bin/bash
+# **** License ****
+# Version: VPL 1.0
+#
+# The contents of this file are subject to the Vyatta Public License
+# Version 1.0 ("License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://www.vyatta.com/vpl
+#
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+# the License for the specific language governing rights and limitations
+# under the License.
+#
+# This code was originally developed by Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2007 Vyatta, Inc.
+# All Rights Reserved.
+#
+# Author:	Tom Grennan <tgrennan@vyatta.com>
+# Description:	firewall init 
+#		this is an indirect init sub-script executed by ofr.init
+#
+# **** End License ****
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
+
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin:$bindir:$sbindir
+
+. /lib/lsb/init-functions
+
+ACTION=$1
+
+declare -a modules=(
+    nf_conntrack
+    nf_conntrack_ftp
+    nf_conntrack_tftp
+    nf_nat
+    nf_nat_ftp
+    nf_nat_tftp
+    nf_nat_proto_gre
+    nf_nat_sip
+    nf_nat_h323
+    nf_nat_pptp)
+
+## setup firewall & nat conntrack modules
+start () {
+    for mod in ${modules[@]} ; do 
+	modprobe --syslog $mod
+    done
+
+    # set up notrack chains/rules
+    # by default, nothing is tracked.
+    iptables -t raw -A PREROUTING -j NOTRACK
+    iptables -t raw -A OUTPUT -j NOTRACK
+}
+
+case "$ACTION" in
+    start) start ;;
+    stop|restart|force-reload) true ;; # nothing to stop/restart
+    *)	log_failure_msg "action unknown: $ACTION" ;
+	false ;;
+esac
+
+exit $?
+
+# Local Variables:
+# mode: shell-script
+# sh-indentation: 4
+# End:
+

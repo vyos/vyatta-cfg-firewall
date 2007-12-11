@@ -22,7 +22,8 @@ AC_ARG_ENABLE([nostrip],
 
 AC_CONFIG_FILES(
   [Makefile]
-  [debian/vyatta-cfg-firewall.postinst])
+  [debian/vyatta-cfg-firewall.postinst]
+  [scripts/firewall/firewall.init])
 
 AC_SUBST(NOSTRIP)
 
