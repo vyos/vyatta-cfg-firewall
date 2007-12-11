@@ -1,0 +1,5 @@
+vyatta-cfg-firewall (0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Mon, 10 Dec 2007 11:03:18 -0700

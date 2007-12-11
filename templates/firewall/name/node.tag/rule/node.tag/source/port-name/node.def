@@ -1,0 +1,10 @@
+multi:
+type: txt
+help: "Configure source port name"
+syntax: exec "sh -c 'if grep -q '\\''^$(@)[ \t]'\\'' /etc/services; \
+then exit 0; else \
+  if grep -q \
+    '\\''^[^ \t]\\+[ \t]\\+[^ \t]\\+[^#]*[ \t]$(@)\\([ \t]\\|\\$\\)'\\'' \
+    /etc/services; then exit 0; else exit 1; \
+  fi; \
+fi' " ; "invalid port name $(@)"

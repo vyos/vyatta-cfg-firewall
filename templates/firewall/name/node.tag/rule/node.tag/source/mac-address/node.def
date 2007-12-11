@@ -1,0 +1,3 @@
+type: txt
+help: "Configure source MAC address"
+syntax: exec "/opt/vyatta/sbin/vyatta-validate-type.pl macaddr_negate '$(@)'" ; "invalid MAC address \"$(@)\""

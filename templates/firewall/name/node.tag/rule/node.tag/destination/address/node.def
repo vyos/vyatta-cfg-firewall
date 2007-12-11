@@ -1,0 +1,3 @@
+type: txt
+help: "Configure firewall destination address"
+syntax: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv4_negate '$(@)'" ; "invalid destination address \"$(@)\""

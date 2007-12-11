@@ -1,0 +1,6 @@
+The Debian Package vyatta-cfg-firewall
+----------------------------
+
+This package has the Vyatta firewall configuration templates and scripts.
+
+ -- Bob Gilligan <gilligan@vyatta.com>, Dec. 10, 2007

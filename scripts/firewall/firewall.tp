@@ -1,0 +1,557 @@
+/*
+ * Module: firewall.tp
+ *
+ * **** License ****
+ * Version: VPL 1.0
+ *
+ * The contents of this file are subject to the Vyatta Public License
+ * Version 1.0 ("License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.vyatta.com/vpl
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * This code was originally developed by Vyatta, Inc.
+ * Portions setd by Vyatta are Copyright (C) 2005, 2006, 2007 Vyatta, Inc.
+ * All Rights Reserved.
+ *
+ * Author: Michael Larson
+ * Date: 2005
+ * Description:
+ *
+ * **** End License ****
+ *
+ */
+firewall {
+	targetname:		txt = "rl_firewall";
+/*	disable:		toggle = true;*/
+
+	log-martians: txt = "enable"; 
+ 	send-redirects: txt = "disable";
+ 	receive-redirects:txt = "disable";
+ 	ip-src-route: txt = "disable";
+	broadcast-ping: txt = "disable";
+	syn-cookies: txt = "enable";
+
+  	name @: txt {
+    		description: txt;
+    		rule @: u32 {
+			protocol: txt = "all"; 
+			icmp {
+				type: txt;
+    				code: txt;
+			}
+
+			state {
+				established: txt; 
+				new: txt; 
+				related: txt; 
+				invalid: txt; 
+			}
+
+			action: txt; 
+			log: txt = "disable";
+
+			source {
+	   			address: ipv4;
+	   			network: ipv4net;
+				range {
+	   				start: ipv4;
+	   				stop: ipv4;
+				}
+
+	   			port-number: u32;
+	   			port-name: txt;
+	   			port-range {
+					start: u32;
+					stop: u32;
+				}
+
+			}
+			destination {
+	   			address: ipv4;
+	   			network: ipv4net;
+				range {
+		   			start: ipv4;
+		   			stop: ipv4;
+				}
+
+	   			port-number: u32;
+	   			port-name: txt;
+	   			port-range {
+					start: u32;
+					stop: u32;
+				}
+			}
+    		}
+  	}
+}
+
+interfaces {
+  	ethernet @: txt {
+		firewall {
+
+			in {
+				name: txt;
+			}
+			out {
+				name: txt;
+			}
+			local {
+				name: txt;
+			}
+		}
+		
+		vif @: txt {
+			firewall {
+				in {
+					name: txt;
+				}
+				out {
+					name: txt;
+				}
+				local {
+					name: txt;
+				}
+			}
+		}
+	}
+}
+
+firewall {
+	%help:		short	"Firewall configuration";
+	%modinfo:	provides	firewall;
+
+	%modinfo:	path		"libexec/xorp/xorp_rl_firewall";
+	%modinfo:	default_targetname "rl_firewall";
+        %modinfo: start_commit program "/opt/vyatta/sbin/xorp_tmpl_tool cleanup";
+	%modinfo: end_commit program "/opt/vyatta/sbin/xorp_tmpl_tool commit";
+	%modinfo:	status_method	xrl "$(firewall.targetname)/common/0.1/get_status->status:u32&reason:txt";
+        /*
+	%modinfo:	shutdown_method	xrl "$(firewall.targetname)/rl_firewall/0.1/shutdown_firewall";
+         */
+        %modinfo: shutdown_method program "/opt/vyatta/sbin/xorp_tmpl_tool cleanup && /opt/vyatta/sbin/xorp_tmpl_tool delete firewall && /opt/vyatta/sbin/xorp_tmpl_tool commit && /opt/vyatta/sbin/xorp_tmpl_tool rtrmgr_indirect_cleanup";
+
+        /*
+	%delete:	xrl "$(firewall.targetname)/rl_firewall/0.1/delete_rl_firewall";
+         */
+        %delete: ;
+
+	targetname {
+	    %user-hidden: "XRL target name";
+	    %help:	short "Set the target name";
+	}
+
+	log-martians {
+		%help: 	short "Configure log martians";
+		%allow: $(@) "enable" %help: "Enable log martians";
+		%allow: $(@) "disable" %help: "Disable log martians";
+		
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall log-martians $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall log-martians";
+	}
+
+	send-redirects {
+		%help: 	short "Configure send redirects";
+		%allow: $(@) "enable" %help: "Enable send redirects";
+		%allow: $(@) "disable" %help: "Disable send redirects";
+
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall send-redirects $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall send-redirects";
+	}
+
+	receive-redirects {
+		%help: 	short "Configure receive redirects";
+		%allow: $(@) "enable" %help: "Enable receive redirects";
+		%allow: $(@) "disable" %help: "Disable receive redirects";
+
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall receive-redirects $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall receive-redirects";
+	}
+
+	ip-src-route {
+		%help: 	short "Configure IP source route";
+		%allow: $(@) "enable" %help: "Enable IP source route";
+		%allow: $(@) "disable" %help: "Disable IP source route";
+
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall ip-src-route $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall ip-src-route";
+	}
+
+	broadcast-ping {
+		%help: 	short "Configure broadcast ping";
+		%allow: $(@) "enable" %help: "Enable broadcast ping";
+		%allow: $(@) "disable" %help: "Disable broadcast ping";
+
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall broadcast-ping $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall broadcast-ping";
+	}
+
+	syn-cookies {
+		%help: 	short "Configure SYN cookies";
+		%allow: $(@) "enable" %help: "Enable SYN cookies";
+		%allow: $(@) "disable" %help: "Disable SYN cookies";
+
+		%set:	program	"/opt/vyatta/sbin/xorp_tmpl_tool set firewall syn-cookies $(@)";
+		%delete:	program	"/opt/vyatta/sbin/xorp_tmpl_tool delete firewall syn-cookies";
+	}
+	name @: txt {
+		%help: short "Configure firewall rule set name";
+
+                %create:        program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name '$(@)'";
+                %update:        program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name '$(@)'";
+                %delete:        program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name '$(@)'";
+
+		description {
+			%help: short "Firewall description";
+
+	                %set:        program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) description '$(@)'";
+                	%delete:        program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) description";
+
+		}
+
+		rule @: u32 {
+			%help: short "Firewall rule number in range from 1 to 1024";
+			%order: sorted-numeric;
+			%allow-range: $(@) "1" "1024" %help: "Firewall rule number";
+
+			%create: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(@)";
+			%update: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(@)";
+			%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(@)";
+
+			protocol {
+				%help: short "Configure Protocol";
+				%allow: $(@) "all" %help: "";
+				%allow: $(@) "tcp" %help: "";
+				%allow: $(@) "udp" %help: "";
+				%allow: $(@) "icmp" %help: "";
+				%allow: $(@) "igmp" %help: "";
+				%allow: $(@) "ipencap" %help: "";
+				%allow: $(@) "gre" %help: "";
+				%allow: $(@) "esp" %help: "";
+				%allow: $(@) "ah" %help: "";
+				%allow: $(@) "ospf" %help: "";
+				%allow: $(@) "pim" %help: "";
+				%allow: $(@) "vrrp" %help: "";
+
+				%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) protocol $(@)";
+				%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) protocol";
+			}
+			
+			icmp {
+				%help: short "ICMP type and code settings";
+				%mandatory: $(@.type);
+
+				type {
+					%help: short "ICMP type";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) icmp type $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) icmp type";
+				}
+	
+				code {
+					%help: short "ICMP code";				
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) icmp code $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) icmp code";
+				}
+			}
+
+			state {
+				%help: short "Rule state";
+
+				established {
+					%help: 	short "Configure established state";
+					%allow: $(@) "enable" %help: "Enable established state";
+					%allow: $(@) "disable" %help: "Disable established state";
+				
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) state established $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) state established";
+				}
+
+				new {
+					%help: 	short "Configure new state";
+					%allow: $(@) "enable" %help: "Enable new state";
+					%allow: $(@) "disable" %help: "Disable new state";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) state new $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) state new";
+				}
+
+				related {
+					%help: 	short "Configure related state";
+					%allow: $(@) "enable" %help: "Enable related state";
+					%allow: $(@) "disable" %help: "Disable related state";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) state related $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) state related";
+				}
+
+				invalid {
+					%help: 	short "Configure invalid state";
+					%allow: $(@) "enable" %help: "Enable invalid state";
+					%allow: $(@) "disable" %help: "Disable invalid state";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) state invalid $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) state invalid";
+				}
+			}
+
+			action {
+				%help: short "Configure rule action";
+				%allow: $(@) "accept" %help: "Accept packet";
+				%allow: $(@) "drop" %help: "Silently drop packet";
+				%allow: $(@) "reject" %help: "Reject packet with TCP reset";
+
+				%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) action $(@)";
+				%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) action";
+			}
+
+			log {
+				%help: short "Configure firewall logging";
+				%allow: $(@) "enable" %help: "Enable firewall logging";
+				%allow: $(@) "disable" %help: "Disable firewall logging";
+
+				%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) log $(@)";
+				%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) log";
+			}
+
+			source {
+				%help: short "Firewall source parameters";
+
+	   			address {
+					%help: short "Source address";
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source address $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source address";
+				}
+
+	   			network {
+					%help: short "Source network";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source network $(@)";
+					%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source network";
+				}
+				range {
+					%mandatory: $(@.start);
+					%mandatory: $(@.stop);
+					%help: short "Source range start and stop";
+
+		   			start {
+						%help: short "Source range start";
+
+						%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source range start $(@)";
+						%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source range start";
+					}
+		   			stop {
+						%help: short "Source range stop";
+
+                                                %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source range stop $(@)";
+                                                %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source range stop";
+					}
+				}
+
+	   			port-number {
+					%help: short "Source port number";
+					%allow-range: $(@) "1" "65535" %help: "";
+
+                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source port-number $(@)";
+                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source port-number";
+				}
+
+	   			port-name {
+					%help: short "Source port name";
+
+                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source port-name $(@)";
+                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source port-name";
+				}
+		
+	   			port-range {
+					%help: short "Source port range start and stop";
+					%mandatory: $(@.start);
+					%mandatory: $(@.stop);
+
+					start {
+						%help: short "Source port range start";
+						%allow-range: $(@) "1" "65535" %help: "";
+
+	                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source port-range start $(@)";
+                	                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source port-range start";
+
+					}
+					stop {
+						%help: short "Source port range stop";
+						%allow-range: $(@) "1" "65535" %help: "";
+
+                                                %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) source port-range stop $(@)";
+                                                %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) source port-range stop";
+					}
+				}
+			}
+			destination {
+				%help: short "Firewall destination parameters";
+
+	   			address {
+					%help: short "Destination address";
+
+                                	%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination address $(@)";
+                                	%delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination address";
+				}
+
+	   			network {
+					%help: short "Destination network";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination network $(@)";
+                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination network";
+				}
+
+				range {
+					%help: short "Destination range start and stop";
+					%mandatory: $(@.start);
+					%mandatory: $(@.stop);
+
+		   			start {
+						%help: short "Destination range start";
+
+	                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination range start $(@)";
+                	                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination range start";
+					}
+
+		   			stop {
+						%help: short "Destination range stop";
+
+                                                %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination range stop $(@)";
+                                                %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination range stop";
+					}
+				}
+
+	   			port-number {
+					%help: short "Destination port number";
+					%allow-range: $(@) "1" "65535" %help: "";
+
+					%set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination port-number $(@)";
+                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination port-number";
+				}
+
+	   			port-name {
+					%help: short "Destination port name";
+
+                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination port-name $(@)";
+                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination port-name";
+				}
+		
+	   			port-range {
+					%help: short "Port range start and stop";
+					%mandatory: $(@.start);
+					%mandatory: $(@.stop);
+
+					start {
+						%help: short "Destination port range start";
+						%allow-range: $(@) "1" "65535" %help: "";
+
+                	                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination port-range start $(@)";
+	                                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination port-range start";
+					}
+					stop {
+						%help: short "Destination port range stop";
+						%allow-range: $(@) "1" "65535" %help: "";
+
+                                                %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set firewall name $(name.@) rule $(rule.@) destination port-range stop $(@)";
+                                                %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete firewall name $(name.@) rule $(rule.@) destination port-range stop";
+					}
+				}
+			}
+		}
+	}
+}
+
+interfaces {
+  	ethernet @: txt {
+		firewall {
+			%help:		short "Configure firewall options";
+
+			in {
+				%mandatory:	$(@.name);
+				%help:	short "Filter forwarded packets on inbound interface";
+
+				name {
+					%help:	short "Inbound interface filter name";
+
+                               		 %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) firewall in name $(@)";
+                               		 %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) firewall in name";
+				}
+
+			}
+
+			out {
+				%mandatory:	$(@.name);
+				%help:	short "Filter forwarded packets on outbound interface";
+
+				name {
+					%help:	short "Outbound interface filter name";
+
+                                         %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) firewall out name $(@)";
+                                         %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) firewall out name";
+				}
+
+			}
+
+			local {
+				%mandatory:	$(@.name);
+				%help:	short "Filter packets destined for this router";
+
+				name {
+					%help:	short "Local filter name";
+
+                                         %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) firewall local name $(@)";
+                                         %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) firewall local name";
+				}
+
+			}
+   		}
+		
+		vif @: txt {
+                        firewall {
+				%help:          short "Configure firewall options";                                             
+
+				in {
+					%mandatory:     $(@.name);
+					%help:  short "Filter forwarded packets on inbound interface";
+
+					name {
+						%help:  short "Inbound interface filter name";
+
+	                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) vif $(vif.@) firewall in name $(@)";
+                	                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) vif $(vif.@) firewall in name";
+					}
+				}
+
+	                        out {
+        	                        %mandatory:     $(@.name);
+                	                %help:  short "Filter forwarded packets on outbound interface";
+
+	                                name {
+        	                                %help:  short "Outbound interface filter name";
+
+                                                %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) vif $(vif.@) firewall out name $(@)";
+                                                %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) vif $(vif.@) firewall out name";
+                                	}
+				}
+
+	                        local {
+        	                        %mandatory:     $(@.name);
+                	                %help:  short "Filter packets destined for this router";
+
+	                                name {
+        	                                %help:  short "Local filter name";
+
+	                                        %set: program "/opt/vyatta/sbin/xorp_tmpl_tool set interfaces ethernet $(ethernet.@) vif $(vif.@) firewall local name $(@)";
+                	                        %delete: program "/opt/vyatta/sbin/xorp_tmpl_tool delete interfaces ethernet $(ethernet.@) vif $(vif.@) firewall local name";
+                        	        }
+				}
+			}
+		}
+  	}
+}
