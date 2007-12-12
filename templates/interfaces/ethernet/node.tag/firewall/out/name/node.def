@@ -1,0 +1,14 @@
+type: txt
+help: "Outbound interface filter name"
+create: "sh -c \"echo create eth=[$(../../..)] dir=[$(..)] name=[$(@)] \
+>> /tmp/cli.log && \
+/opt/vyatta/sbin/vyatta-firewall.pl \
+--update-interfaces update $(../../..) $(..) $(@)\" "
+update: "sh -c \"echo update eth=[$(../../..)] dir=[$(..)] name=[$(@)] \
+>> /tmp/cli.log && \
+/opt/vyatta/sbin/vyatta-firewall.pl \
+--update-interfaces update $(../../..) $(..) $(@)\" "
+delete: "sh -c \"echo delete eth=[$(../../..)] dir=[$(..)] name=[$(@)] \
+>> /tmp/cli.log && \
+/opt/vyatta/sbin/vyatta-firewall.pl \
+--update-interfaces delete $(../../..) $(..) $(@)\" "
