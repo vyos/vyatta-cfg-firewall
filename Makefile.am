@@ -7,7 +7,6 @@ sysconf_DATA =
 share_perl5_DATA =
 
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
-sbin_SCRIPTS += scripts/firewall/vyatta-show-firewall.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
 
 share_perl5_DATA += scripts/firewall/VyattaIpTablesAddressFilter.pm
