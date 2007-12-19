@@ -3,9 +3,9 @@ help: "Accept packets with SRR option"
 default: "disable"
 syntax: $(@) in "enable", "disable"; "ip-src-route must be enable or disable"
 create: "if [ x$(@) == xenable ]; \
-          then echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route; \
-          else echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route; fi"
+          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
+          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
 update: "if [ x$(@) == xenable ]; \
-          then echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route; \
-          else echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route; fi"
-delete: "echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route"
+          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
+          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
+delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\""

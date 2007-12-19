@@ -3,9 +3,9 @@ help: "ignore all ICMP ECHO and TIMESTAMP requests sent via broadcast/multicast"
 default: "disable"
 syntax: $(@) in "enable", "disable"; "broadcast-ping must be enable or disable"
 create: "if [ x$(@) == xenable ]; \
-          then echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts; \
-          else echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts; fi"
+          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; \
+          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; fi"
 update: "if [ x$(@) == xenable ]; \
-          then echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts; \
-          else echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts; fi"
-delete: "echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; \
+          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; fi"
+delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\""

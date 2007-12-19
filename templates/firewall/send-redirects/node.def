@@ -3,9 +3,9 @@ help: "send ICMP redirects"
 default: "disable"
 syntax: $(@) in "enable", "disable"; "send-redirects must be enable or disable"
 create: "if [ x$(@) == xenable ]; \
-               then echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects; \
-               else echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects; fi"
+               then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects\"; \
+               else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\"; fi"
 update: "if [ x$(@) == xenable ]; \
-               then echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects; \
-               else echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects; fi"
-delete: "echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects"
+               then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects\"; \
+               else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\"; fi"
+delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\""

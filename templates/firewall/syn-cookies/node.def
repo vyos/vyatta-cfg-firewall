@@ -3,6 +3,6 @@ help: "use TCP syn cookies"
 default: "enable"
 syntax: $(@) in "enable", "disable"; "syn-cookies must be enable or disable"
 update: "if [ x$(@) == xenable ]; \
-                 then echo 1 > /proc/sys/net/ipv4/tcp_syncookies; \
-                 else echo 0 > /proc/sys/net/ipv4/tcp_syncookies; fi"
-delete: "echo 1 > /proc/sys/net/ipv4/tcp_syncookies"
+                 then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/tcp_syncookies\"; \
+                 else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/tcp_syncookies\"; fi"
+delete: "sudo sh -c \"echo 1 > /proc/sys/net/ipv4/tcp_syncookies\""
