@@ -79,20 +79,15 @@ sub update_rules() {
       next;
     } elsif ($nodes{$name} eq "added") {
       # create the chain
-      print "creating chain $name\n";
       setup_chain("$name");
       # handle the rules below.
     } elsif ($nodes{$name} eq "deleted") {
       # delete the chain
-      print "deleting chain $name\n";
       delete_chain("$name");
       next;
     } elsif ($nodes{$name} eq "changed") {
       # handle the rules below.
     }
-
-    print "firewall name $name\n";
-    #print "-----------------------------------------------\n";
 
     # set our config level to rule and get the rule numbers 
     $config->setLevel("firewall name $name rule");
@@ -111,8 +106,6 @@ sub update_rules() {
 
     my $iptablesrule = 1;
     foreach $rule (sort numerically keys %rulehash) {
-      #print "rule: $rule\t\t$rulehash{$rule}\n";
-      
       if ("$rulehash{$rule}" eq "static") {
 	my $node = new VyattaIpTablesRule;
         $node->setupOrig("firewall name $name rule $rule");
@@ -129,8 +122,6 @@ sub update_rules() {
           $stateful = 1;
         }
 
-        #print "node print:\n";
-        #$node->print();
         my ($err_str, @rule_strs) = $node->rule();
         if (defined($err_str)) {
           print STDERR "Firewall config error: $err_str\n";
@@ -140,7 +131,6 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-          print "iptables --insert $name $iptablesrule $_\n";
           system ("iptables --insert $name $iptablesrule $_") == 0
             || die "iptables error: $? - $_\n";
           $iptablesrule++;
@@ -163,7 +153,6 @@ sub update_rules() {
 
         my $ipt_rules = $oldnode->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-          print "iptables --delete $name $iptablesrule\n";
           system ("iptables --delete $name $iptablesrule") == 0
             || die "iptables error: $? - $rule\n";
         }
@@ -172,7 +161,6 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-          print "iptables --insert $name $iptablesrule $_\n";
           system ("iptables --insert $name $iptablesrule $_") == 0
             || die "iptables error: $? - $rule_str\n";
           $iptablesrule++;
@@ -183,7 +171,6 @@ sub update_rules() {
 
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-          print "iptables --delete $name $iptablesrule\n";
           system ("iptables --delete $name $iptablesrule") == 0
             || die "iptables error: $? - $rule\n";
         }
@@ -267,7 +254,6 @@ sub update_ints() {
     $rule = "--$action $direction $num";
   }   
 
-  print "iptables $rule\n";
   $ret = system("iptables $rule");
   if ($ret >> 8) {
     exit 1;
