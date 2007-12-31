@@ -6,6 +6,12 @@ use VyattaIpTablesRule;
 use VyattaIpTablesAddressFilter;
 use Getopt::Long;
 
+# Send output of shell commands to syslog for debugging and so that
+# the user is not confused by it.  Log at debug level, which is supressed
+# by default, so that we don't unnecessarily fill up the syslog file.
+
+my $logger = 'logger -t firewall-cfg -p local0.debug --';
+
 my @updateints = ();
 GetOptions("setup"             => \$setup, 
            "teardown"          => \$teardown,
@@ -50,6 +56,8 @@ sub update_rules() {
   my $config = new VyattaConfig;
   my $name = undef;
   my %nodes = ();
+
+  system ("$logger Executing update_rules.");
 
   $config->setLevel("firewall name");
 
@@ -99,8 +107,10 @@ sub update_rules() {
       # no rules. flush the user rules.
       # note that this clears the counters on the default DROP rule.
       # we could delete rule one by one if those are important.
-      system("iptables -F $name");
-      system("iptables -A $name -j DROP");
+      system("$logger Running: iptables -F $name");
+      system("iptables -F $name 2>&1 | $logger");
+      system("$logger Running: iptables -A $name -j DROP");
+      system("iptables -A $name -j DROP 2>&1 | $logger");
       next;
     }
 
@@ -131,7 +141,8 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-          system ("iptables --insert $name $iptablesrule $_") == 0
+	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
+          system ("iptables --insert $name $iptablesrule $_ 2>&1 | $logger") == 0
             || die "iptables error: $? - $_\n";
           $iptablesrule++;
         }
@@ -153,7 +164,8 @@ sub update_rules() {
 
         my $ipt_rules = $oldnode->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-          system ("iptables --delete $name $iptablesrule") == 0
+	  system ("$logger Running: iptables --delete $name $iptablesrule");
+          system ("iptables --delete $name $iptablesrule 2>&1 | $logger") == 0
             || die "iptables error: $? - $rule\n";
         }
        
@@ -161,7 +173,8 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-          system ("iptables --insert $name $iptablesrule $_") == 0
+	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
+          system ("iptables --insert $name $iptablesrule $_ 2>&1 | $logger") == 0
             || die "iptables error: $? - $rule_str\n";
           $iptablesrule++;
         }
@@ -171,7 +184,8 @@ sub update_rules() {
 
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-          system ("iptables --delete $name $iptablesrule") == 0
+	  system ("$logger Running: iptables --delete $name $iptablesrule");
+          system ("iptables --delete $name $iptablesrule 2>&1 | $logger") == 0
             || die "iptables error: $? - $rule\n";
         }
       }
@@ -254,7 +268,8 @@ sub update_ints() {
     $rule = "--$action $direction $num";
   }   
 
-  $ret = system("iptables $rule");
+  system ("$logger Running: iptables $rule");
+  $ret = system("iptables $rule 2>&1 | $logger");
   if ($ret >> 8) {
     exit 1;
   }
@@ -271,11 +286,13 @@ sub update_ints() {
 sub enable_fw_conntrack {
   # potentially we can add rules in the FW_CONNTRACK chain to provide
   # finer-grained control over which packets are tracked.
-  system("iptables -t raw -R FW_CONNTRACK 1 -j ACCEPT");
+  system("$logger Running: iptables -t raw -R FW_CONNTRACK 1 -J ACCEPT");
+  system("iptables -t raw -R FW_CONNTRACK 1 -j ACCEPT 2>&1 | $logger");
 }
 
 sub disable_fw_conntrack {
-  system("iptables -t raw -R FW_CONNTRACK 1 -j RETURN");
+  system("$logger Running: iptables -t raw -R FW_CONNTRACK 1 -j RETURN");
+  system("iptables -t raw -R FW_CONNTRACK 1 -j RETURN 2>&1 | $logger");
 }
 
 sub teardown_iptables() {
@@ -304,10 +321,10 @@ sub teardown_iptables() {
     my ($num, $ignore, $ignore, $chain, $ignore, $ignore, $in, $out,
         $ignore, $ignore) = split /\s+/;
     if ($chain eq "FW_CONNTRACK") {
-      system("iptables -t raw -D PREROUTING $num");
-      system("iptables -t raw -D OUTPUT $num");
-      system("iptables -t raw -F FW_CONNTRACK");
-      system("iptables -t raw -X FW_CONNTRACK");
+      system("iptables -t raw -D PREROUTING $num 2>&1 | $logger");
+      system("iptables -t raw -D OUTPUT $num 2>&1 | $logger");
+      system("iptables -t raw -F FW_CONNTRACK 2>&1 | $logger");
+      system("iptables -t raw -X FW_CONNTRACK 2>&1 | $logger");
       last;
     }
   }
@@ -316,10 +333,10 @@ sub teardown_iptables() {
 sub setup_iptables() {
   teardown_iptables();
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
-  system("iptables -t raw -N FW_CONNTRACK");
-  system("iptables -t raw -A FW_CONNTRACK -j RETURN");
-  system("iptables -t raw -I PREROUTING 1 -j FW_CONNTRACK");
-  system("iptables -t raw -I OUTPUT 1 -j FW_CONNTRACK");
+  system("iptables -t raw -N FW_CONNTRACK 2>&1 | $logger");
+  system("iptables -t raw -A FW_CONNTRACK -j RETURN 2>&1 | $logger");
+  system("iptables -t raw -I PREROUTING 1 -j FW_CONNTRACK 2>&1 | $logger");
+  system("iptables -t raw -I OUTPUT 1 -j FW_CONNTRACK 2>&1 | $logger");
   return 0;
 }
 
@@ -329,8 +346,8 @@ sub setup_chain($) {
 
   $_ = $configured;
   if (!/^Chain $chain/) {
-    system("iptables --new-chain $chain") == 0 || die "iptables error: $chain --new-chain: $?\n";
-    system("iptables -A $chain -j DROP");
+    system("iptables --new-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --new-chain: $?\n";
+    system("iptables -A $chain -j DROP 2>&1 | $logger");
   }
 }
 
@@ -350,9 +367,9 @@ sub delete_chain($) {
   my $configured = `iptables -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    system("iptables --flush $chain") == 0        || die "iptables error: $chain --flush: $?\n";
+    system("iptables --flush $chain 2>&1 | $logger") == 0        || die "iptables error: $chain --flush: $?\n";
     if (!chain_referenced($chain)) {
-      system("iptables --delete-chain $chain") == 0 || die "iptables error: $chain --delete-chain: $?\n";
+      system("iptables --delete-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --delete-chain: $?\n";
     }
   }
 }
