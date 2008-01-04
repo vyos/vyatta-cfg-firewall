@@ -1,14 +1,18 @@
 type: txt
+
 help: "Inbound interface filter name"
-create: "sh -c \"echo create eth=[$(../../../../..)] vif=[$(../../..)] \
+
+create: "sh -c \"echo create eth=[$(../../../../@)] vif=[$(../../../@)] \
 dir=[$(..)] name=[$(@)] >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces update $(../../../../..).$(../../..) $(..) $(@)\" "
-update: "sh -c \"echo update eth=[$(../../../../..)] vif=[$(../../..)] \
+--update-interfaces update $(../../../../@).$(../../../@) $(..) $(@)\" "
+
+update: "sh -c \"echo update eth=[$(../../../../@)] vif=[$(../../../@)] \
 dir=[$(..)] name=[$(@)] >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces update $(../../../../..).$(../../..) $(..) $(@)\" "
-delete: "sh -c \"echo delete eth=[$(../../../../..)] vif=[$(../../..)] \
+--update-interfaces update $(../../../../@).$(../../../@) $(..) $(@)\" "
+
+delete: "sh -c \"echo delete eth=[$(../../../../@)] vif=[$(../../../@)] \
 dir=[$(..)] name=[$(@)] >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces delete $(../../../../..).$(../../..) $(..) $(@)\" "
+--update-interfaces delete $(../../../../@).$(../../../@) $(..) $(@)\" "
