@@ -2,7 +2,7 @@ type: txt
 
 help: "Inbound interface filter name"
 
-create: "sh -c \"echo create eth=[$(../../../&)] dir=[$(..)] name=[$(@)] \
+create: "sh -c \"echo create eth=[$(../../../@)] dir=[$(..)] name=[$(@)] \
 >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
 --update-interfaces update $(../../../@) $(..) $(@)\" "
