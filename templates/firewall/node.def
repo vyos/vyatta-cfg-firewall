@@ -1,4 +1,4 @@
-help: "Configure firewall"
-end: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules"
-create: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup"
-delete: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown"
+help: Configure firewall
+end:expression: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules"
+create:expression: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup"
+delete:expression: "sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown"

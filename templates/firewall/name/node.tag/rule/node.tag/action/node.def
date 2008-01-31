@@ -1,3 +1,3 @@
 type:  txt
-help: "Configure firewall rule action"
-syntax: $(@) in "drop", "reject", "accept"; "action must be one of drop, reject, or accept"
+help: Configure firewall rule action
+syntax:expression: $VAR(@) in "drop", "reject", "accept"; "action must be one of drop, reject, or accept"

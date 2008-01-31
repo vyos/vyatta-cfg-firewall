@@ -1,18 +1,18 @@
 type: txt
 
-help: "Local filter name"
+help: Local filter name
 
-create: "sh -c \"echo create eth=[$(../../../@)] dir=[$(..)] name=[$(@)] \
+create:expression: "sh -c \"echo create eth=[$VAR(../../../@)] dir=[$VAR(..)] name=[$VAR(@)] \
 >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces update $(../../../@) $(..) $(@)\" "
+--update-interfaces update $VAR(../../../@) $VAR(..) $VAR(@)\" "
 
-update: "sh -c \"echo update eth=[$(../../../@)] dir=[$(..)] name=[$(@)] \
+update:expression: "sh -c \"echo update eth=[$VAR(../../../@)] dir=[$VAR(..)] name=[$VAR(@)] \
 >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces update $(../../../@) $(..) $(@)\" "
+--update-interfaces update $VAR(../../../@) $VAR(..) $VAR(@)\" "
 
-delete: "sh -c \"echo delete eth=[$(../../../@)] dir=[$(..)] name=[$(@)] \
+delete:expression: "sh -c \"echo delete eth=[$VAR(../../../@)] dir=[$VAR(..)] name=[$VAR(@)] \
 >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \
---update-interfaces delete $(../../../@) $(..) $(@)\" "
+--update-interfaces delete $VAR(../../../@) $VAR(..) $VAR(@)\" "

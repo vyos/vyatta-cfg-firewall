@@ -1,11 +1,11 @@
 type: txt
-help: "send ICMP redirects"
+help: send ICMP redirects
 default: "disable"
-syntax: $(@) in "enable", "disable"; "send-redirects must be enable or disable"
-create: "if [ x$(@) == xenable ]; \
+syntax:expression: $VAR(@) in "enable", "disable"; "send-redirects must be enable or disable"
+create:expression: "if [ x$VAR(@) == xenable ]; \
                then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects\"; \
                else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\"; fi"
-update: "if [ x$(@) == xenable ]; \
+update:expression: "if [ x$VAR(@) == xenable ]; \
                then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects\"; \
                else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\"; fi"
-delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\""
+delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects\""

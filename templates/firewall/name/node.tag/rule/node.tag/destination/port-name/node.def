@@ -1,10 +1,10 @@
 multi:
 type: txt
-help: "Configure destination port name"
-syntax: exec "sh -c 'if grep -q '\\''^$(@)[ \t]'\\'' /etc/services; \
+help: Configure destination port name
+syntax:expression: exec "sh -c 'if grep -q '\\''^$VAR(@)[ \t]'\\'' /etc/services; \
 then exit 0; else \
   if grep -q \
-    '\\''^[^ \t]\\+[ \t]\\+[^ \t]\\+[^#]*[ \t]$(@)\\([ \t]\\|\\$\\)'\\'' \
+    '\\''^[^ \t]\\+[ \t]\\+[^ \t]\\+[^#]*[ \t]$VAR(@)\\([ \t]\\|$\\)'\\'' \
     /etc/services; then exit 0; else exit 1; \
   fi; \
-fi' " ; "invalid port name $(@)"
+fi' " ; "invalid port name $VAR(@)"

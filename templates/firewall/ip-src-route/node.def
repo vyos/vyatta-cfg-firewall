@@ -1,11 +1,11 @@
 type: txt
-help: "Accept packets with SRR option"
+help: Accept packets with SRR option
 default: "disable"
-syntax: $(@) in "enable", "disable"; "ip-src-route must be enable or disable"
-create: "if [ x$(@) == xenable ]; \
+syntax:expression: $VAR(@) in "enable", "disable"; "ip-src-route must be enable or disable"
+create:expression: "if [ x$VAR(@) == xenable ]; \
           then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
           else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
-update: "if [ x$(@) == xenable ]; \
+update:expression: "if [ x$VAR(@) == xenable ]; \
           then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
           else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
-delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\""
+delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\""

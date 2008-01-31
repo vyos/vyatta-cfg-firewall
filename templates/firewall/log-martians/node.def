@@ -1,11 +1,11 @@
 type: txt
-help: "Allow syslog logging of packets with impossible addresses"
+help: Allow syslog logging of packets with impossible addresses
 default: "enable"
-syntax: $(@) in "enable", "disable"; "log-martians must be enable or disable"
-create: "if [ x$(@) == xenable ]; \
+syntax:expression: $VAR(@) in "enable", "disable"; "log-martians must be enable or disable"
+create:expression: "if [ x$VAR(@) == xenable ]; \
                  then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\"; \
                  else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/log_martians\"; fi"
-update: "if [ x$(@) == xenable ]; \
+update:expression: "if [ x$VAR(@) == xenable ]; \
                  then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\"; \
                  else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/log_martians\"; fi"
-delete: "sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\""
+delete:expression: "sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\""

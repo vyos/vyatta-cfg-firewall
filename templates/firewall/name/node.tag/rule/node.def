@@ -1,4 +1,4 @@
 tag:
 type: u32
-help: "Configure firewall rule number from 1 to 1024"
-syntax: $(@) > 0 && $(@) < 1025; "firewall rule number must be between 1 and 1024"
+help: Configure firewall rule number from 1 to 1024
+syntax:expression: $VAR(@) > 0 && $VAR(@) < 1025; "firewall rule number must be between 1 and 1024"

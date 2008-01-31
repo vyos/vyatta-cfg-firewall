@@ -1,4 +1,4 @@
 multi:
 type: u32; "destination port must be between 1 and 65535"
-help: "Configure destination port number"
-syntax: $(@) > 0 && $(@) < 65536; "destination port must be between 1 and 65535"
+help: Configure destination port number
+syntax:expression: $VAR(@) > 0 && $VAR(@) < 65536; "destination port must be between 1 and 65535"

@@ -1,11 +1,11 @@
 type: txt
-help: "accept redirects"
+help: accept redirects
 default: "disable"
-syntax: $(@) in "enable", "disable"; "receive-redirects must be enable or disable"
-create: "if [ x$(@) == xenable ]; \
+syntax:expression: $VAR(@) in "enable", "disable"; "receive-redirects must be enable or disable"
+create:expression: "if [ x$VAR(@) == xenable ]; \
             then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; \
             else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; fi"
-update: "if [ x$(@) == xenable ]; \
+update:expression: "if [ x$VAR(@) == xenable ]; \
             then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; \
             else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; fi"
-delete: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\""
+delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\""
