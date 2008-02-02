@@ -1,3 +1,12 @@
 type: txt
-help: Configure firewall destination address
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv4_negate '$VAR(@)'" ; "invalid destination address \"$VAR(@)\""
+help: Destination address or subnet
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl \
+                           -q ipv4_negate '$VAR(@)' \
+                         || /opt/vyatta/sbin/vyatta-validate-type.pl \
+                              -q ipv4net_negate '$VAR(@)'" \
+                   ; "invalid destination address \"$VAR(@)\""
+comp_help: Possible completions:
+  <IP address>                  IP address to match
+  <IP address>/<prefix length>  Subnet to match
+  !<IP address>                 Match everything except the specified address
+  !<IP address>/<prefix length> Match everything except the specified subnet

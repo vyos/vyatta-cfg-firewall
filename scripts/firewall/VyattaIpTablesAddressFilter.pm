@@ -47,8 +47,12 @@ sub setup {
   # setup address filter nodes
   $self->{_range_start}     = $config->returnValue("range start");
   $self->{_range_stop}      = $config->returnValue("range stop");
-  $self->{_network}         = $config->returnValue("network");
   $self->{_address}         = $config->returnValue("address");
+  $self->{_network} = undef;
+  if (defined($self->{_address}) && ($self->{_address} =~ /\//)) {
+    $self->{_network} = $self->{_address};
+    $self->{_address} = undef;
+  }
   my @tmp                   = $config->returnValues("port-number");
   $self->{_portnumber}      = [ @tmp ]; 
   @tmp                      = $config->returnValues("port-name");
@@ -74,8 +78,12 @@ sub setupOrig {
   # setup address filter nodes
   $self->{_range_start}     = $config->returnOrigValue("range start");
   $self->{_range_stop}      = $config->returnOrigValue("range stop");
-  $self->{_network}         = $config->returnOrigValue("network");
   $self->{_address}         = $config->returnOrigValue("address");
+  $self->{_network} = undef;
+  if (defined($self->{_address}) && ($self->{_address} =~ /\//)) {
+    $self->{_network} = $self->{_address};
+    $self->{_address} = undef;
+  }
   my @tmp                   = $config->returnOrigValues("port-number");
   $self->{_portnumber}      = [ @tmp ]; 
   @tmp                      = $config->returnOrigValues("port-name");

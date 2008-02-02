@@ -1,3 +1,0 @@
-type: txt
-help: Configure firewall destination network
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv4net_negate '$VAR(@)'" ; "invalid destination network \"$VAR(@)\""

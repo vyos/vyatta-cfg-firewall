@@ -1,3 +1,0 @@
-type: txt
-help: Configure firewall source network
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv4net_negate '$VAR(@)'" ; "invalid source network \"$VAR(@)\""
