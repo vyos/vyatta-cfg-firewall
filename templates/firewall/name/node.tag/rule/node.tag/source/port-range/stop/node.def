@@ -1,3 +1,0 @@
-type: u32; "source port stop should be between 1 and 65535"
-help: Configure source port range start
-syntax:expression: $VAR(@) > 0 && $VAR(@) < 65536; "source port stop should be between 1 and 65535"

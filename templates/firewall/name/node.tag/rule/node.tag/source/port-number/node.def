@@ -1,4 +1,0 @@
-multi:
-type: u32; "source port must be between 1 and 65535"
-help: Configure source port number
-syntax:expression: $VAR(@) > 0 && $VAR(@) < 65536; "source port must be between 1 and 65535"

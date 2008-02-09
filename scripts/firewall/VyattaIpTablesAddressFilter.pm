@@ -1,6 +1,7 @@
 package VyattaIpTablesAddressFilter;
 
 use VyattaConfig;
+use VyattaMisc;
 
 my %_protocolswithports = (
   tcp => 1,
@@ -15,10 +16,7 @@ my %fields = (
   _range_stop      => undef,
   _network         => undef,
   _address         => undef,
-  _portname        => undef,
-  _portrange_start => undef,
-  _portrange_stop  => undef,
-  _portnumber      => undef,
+  _port            => undef,
   _protocol        => undef,
   _src_mac         => undef,
 );
@@ -53,13 +51,7 @@ sub setup {
     $self->{_network} = $self->{_address};
     $self->{_address} = undef;
   }
-  my @tmp                   = $config->returnValues("port-number");
-  $self->{_portnumber}      = [ @tmp ]; 
-  @tmp                      = $config->returnValues("port-name");
-  $self->{_portname}        = [ @tmp ];
-  $self->{_portrange_start} = $config->returnValue("port-range start");
-  $self->{_portrange_stop}  = $config->returnValue("port-range stop");
-  
+  $self->{_port}         = $config->returnValue("port");
   $self->{_src_mac}  = $config->returnValue("mac-address");
 
   return 0;
@@ -84,13 +76,7 @@ sub setupOrig {
     $self->{_network} = $self->{_address};
     $self->{_address} = undef;
   }
-  my @tmp                   = $config->returnOrigValues("port-number");
-  $self->{_portnumber}      = [ @tmp ]; 
-  @tmp                      = $config->returnOrigValues("port-name");
-  $self->{_portname}        = [ @tmp ]; 
-  $self->{_portrange_start} = $config->returnOrigValue("port-range start");
-  $self->{_portrange_stop}  = $config->returnOrigValue("port-range stop");
-
+  $self->{_port}         = $config->returnOrigValue("port");
   $self->{_src_mac}  = $config->returnValue("mac-address");
 
   return 0;
@@ -104,87 +90,11 @@ sub print {
   print "range stop: $self->{_range_stop}\n"            if defined $self->{_range_stop};
   print "network: $self->{_network}\n"                  if defined $self->{_network};
   print "address: $self->{_address}\n"                  if defined $self->{_address};
-  print "port-name: " . (join ',', $self->{_portname}) . "\n"
-    if defined $self->{_portname};
-  print "port-range start: $self->{_portrange_start}\n" if defined $self->{_portrange_start};
-  print "port-range stop: $self->{_portrange_stop}\n"   if defined $self->{_portrange_stop};
-  print "port-number: " . (join ',', $self->{_portnumber}) . "\n"
-    if defined $self->{_portnumber};
+  print "port: $self->{_port}\n" if defined $self->{_port};
   print "protocol: $self->{_protocol}\n"		if defined $self->{_protocol};
   print "src-mac: $self->{_src_mac}\n"		if defined $self->{_src_mac};
 
   return 0;
-}
-
-sub handle_ports {
-  my $num_ref = shift;
-  my $name_ref = shift;
-  my $pstart = shift;
-  my $pstop = shift;
-  my $can_use_port = shift;
-  my $prefix = shift;
-  my $proto = shift;
-
-  my $rule_str = "";
-  my ($ports, $prange) = (0, 0);
-  my @pnums = @{$num_ref};
-  my @pnames = @{$name_ref};
-  $ports = ($#pnums + 1) + ($#pnames + 1);
-
-  if (defined($pstart) && defined($pstop)) {
-    if ($pstop < $pstart) {
-      return (undef, "invalid port range $pstart-$pstop");
-    }
-    $ports += ($pstop - $pstart + 1);
-    $prange = ($pstop - $pstart - 1);
-  }
-  if (($ports > 0) && (!$can_use_port)) {
-    return (undef, "ports can only be specified when protocol is \"tcp\" "
-                   . "or \"udp\" (currently \"$proto\")");
-  }
-  if (($ports - $prange) > 15) {
-    return (undef, "source/destination port specification only supports "
-                   . "up to 15 ports (port range counts as 2)");
-  }
-  if ($ports > 1) {
-    $rule_str .= " -m multiport --${prefix}ports ";
-    my $first = 1; 
-    if ($#pnums >= 0) {
-      my $pstr = join(',', @pnums);
-      $rule_str .= "$pstr";
-      $first = 0;
-    }
-    if ($#pnames >= 0) {
-      if ($first == 0) {
-        $rule_str .= ",";
-      }
-      my $pstr = join(',', @pnames);
-      $rule_str .= "$pstr";
-      $first = 0;
-    }
-    if (defined($pstart) && defined($pstop)) {
-      if ($first == 0) {
-        $rule_str .= ",";
-      }
-      if ($pstart == $pstop) {
-        $rule_str .= "$pstart";
-      } else {
-        $rule_str .= "$pstart:$pstop";
-      }
-      $first = 0;
-    }
-  } elsif ($ports > 0) {
-    $rule_str .= " --${prefix}port ";
-    if ($#pnums >= 0) {
-      $rule_str .= "$pnums[0]";
-    } elsif ($#pnames >= 0) {
-      $rule_str .= "$pnames[0]";
-    } else {
-      # no number, no name, range of 1
-      $rule_str .= "$pstart";
-    }
-  }
-  return ($rule_str, undef);
 }
 
 sub rule {
@@ -225,13 +135,9 @@ sub rule {
   }
 
   my ($port_str, $port_err)
-    = handle_ports($self->{_portnumber},
-                   $self->{_portname},
-                   $self->{_portrange_start},
-                   $self->{_portrange_stop},
-                   $can_use_port,
-                   ($self->{_srcdst} eq "source") ? "s" : "d",
-                   $self->{_protocol});
+    = VyattaMisc::getPortRuleString($self->{_port}, $can_use_port,
+                                    ($self->{_srcdst} eq "source") ? "s" : "d",
+                                    $self->{_protocol});
   return (undef, $port_err) if (!defined($port_str));
   $rule .= $port_str;
   return ($rule, undef);
