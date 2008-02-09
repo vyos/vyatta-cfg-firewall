@@ -154,11 +154,6 @@ sub outputXml {
   outputXmlElem("${prefix}_net", $self->{_network}, $fh);
   outputXmlElem("${prefix}_addr_start", $self->{_range_start}, $fh);
   outputXmlElem("${prefix}_addr_stop", $self->{_range_stop}, $fh);
-  outputXmlElem("${prefix}_port_num",
-                (join ',', @{$self->{_portnumber}}), $fh);
-  outputXmlElem("${prefix}_port_name",
-                (join ',', @{$self->{_portname}}), $fh);
-  outputXmlElem("${prefix}_port_start", $self->{_portrange_start}, $fh);
-  outputXmlElem("${prefix}_port_stop", $self->{_portrange_stop}, $fh);
+  outputXmlElem("${prefix}_port", $self->{_port}, $fh);
 }
 
