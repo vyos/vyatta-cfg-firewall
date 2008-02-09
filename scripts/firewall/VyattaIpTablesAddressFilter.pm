@@ -2,6 +2,7 @@ package VyattaIpTablesAddressFilter;
 
 use VyattaConfig;
 use VyattaMisc;
+use VyattaTypeChecker;
 
 my %_protocolswithports = (
   tcp => 1,
@@ -131,14 +132,22 @@ sub rule {
   # set the address filter parameters
   if (defined($self->{_network})) {
     my $str = $self->{_network};
+    return (undef, "\"$str\" is not a valid IP subnet")
+      if (!VyattaTypeChecker::validateType('ipv4net_negate', $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif (defined($self->{_address})) {
     my $str = $self->{_address};
+    return (undef, "\"$str\" is not a valid IP address")
+      if (!VyattaTypeChecker::validateType('ipv4_negate', $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
     my $start = $self->{_range_start};
+    my $stop = $self->{_range_stop};
+    return (undef, "\"$start-$stop\" is not a valid IP range")
+      if (!VyattaTypeChecker::validateType('ipv4_negate', $start, 1)
+          || !VyattaTypeChecker::validateType('ipv4', $stop, 1));
     my $negate = '';
     if ($self->{_range_start} =~ /^!(.*)$/) {
       $start = $1;
