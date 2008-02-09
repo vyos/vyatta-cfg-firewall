@@ -1,2 +1,0 @@
-type: ipv4; "destination range stop should be an IPv4 address"
-help: Configure destination range stop

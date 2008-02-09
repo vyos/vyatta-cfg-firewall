@@ -43,14 +43,21 @@ sub setup {
   $self->{_protocol}        = $config->returnValue(".. protocol");
 
   # setup address filter nodes
-  $self->{_range_start}     = $config->returnValue("range start");
-  $self->{_range_stop}      = $config->returnValue("range stop");
   $self->{_address}         = $config->returnValue("address");
   $self->{_network} = undef;
-  if (defined($self->{_address}) && ($self->{_address} =~ /\//)) {
-    $self->{_network} = $self->{_address};
-    $self->{_address} = undef;
+  $self->{_range_start} = undef;
+  $self->{_range_stop} = undef;
+  if (defined($self->{_address})) {
+    if ($self->{_address} =~ /\//) {
+      $self->{_network} = $self->{_address};
+      $self->{_address} = undef;
+    } elsif ($self->{_address} =~ /^([^-]+)-([^-]+)$/) {
+      $self->{_range_start} = $1;
+      $self->{_range_stop} = $2;
+      $self->{_address} = undef;
+    }
   }
+
   $self->{_port}         = $config->returnValue("port");
   $self->{_src_mac}  = $config->returnValue("mac-address");
 
@@ -68,14 +75,21 @@ sub setupOrig {
   $self->{_protocol}        = $config->returnOrigValue(".. protocol");
 
   # setup address filter nodes
-  $self->{_range_start}     = $config->returnOrigValue("range start");
-  $self->{_range_stop}      = $config->returnOrigValue("range stop");
   $self->{_address}         = $config->returnOrigValue("address");
   $self->{_network} = undef;
-  if (defined($self->{_address}) && ($self->{_address} =~ /\//)) {
-    $self->{_network} = $self->{_address};
-    $self->{_address} = undef;
+  $self->{_range_start} = undef;
+  $self->{_range_stop} = undef;
+  if (defined($self->{_address})) {
+    if ($self->{_address} =~ /\//) {
+      $self->{_network} = $self->{_address};
+      $self->{_address} = undef;
+    } elsif ($self->{_address} =~ /^([^-]+)-([^-]+)$/) {
+      $self->{_range_start} = $1;
+      $self->{_range_stop} = $2;
+      $self->{_address} = undef;
+    }
   }
+
   $self->{_port}         = $config->returnOrigValue("port");
   $self->{_src_mac}  = $config->returnValue("mac-address");
 
@@ -124,13 +138,17 @@ sub rule {
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
+    my $start = $self->{_range_start};
+    my $negate = '';
+    if ($self->{_range_start} =~ /^!(.*)$/) {
+      $start = $1;
+      $negate = '! '
+    }
     if ("$self->{_srcdst}" eq "source") { 
-      $rule .= ("-m iprange " 
-                . "--src-range $self->{_range_start}-$self->{_range_stop} ");
+      $rule .= ("-m iprange $negate--src-range $start-$self->{_range_stop} ");
     }
     elsif ("$self->{_srcdst}" eq "destination") { 
-      $rule .= ("-m iprange "
-                . "--dst-range $self->{_range_start}-$self->{_range_stop} ");
+      $rule .= ("-m iprange $negate--dst-range $start-$self->{_range_stop} ");
     }
   }
 

@@ -1,12 +1,9 @@
 type: txt
-help: Source address or subnet
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl \
-                           -q ipv4_negate '$VAR(@)' \
-                         || /opt/vyatta/sbin/vyatta-validate-type.pl \
-                              -q ipv4net_negate '$VAR(@)'" \
-                   ; "invalid source address \"$VAR(@)\""
+help: Source IP address, subnet, or range
 comp_help: Possible completions:
   <IP address>                  IP address to match
   <IP address>/<prefix length>  Subnet to match
+  <IP address>-<IP address>     IP range to match
   !<IP address>                 Match everything except the specified address
   !<IP address>/<prefix length> Match everything except the specified subnet
+  !<IP address>-<IP address>    Match everything except the specified range
