@@ -9,7 +9,6 @@ curver_DATA = cfg-version/firewall@2
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
 
-share_perl5_DATA += scripts/firewall/VyattaIpTablesAddressFilter.pm
 share_perl5_DATA += scripts/firewall/VyattaIpTablesRule.pm
 
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
