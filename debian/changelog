@@ -1,3 +1,31 @@
+vyatta-cfg-firewall (0.2) unstable; urgency=low
+
+  vc4.0.0
+  [ Mark O'Brien ]
+
+
+  [ An-Cheng Huang ]
+  * convert templates to new syntax
+  * fix for bug 2591: update help text
+  * fix for bug 2528: collapse source/destination "address" and
+    "network".
+  * fix for bug 2789: merge port configuration options.
+  * merge ports in show output
+  * merge address range into address
+  * add address validation
+  * move common module to vyatta-cfg
+
+  [ Bob Gilligan ]
+  * Extend firewall support to PPPOE interfaces.
+
+  [ Stig Thormodsrud ]
+  * Add firewall node to tunnel interface
+  * Remove vif node as it's not valid for tunnel interfaces.
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@vyatta.com>  Mon, 25 Feb 2008 17:38:04 -0800
+
 vyatta-cfg-firewall (0.1) unstable; urgency=low
 
   * Initial Release.
