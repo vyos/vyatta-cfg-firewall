@@ -109,8 +109,7 @@ sub update_rules() {
       # we could delete rule one by one if those are important.
       system("$logger Running: iptables -F $name");
       system("iptables -F $name 2>&1 | $logger");
-      system("$logger Running: iptables -A $name -j DROP");
-      system("iptables -A $name -j DROP 2>&1 | $logger");
+      add_default_drop_rule($name);
       next;
     }
 
@@ -340,6 +339,11 @@ sub setup_iptables() {
   return 0;
 }
 
+sub add_default_drop_rule {
+  my $chain = shift;
+  system("iptables -A $chain -j DROP 2>&1 | $logger");
+}
+
 sub setup_chain($) {
   my $chain = shift;
   my $configured = `iptables -n -L $chain 2>&1 | head -1`;
@@ -347,7 +351,7 @@ sub setup_chain($) {
   $_ = $configured;
   if (!/^Chain $chain/) {
     system("iptables --new-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --new-chain: $?\n";
-    system("iptables -A $chain -j DROP 2>&1 | $logger");
+    add_default_drop_rule($chain);
   }
 }
 
@@ -370,6 +374,8 @@ sub delete_chain($) {
     system("iptables --flush $chain 2>&1 | $logger") == 0        || die "iptables error: $chain --flush: $?\n";
     if (!chain_referenced($chain)) {
       system("iptables --delete-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --delete-chain: $?\n";
+    } else {
+      add_default_drop_rule($chain);
     }
   }
 }
