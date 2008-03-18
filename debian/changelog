@@ -1,3 +1,23 @@
+vyatta-cfg-firewall (0.3) unstable; urgency=low
+
+  VC4.0.1
+  [ Mark O'Brien ]
+
+
+  [ An-Cheng Huang ]
+  * fix a problem in the interaction between "firewall" and
+    "interfaces".
+
+  [ Stephen Hemminger ]
+  * Replace VPL with GPLv2
+  * Change to GPLv2
+  * Update debian/copyright for GPLv2
+  * update from VPL1 to GPLv2
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@vyatta.com>  Tue, 18 Mar 2008 16:58:58 -0700
+
 vyatta-cfg-firewall (0.2) unstable; urgency=low
 
   vc4.0.0
