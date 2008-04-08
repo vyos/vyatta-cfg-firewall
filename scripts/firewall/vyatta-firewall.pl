@@ -250,29 +250,44 @@ sub update_ints() {
     }
 
   my $grep = "| grep $int_name";
-  my $line = `iptables -L $direction -n -v --line-numbers | egrep ^[0-9] $grep`;
-  my ($num, $ignore, $ignore, $oldchain, $ignore, $ignore, $in, $out, $ignore, $ignore) = split /\s+/, $line;
-
-  if ("$action" eq "update") {
-    if (($num =~ /.+/) && (($dir_str eq "in" && $in eq $int_name)
-                           || ($dir_str eq "out" && $out eq $int_name)
-                           || ($dir_str eq "local"))) {
-      $action = "replace";
-      $rule = "--replace $direction $num $interface --jump $chain";
-    } else {
-      $rule = "--append $direction $interface --jump $chain";
+  my @lines
+    = `iptables -L $direction -n -v --line-numbers | egrep ^[0-9] $grep`;
+  my ($cmd, $num, $oldchain, $in, $out, $ignore)
+    = (undef, undef, undef, undef, undef, undef);
+  foreach (@lines) {
+    ($num, $ignore, $ignore, $oldchain, $ignore, $ignore, $in, $out,
+     $ignore, $ignore) = split /\s+/;
+    if (($dir_str eq 'in' && $in eq $int_name) 
+        || ($dir_str eq 'out' && $out eq $int_name)
+        || ($dir_str eq 'local' && $in eq $int_name)) {
+      # found a matching rule
+      if ($action eq 'update') {
+        # replace old rule
+        $action = 'replace';
+        $cmd = "--replace $direction $num $interface --jump $chain";
+      } else {
+        # delete old rule
+        $cmd = "--delete $direction $num";
+      }
+      last;
     }
   }
-  else {
-    $rule = "--$action $direction $num";
-  }   
-
-  system ("$logger Running: iptables $rule");
-  $ret = system("iptables $rule 2>&1 | $logger");
-  if ($ret >> 8) {
-    exit 1;
+  if (!defined($cmd)) {
+    # no matching rule
+    if ($action eq 'update') {
+      # add new rule
+      $cmd = "--append $direction $interface --jump $chain";
+    } else {
+      # delete non-existent rule!
+      die 'Error updating interfaces: no matching rule to delete';
+    }
   }
-  if ($action eq "replace" || $action eq "delete") {
+
+  system ("$logger Running: iptables $cmd");
+  system("iptables $cmd 2>&1 | $logger");
+  exit 1 if ($? >> 8);
+  
+  if ($action eq 'replace' || $action eq 'delete') {
     if (!chain_configured($oldchain)) {
       if (!chain_referenced($oldchain)) {
         delete_chain($oldchain);
