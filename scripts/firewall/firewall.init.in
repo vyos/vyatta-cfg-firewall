@@ -52,6 +52,12 @@ start () {
     # by default, nothing is tracked.
     iptables -t raw -A PREROUTING -j NOTRACK
     iptables -t raw -A OUTPUT -j NOTRACK
+    
+    # set up post-firewall hook
+    iptables -N VYATTA_POST_FW_HOOK
+    iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
+    iptables -A INPUT -j VYATTA_POST_FW_HOOK
+    iptables -A FORWARD -j VYATTA_POST_FW_HOOK
 }
 
 case "$ACTION" in

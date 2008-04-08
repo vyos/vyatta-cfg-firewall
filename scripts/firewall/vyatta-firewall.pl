@@ -275,8 +275,9 @@ sub update_ints() {
   if (!defined($cmd)) {
     # no matching rule
     if ($action eq 'update') {
-      # add new rule
-      $cmd = "--append $direction $interface --jump $chain";
+      # add new rule.
+      # there is a post-fw rule at the end. insert at the front.      
+      $cmd = "--insert $direction 1 $interface --jump $chain";
     } else {
       # delete non-existent rule!
       die 'Error updating interfaces: no matching rule to delete';
@@ -318,9 +319,9 @@ sub teardown_iptables() {
   foreach $chain (@chains) {
     # chains start with Chain 
     if ($chain =~ s/^Chain//) {
-      # all we need to do is make sure this is a user chain
-      # by looking at the references keyword and then
-      if ($chain =~ /references/) {
+      # make sure this is a user chain by looking at "references".
+      # make sure this is not a hook.
+      if (($chain =~ /references/) && !($chain =~ /VYATTA_\w+_HOOK/)) {
 	($chain) = split /\(/, $chain;
         $chain =~ s/\s//g;
         delete_chain("$chain");
