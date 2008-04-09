@@ -1,1 +1,1 @@
-help: Filter forwarded packets on outbound interface
+help: Set filter for forwarded packets on outbound interface

@@ -1,5 +1,5 @@
 type: txt
-help: use TCP syn cookies
+help: Set use TCP syn cookies (default: enable)
 default: "enable"
 syntax:expression: $VAR(@) in "enable", "disable"; "syn-cookies must be enable or disable"
 update:expression: "if [ x$VAR(@) == xenable ]; \

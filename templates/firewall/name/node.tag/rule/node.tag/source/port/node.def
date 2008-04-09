@@ -1,8 +1,8 @@
 type: txt
-help: Configure source port
+help: Set source port
 comp_help: Source port(s) can be specified as a comma-separated list of:
   <port name>           Named port (any name in /etc/services, e.g., http)
-  <port number>         Numbered port (between 1 and 65535)
+  <1-65535>             Numbered port
   <start>-<end>         Numbered port range (e.g., 1001-1005)
 The whole list can also be "negated" using '!'. For example:
   '!22,telnet,http,123,1001-1005'

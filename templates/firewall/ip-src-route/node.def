@@ -1,5 +1,5 @@
 type: txt
-help: Accept packets with SRR option
+help: Set acceptance for packets with SRR option (default: disable)
 default: "disable"
 syntax:expression: $VAR(@) in "enable", "disable"; "ip-src-route must be enable or disable"
 create:expression: "if [ x$VAR(@) == xenable ]; \

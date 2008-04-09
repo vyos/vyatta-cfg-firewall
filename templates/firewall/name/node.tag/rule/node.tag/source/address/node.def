@@ -1,9 +1,9 @@
 type: txt
-help: Source IP address, subnet, or range
+help: Set source IP address, subnet, or range
 comp_help: Possible completions:
-  <IP address>                  IP address to match
-  <IP address>/<prefix length>  Subnet to match
-  <IP address>-<IP address>     IP range to match
-  !<IP address>                 Match everything except the specified address
-  !<IP address>/<prefix length> Match everything except the specified subnet
-  !<IP address>-<IP address>    Match everything except the specified range
+  <x.x.x.x>                  IP address to match
+  <x.x.x.x/x>                Subnet to match
+  <x.x.x.x>-<x.x.x.x>        IP range to match
+  !<x.x.x.x>                 Match everything except the specified address
+  !<x.x.x.x/x>               Match everything except the specified subnet
+  !<x.x.x.x>-<x.x.x.x>       Match everything except the specified range

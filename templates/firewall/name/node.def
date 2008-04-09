@@ -1,4 +1,4 @@
 tag:
 type: txt
 syntax:expression: pattern $VAR(@) "^[^-]" ; "Firewall rule set name cannot start with \"-\""
-help: Configure firewall rule set name
+help: Set firewall rule set name

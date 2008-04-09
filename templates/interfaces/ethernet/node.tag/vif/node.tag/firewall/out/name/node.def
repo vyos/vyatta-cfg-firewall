@@ -1,6 +1,6 @@
 type: txt
 
-help: Outbound interface filter name
+help: Set outbound interface filter name
 
 create:expression: "sh -c \"echo create eth=[$VAR(../../../../@)] vif=[$VAR(../../../@)] \        dir=[$VAR(..)] name=[$VAR(@)] >> /tmp/cli.log && \
 sudo /opt/vyatta/sbin/vyatta-firewall.pl \

@@ -1,5 +1,5 @@
 type: txt
-help: ignore all ICMP ECHO and TIMESTAMP requests sent via broadcast/multicast
+help: Set ignorance of all ICMP ECHO and TIMESTAMP requests sent via broadcast/multicast (default: disable)
 default: "disable"
 syntax:expression: $VAR(@) in "enable", "disable"; "broadcast-ping must be enable or disable"
 create:expression: "if [ x$VAR(@) == xenable ]; \

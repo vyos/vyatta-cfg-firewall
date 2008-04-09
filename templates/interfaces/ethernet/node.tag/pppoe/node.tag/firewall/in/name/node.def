@@ -1,6 +1,6 @@
 type: txt
 
-help: Inbound interface filter name
+help: Set inbound interface filter name
 
 create:expression: "sh -c \"echo create pppoe=[$VAR(../../../@)] dir=[$VAR(..)] name=[$VAR(@)] \
 >> /tmp/cli.log && \
