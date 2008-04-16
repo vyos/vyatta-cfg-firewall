@@ -141,8 +141,8 @@ sub update_rules() {
             last;
           }
 	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
-          system ("iptables --insert $name $iptablesrule $_ 2>&1 | $logger") == 0
-            || die "iptables error: $? - $_\n";
+          system ("iptables --insert $name $iptablesrule $_");
+          die "iptables error: $! - $_" if ($? >> 8);
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "changed") {
@@ -164,8 +164,8 @@ sub update_rules() {
         my $ipt_rules = $oldnode->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
 	  system ("$logger Running: iptables --delete $name $iptablesrule");
-          system ("iptables --delete $name $iptablesrule 2>&1 | $logger") == 0
-            || die "iptables error: $? - $rule\n";
+          system ("iptables --delete $name $iptablesrule");
+          die "iptables error: $! - $rule" if ($? >> 8);
         }
        
         foreach (@rule_strs) {
@@ -173,8 +173,8 @@ sub update_rules() {
             last;
           }
 	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
-          system ("iptables --insert $name $iptablesrule $_ 2>&1 | $logger") == 0
-            || die "iptables error: $? - $rule_str\n";
+          system ("iptables --insert $name $iptablesrule $_");
+          die "iptables error: $! - $rule_str" if ($? >> 8);
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "deleted") {
@@ -184,8 +184,8 @@ sub update_rules() {
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
 	  system ("$logger Running: iptables --delete $name $iptablesrule");
-          system ("iptables --delete $name $iptablesrule 2>&1 | $logger") == 0
-            || die "iptables error: $? - $rule\n";
+          system ("iptables --delete $name $iptablesrule");
+          die "iptables error: $! - $rule" if ($? >> 8);
         }
       }
     }
@@ -284,7 +284,7 @@ sub update_ints() {
   }
 
   system ("$logger Running: iptables $cmd");
-  system("iptables $cmd 2>&1 | $logger");
+  system("iptables $cmd");
   exit 1 if ($? >> 8);
   
   if ($action eq 'replace' || $action eq 'delete') {
@@ -365,7 +365,8 @@ sub setup_chain($) {
 
   $_ = $configured;
   if (!/^Chain $chain/) {
-    system("iptables --new-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --new-chain: $?\n";
+    system("iptables --new-chain $chain");
+    die "iptables error: $chain --new-chain: $!" if ($? >> 8);
     add_default_drop_rule($chain);
   }
 }
@@ -386,9 +387,11 @@ sub delete_chain($) {
   my $configured = `iptables -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    system("iptables --flush $chain 2>&1 | $logger") == 0        || die "iptables error: $chain --flush: $?\n";
+    system("iptables --flush $chain");
+    die "iptables error: $chain --flush: $!" if ($? >> 8);
     if (!chain_referenced($chain)) {
-      system("iptables --delete-chain $chain 2>&1 | $logger") == 0 || die "iptables error: $chain --delete-chain: $?\n";
+      system("iptables --delete-chain $chain");
+      die "iptables error: $chain --delete-chain: $!" if ($? >> 8);
     } else {
       add_default_drop_rule($chain);
     }
