@@ -1,3 +1,16 @@
+vyatta-cfg-firewall (0.5) unstable; urgency=low
+
+  VC4.0.2
+  [ Mark O'Brien ]
+
+
+  [ An-Cheng Huang ]
+  * fix for bug 3127: look for an exact match to replace/delete.
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@vyatta.com>  Wed, 16 Apr 2008 09:49:51 -0700
+
 vyatta-cfg-firewall (0.4) unstable; urgency=low
 
   3.0.2
