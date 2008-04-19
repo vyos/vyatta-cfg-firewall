@@ -1,3 +1,18 @@
+vyatta-cfg-firewall (0.6) unstable; urgency=low
+
+  VC4.0.2
+  [ Mark O'Brien ]
+
+
+  [ An-Cheng Huang ]
+  * fix for bug 3167: get the actual return status from iptables.
+  * fix for bug 3167: disallow multiport specification if both source
+    and
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@vyatta.com>  Sat, 19 Apr 2008 11:55:56 -0700
+
 vyatta-cfg-firewall (0.5) unstable; urgency=low
 
   VC4.0.2
