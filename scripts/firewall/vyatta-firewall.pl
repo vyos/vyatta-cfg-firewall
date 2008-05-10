@@ -19,23 +19,64 @@ GetOptions("setup"             => \$setup,
 	   "update-interfaces=s{4}" => \@updateints,
 );
 
+# mapping from config node to iptables table
+my %table_hash = ( 'name'   => 'filter',
+                   'mangle' => 'mangle', );
+
+sub other_table {
+  my $this = shift;
+  return (($this eq 'filter') ? 'mangle' : 'filter');
+}
+
 if (defined $setup) {
   setup_iptables();
   exit 0;
 }
 
 if (defined $updaterules) {
-  update_rules();
+  foreach (keys %table_hash) {
+    update_rules($_);
+  }
   exit 0;
 }
 
 if ($#updateints == 3) {
-  update_ints(@updateints);
+  my ($action, $int_name, $direction, $chain) = @updateints;
+  my $tree = chain_configured(0, $chain, undef);
+  my $table = $table_hash{$tree};
+  if ($action eq "update") {
+    # make sure chain exists
+    if (!defined($tree)) {
+      # require chain to be configured in "firewall" first
+      print STDERR 'Firewall config error: ' .
+                   "Rule set \"$chain\" is not configured\n";
+      exit 1;
+    }
+    # chain must have been set up. no need to set up again.
+    # user may specify a chain in a different tree. try to delete it
+    # from the "other" tree first.
+    update_ints('delete', $int_name, $direction, $chain, other_table($table));
+    # do update action.
+    update_ints(@updateints, $table);
+  } else {
+    # delete
+    if (defined($tree)) {
+      update_ints(@updateints, $table);
+    } else {
+      # chain not configured. try both tables.
+      foreach (keys %table_hash) {
+        update_ints(@updateints, $table_hash{$_});
+      }
+    }
+  }
+
   exit 0;
 }
 
 if (defined $teardown) {
-  teardown_iptables();
+  foreach (keys %table_hash) {
+    teardown_iptables($table_hash{$_});
+  }
   exit 0;
 }
 
@@ -52,19 +93,21 @@ sub help() {
   print "\n";
 }
 
-sub update_rules() {
+sub update_rules($) {
+  my $tree = shift;
+  my $table = $table_hash{$tree};
   my $config = new VyattaConfig;
   my $name = undef;
   my %nodes = ();
 
   system ("$logger Executing update_rules.");
 
-  $config->setLevel("firewall name");
+  $config->setLevel("firewall $tree");
 
   %nodes = $config->listNodeStatus();
   if ((scalar (keys %nodes)) == 0) {
     # no names. teardown the user chains and return.
-    teardown_iptables();
+    teardown_iptables($table);
     return;
   }
   
@@ -74,11 +117,11 @@ sub update_rules() {
   for $name (keys %nodes) { 
     if ($nodes{$name} eq "static") {
       # not changed. check if stateful.
-      $config->setLevel("firewall name $name rule");
+      $config->setLevel("firewall $tree $name rule");
       my @rules = $config->listOrigNodes();
       foreach (sort numerically @rules) {
 	my $node = new VyattaIpTablesRule;
-        $node->setupOrig("firewall name $name rule $_");
+        $node->setupOrig("firewall $tree $name rule $_");
         if ($node->is_stateful()) {
           $stateful = 1;
           last;
@@ -87,18 +130,31 @@ sub update_rules() {
       next;
     } elsif ($nodes{$name} eq "added") {
       # create the chain
-      setup_chain("$name");
+      my $ctree = chain_configured(2, $name, $tree);
+      if (defined($ctree)) {
+        # chain name must be unique in both trees
+        print STDERR 'Firewall config error: '
+                     . "Rule set name \"$name\" already used in \"$ctree\"\n";
+        exit 1;
+      }
+      setup_chain($table, "$name");
       # handle the rules below.
     } elsif ($nodes{$name} eq "deleted") {
       # delete the chain
-      delete_chain("$name");
+      if (chain_referenced($table, $name)) {
+        # disallow deleting a chain if it's still referenced
+        print STDERR 'Firewall config error: '
+                     . "Cannot delete rule set \"$name\" (still in use)\n";
+        exit 1;
+      }
+      delete_chain($table, "$name");
       next;
     } elsif ($nodes{$name} eq "changed") {
       # handle the rules below.
     }
 
     # set our config level to rule and get the rule numbers 
-    $config->setLevel("firewall name $name rule");
+    $config->setLevel("firewall $tree $name rule");
 
     # Let's find the status of the rule nodes
     my %rulehash = ();
@@ -108,8 +164,8 @@ sub update_rules() {
       # note that this clears the counters on the default DROP rule.
       # we could delete rule one by one if those are important.
       system("$logger Running: iptables -F $name");
-      system("iptables -F $name 2>&1 | $logger");
-      add_default_drop_rule($name);
+      system("iptables -t $table -F $name 2>&1 | $logger");
+      add_default_drop_rule($table, $name);
       next;
     }
 
@@ -117,7 +173,7 @@ sub update_rules() {
     foreach $rule (sort numerically keys %rulehash) {
       if ("$rulehash{$rule}" eq "static") {
 	my $node = new VyattaIpTablesRule;
-        $node->setupOrig("firewall name $name rule $rule");
+        $node->setupOrig("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -126,7 +182,7 @@ sub update_rules() {
       } elsif ("$rulehash{$rule}" eq "added") {
 	# create a new iptables object of the current rule
 	my $node = new VyattaIpTablesRule;
-	$node->setup("firewall name $name rule $rule");
+	$node->setup("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -140,17 +196,17 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
-          system ("iptables --insert $name $iptablesrule $_");
+	  system ("$logger Insert iptables $table $name $iptablesrule $_");
+          system ("iptables -t $table --insert $name $iptablesrule $_");
           die "iptables error: $! - $_" if ($? >> 8);
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "changed") {
         # create a new iptables object of the current rule
         my $oldnode = new VyattaIpTablesRule;
-        $oldnode->setupOrig("firewall name $name rule $rule");
+        $oldnode->setupOrig("firewall $tree $name rule $rule");
         my $node = new VyattaIpTablesRule;
-        $node->setup("firewall name $name rule $rule");
+        $node->setup("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -163,8 +219,8 @@ sub update_rules() {
 
         my $ipt_rules = $oldnode->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-	  system ("$logger Running: iptables --delete $name $iptablesrule");
-          system ("iptables --delete $name $iptablesrule");
+	  system ("$logger Delete iptables $table $name $iptablesrule");
+          system ("iptables -t $table --delete $name $iptablesrule");
           die "iptables error: $! - $rule" if ($? >> 8);
         }
        
@@ -172,19 +228,19 @@ sub update_rules() {
           if (!defined) {
             last;
           }
-	  system ("$logger Running: iptables --insert $name $iptablesrule $_");
-          system ("iptables --insert $name $iptablesrule $_");
+	  system ("$logger Insert iptables $table $name $iptablesrule $_");
+          system ("iptables -t $table --insert $name $iptablesrule $_");
           die "iptables error: $! - $rule_str" if ($? >> 8);
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "deleted") {
 	my $node = new VyattaIpTablesRule;
-        $node->setupOrig("firewall name $name rule $rule");
+        $node->setupOrig("firewall $tree $name rule $rule");
 
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-	  system ("$logger Running: iptables --delete $name $iptablesrule");
-          system ("iptables --delete $name $iptablesrule");
+	  system ("$logger Delete iptables $table $name $iptablesrule");
+          system ("iptables -t $table --delete $name $iptablesrule");
           die "iptables error: $! - $rule" if ($? >> 8);
         }
       }
@@ -197,33 +253,44 @@ sub update_rules() {
   }
 }
 
-sub chain_configured($) {
-  my $chain = shift;
+# returns the "tree" in which the chain is configured; undef if not configured.
+# mode: 0: check if the chain is configured in either tree.
+#       1: check if it is configured in the specified tree.
+#       2: check if it is configured in the "other" tree.
+sub chain_configured($$$) {
+  my ($mode, $chain, $tree) = @_;
   
   my $config = new VyattaConfig;
   my %chains = ();
-  $config->setLevel("firewall name");
-  %chains = $config->listNodeStatus();
+  foreach (keys %table_hash) {
+    next if ($mode == 1 && $_ ne $tree);
+    next if ($mode == 2 && $_ eq $tree);
+ 
+    $config->setLevel("firewall $_");
+    %chains = $config->listNodeStatus();
 
-  if (grep(/^$chain$/, (keys %chains))) {
-    if ($chains{$chain} ne "deleted") {
-      return 1;
+    if (grep(/^$chain$/, (keys %chains))) {
+      if ($chains{$chain} ne "deleted") {
+        return $_;
+      }
     }
   }
-  return 0;
+  return undef;
 }
 
 sub update_ints() {
-  my ($action, $int_name, $direction, $chain) = @_;
+  my ($action, $int_name, $direction, $chain, $table) = @_;
   my $interface = undef;
  
-  if (! defined $action || ! defined $int_name || ! defined $direction || ! defined $chain) {
+  if (! defined $action || ! defined $int_name || ! defined $direction
+      || ! defined $chain || ! defined $table) {
     return -1;
   }
- 
-  if ($action eq "update") {
-    # make sure chain exists
-    setup_chain($chain);
+
+  if ($action ne 'delete' && $table eq 'mangle' && $direction =~ /^local/) {
+    print STDERR 'Firewall config error: ' .
+                 "Mangle rule set \"$chain\" cannot be used for \"local\"\n";
+    exit 1;
   }
 
   $_ = $direction;
@@ -231,27 +298,28 @@ sub update_ints() {
 
   CASE: {
     /^in/    && do {
-             $direction = "FORWARD";
+             $direction = ($table eq 'mangle') ? 'PREROUTING' : 'FORWARD';
              $interface = "--in-interface $int_name";
              last CASE;
              };
 
     /^out/   && do {   
-             $direction = "FORWARD";
+             $direction = ($table eq 'mangle') ? 'POSTROUTING' : 'FORWARD';
              $interface = "--out-interface $int_name";
              last CASE;
              };
 
     /^local/ && do {
+             # mangle disallowed above
              $direction = "INPUT";
              $interface = "--in-interface $int_name";
              last CASE;
              };
     }
 
-  my $grep = "| grep $int_name";
+  my $grep = "egrep ^[0-9] | grep $int_name";
   my @lines
-    = `iptables -L $direction -n -v --line-numbers | egrep ^[0-9] $grep`;
+    = `iptables -t $table -L $direction -n -v --line-numbers | $grep`;
   my ($cmd, $num, $oldchain, $in, $out, $ignore)
     = (undef, undef, undef, undef, undef, undef);
   foreach (@lines) {
@@ -280,18 +348,23 @@ sub update_ints() {
       $cmd = "--insert $direction 1 $interface --jump $chain";
     } else {
       # delete non-existent rule!
-      die 'Error updating interfaces: no matching rule to delete';
+      # not an error. rule may be in the other table.
     }
   }
 
-  system ("$logger Running: iptables $cmd");
-  system("iptables $cmd");
+  # no match. do nothing.
+  return 0 if (!defined($cmd));
+
+  system ("$logger Running: iptables -t $table $cmd");
+  system("iptables -t $table $cmd");
   exit 1 if ($? >> 8);
-  
+ 
+  # the following delete_chain is probably no longer necessary since we
+  # now disallow deleting a chain when it's still referenced
   if ($action eq 'replace' || $action eq 'delete') {
-    if (!chain_configured($oldchain)) {
-      if (!chain_referenced($oldchain)) {
-        delete_chain($oldchain);
+    if (!defined(chain_configured(2, $oldchain, undef))) {
+      if (!chain_referenced($table, $oldchain)) {
+        delete_chain($table, $oldchain);
       }
     }
   }
@@ -310,8 +383,9 @@ sub disable_fw_conntrack {
   system("iptables -t raw -R FW_CONNTRACK 1 -j RETURN 2>&1 | $logger");
 }
 
-sub teardown_iptables() {
-  my @chains = `iptables -L -n`;
+sub teardown_iptables($) {
+  my $table = shift;
+  my @chains = `iptables -L -n -t $table`;
   my $chain;
 
   # $chain is going to look like this...
@@ -324,7 +398,7 @@ sub teardown_iptables() {
       if (($chain =~ /references/) && !($chain =~ /VYATTA_\w+_HOOK/)) {
 	($chain) = split /\(/, $chain;
         $chain =~ s/\s//g;
-        delete_chain("$chain");
+        delete_chain($table, "$chain");
       }
     }
   }
@@ -346,7 +420,9 @@ sub teardown_iptables() {
 }
 
 sub setup_iptables() {
-  teardown_iptables();
+  foreach (keys %table_hash) {
+    teardown_iptables($table_hash{$_});
+  }
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
   system("iptables -t raw -N FW_CONNTRACK 2>&1 | $logger");
   system("iptables -t raw -A FW_CONNTRACK -j RETURN 2>&1 | $logger");
@@ -355,26 +431,26 @@ sub setup_iptables() {
   return 0;
 }
 
-sub add_default_drop_rule {
-  my $chain = shift;
-  system("iptables -A $chain -j DROP 2>&1 | $logger");
+sub add_default_drop_rule($$) {
+  my ($table, $chain) = @_;
+  system("iptables -t $table -A $chain -j DROP 2>&1 | $logger");
 }
 
-sub setup_chain($) {
-  my $chain = shift;
-  my $configured = `iptables -n -L $chain 2>&1 | head -1`;
+sub setup_chain($$) {
+  my ($table, $chain) = @_;
+  my $configured = `iptables -t $table -n -L $chain 2>&1 | head -1`;
 
   $_ = $configured;
   if (!/^Chain $chain/) {
-    system("iptables --new-chain $chain");
-    die "iptables error: $chain --new-chain: $!" if ($? >> 8);
-    add_default_drop_rule($chain);
+    system("iptables -t $table --new-chain $chain");
+    die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
+    add_default_drop_rule($table, $chain);
   }
 }
 
-sub chain_referenced($) {
-  my $chain = shift;
-  my $line = `iptables -n -L $chain |head -n1`;
+sub chain_referenced($$) {
+  my ($table, $chain) = @_;
+  my $line = `iptables -t $table -n -L $chain 2>/dev/null |head -n1`;
   if ($line =~ m/^Chain $chain \((\d+) references\)$/) {
     if ($1 > 0) {
       return 1;
@@ -383,18 +459,18 @@ sub chain_referenced($) {
   return 0;
 }
 
-sub delete_chain($) {
-  my $chain = shift;
-  my $configured = `iptables -n -L $chain 2>&1 | head -1`;
+sub delete_chain($$) {
+  my ($table, $chain) = @_;
+  my $configured = `iptables -t $table -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    system("iptables --flush $chain");
-    die "iptables error: $chain --flush: $!" if ($? >> 8);
-    if (!chain_referenced($chain)) {
-      system("iptables --delete-chain $chain");
-      die "iptables error: $chain --delete-chain: $!" if ($? >> 8);
+    system("iptables -t $table --flush $chain");
+    die "iptables error: $table $chain --flush: $!" if ($? >> 8);
+    if (!chain_referenced($table, $chain)) {
+      system("iptables -t $table --delete-chain $chain");
+      die "iptables error: $table $chain --delete-chain: $!" if ($? >> 8);
     } else {
-      add_default_drop_rule($chain);
+      add_default_drop_rule($table, $chain);
     }
   }
 }

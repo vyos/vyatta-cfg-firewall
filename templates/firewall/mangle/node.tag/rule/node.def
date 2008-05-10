@@ -1,0 +1,4 @@
+tag:
+type: u32
+help: Set firewall rule number (1-1024)
+syntax:expression: $VAR(@) > 0 && $VAR(@) < 1025; "firewall rule number must be between 1 and 1024"

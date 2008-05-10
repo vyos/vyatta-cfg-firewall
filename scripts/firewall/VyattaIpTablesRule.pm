@@ -20,6 +20,8 @@ my %fields = (
   _log         => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
+  _mod_mark    => undef,
+  _mod_dscp    => undef,
 );
 
 my %dummy_rule = (
@@ -35,6 +37,8 @@ my %dummy_rule = (
   _log         => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
+  _mod_mark    => undef,
+  _mod_dscp    => undef,
 );
 
 sub new {
@@ -75,6 +79,8 @@ sub setup {
   $self->{_log}       = $config->returnValue("log");
   $self->{_icmp_code} = $config->returnValue("icmp code");
   $self->{_icmp_type} = $config->returnValue("icmp type");
+  $self->{_mod_mark} = $config->returnValue("modify mark");
+  $self->{_mod_dscp} = $config->returnValue("modify dscp");
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setup("$level source");
@@ -104,6 +110,8 @@ sub setupOrig {
   $self->{_log}       = $config->returnOrigValue("log");
   $self->{_icmp_code} = $config->returnOrigValue("icmp code");
   $self->{_icmp_type} = $config->returnOrigValue("icmp type");
+  $self->{_mod_mark} = $config->returnOrigValue("modify mark");
+  $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setupOrig("$level source");
@@ -123,6 +131,8 @@ sub print {
   print "log: $self->{_log}\n"             if defined $self->{_log};
   print "icmp code: $self->{_icmp_code}\n" if defined $self->{_icmp_code};
   print "icmp type: $self->{_icmp_type}\n" if defined $self->{_icmp_type};
+  print "mod mark: $self->{_mod_mark}\n"   if defined $self->{_mod_mark};
+  print "mod dscp: $self->{_mod_dscp}\n"   if defined $self->{_mod_dscp};
 
   $src->print();
   $dst->print();
@@ -164,7 +174,8 @@ sub get_num_ipt_rules {
   my $ipt_rules = 1;
   if (("$self->{_log}" eq "enable") && (("$self->{_action}" eq "drop")
                                         || ("$self->{_action}" eq "accept")
-                                        || ("$self->{_action}" eq "reject"))) {
+                                        || ("$self->{_action}" eq "reject")
+                                        || ("$self->{_action}" eq "modify"))) {
     $ipt_rules += 1;
   }
   return $ipt_rules;
@@ -232,6 +243,29 @@ sub rule {
     $rule .= "-j RETURN ";
   } elsif ("$self->{_action}" eq "reject") {
     $rule .= "-j REJECT ";
+  } elsif ("$self->{_action}" eq 'modify') {
+    # mangle actions
+    my $count = 0;
+    if (defined($self->{_mod_mark})) {
+      # MARK
+      $rule .= "-j MARK --set-mark $self->{_mod_mark} ";
+      $count++;
+    }
+    if (defined($self->{_mod_dscp})) {
+      # DSCP
+      $rule .= "-j DSCP --set-dscp $self->{_mod_dscp} ";
+      $count++;
+    }
+    
+    # others
+
+    if ($count == 0) {
+      return ('Action "modify" requires more specific configuration under '
+              . 'the "modify" node', );
+    } elsif ($count > 1) {
+      return ('Cannot define more than one modification under '
+              . 'the "modify" node', );
+    }
   } else {
     return ("\"action\" must be defined", );
   }
