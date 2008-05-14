@@ -243,6 +243,8 @@ sub rule {
     $rule .= "-j RETURN ";
   } elsif ("$self->{_action}" eq "reject") {
     $rule .= "-j REJECT ";
+  } elsif ("$self->{_action}" eq 'inspect') {
+    $rule .= "-j QUEUE ";
   } elsif ("$self->{_action}" eq 'modify') {
     # mangle actions
     my $count = 0;
