@@ -22,6 +22,8 @@ my %fields = (
   _icmp_type   => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
+  _ipsec       => undef,
+  _non_ipsec   => undef,
 );
 
 my %dummy_rule = (
@@ -39,6 +41,8 @@ my %dummy_rule = (
   _icmp_type   => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
+  _ipsec       => undef,
+  _non_ipsec   => undef,
 );
 
 sub new {
@@ -81,6 +85,8 @@ sub setup {
   $self->{_icmp_type} = $config->returnValue("icmp type");
   $self->{_mod_mark} = $config->returnValue("modify mark");
   $self->{_mod_dscp} = $config->returnValue("modify dscp");
+  $self->{_ipsec} = $config->exists("ipsec match-ipsec");
+  $self->{_non_ipsec} = $config->exists("ipsec match-none");
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setup("$level source");
@@ -112,6 +118,8 @@ sub setupOrig {
   $self->{_icmp_type} = $config->returnOrigValue("icmp type");
   $self->{_mod_mark} = $config->returnOrigValue("modify mark");
   $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
+  $self->{_ipsec} = $config->existsOrig("ipsec match-ipsec");
+  $self->{_non_ipsec} = $config->existsOrig("ipsec match-none");
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setupOrig("$level source");
@@ -228,6 +236,15 @@ sub rule {
     }
   }
   $rule .= " $srcrule $dstrule ";
+
+  # note: "out" is not valid in the INPUT chain.
+  return ('Cannot specify both "match-ipsec" and "match-none"', )
+    if (defined($self->{_ipsec}) && defined($self->{_non_ipsec}));
+  if (defined($self->{_ipsec})) {
+    $rule .= ' -m policy --pol ipsec --dir in ';
+  } elsif (defined($self->{_non_ipsec})) {
+    $rule .= ' -m policy --pol none --dir in ';
+  }
 
   my $chain = $self->{_name};
   my $rule_num = $self->{_rule_number};
