@@ -12,6 +12,7 @@
 /debian/files
 /debian/vyatta-cfg-firewall.postinst
 /debian/vyatta-cfg-firewall
+/debian/vyatta-cfg-firewall.debhelper.log
 /scripts/firewall/firewall.init
 /INSTALL
 /Makefile.in
