@@ -21,7 +21,7 @@ GetOptions("setup"             => \$setup,
 
 # mapping from config node to iptables table
 my %table_hash = ( 'name'   => 'filter',
-                   'mangle' => 'mangle', );
+                   'modify' => 'mangle', );
 
 sub other_table {
   my $this = shift;
@@ -289,7 +289,8 @@ sub update_ints() {
 
   if ($action ne 'delete' && $table eq 'mangle' && $direction =~ /^local/) {
     print STDERR 'Firewall config error: ' .
-                 "Mangle rule set \"$chain\" cannot be used for \"local\"\n";
+                 "\"Modify\" rule set \"$chain\" cannot be used for " .
+                 "\"local\"\n";
     exit 1;
   }
 
