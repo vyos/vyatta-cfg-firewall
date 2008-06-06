@@ -1,0 +1,36 @@
+#
+# Config template for: firewall conntrack-table-size
+# 
+# Sets the size of the TCP connection tracking table in the netfilter
+# nf_conntrack module, which is used by firewall and NAT.  The size of
+# this table determines how many TCP connections can be simultaneously
+# tracked.  If new connections arrive and the table is full, older
+# connections will be dropped out of the table.  System administrators
+# must set the connection tracking table size based on the number of
+# connections they expect their system to track.  The connection
+# tracking table consumes kernel memory, so the size selected should
+# be no larger than necessary.
+#
+
+type: u32
+
+help: Set size of netfilter connection tracking table
+
+comp_help:Possible completions:
+  <1 - 50000000>\tNumber of entries allowed in connection tracking table
+
+syntax:expression: ($VAR(@) >= 1 && $VAR(@) <= 50000000) ; "Value must be between 1 and 50,000,000"
+
+update:
+	sudo sh -c "echo $VAR(@) > \
+    	 		/proc/sys/net/nf_conntrack_max"
+delete:
+	sudo sh -c "echo 32768 > \
+    	 		/proc/sys/net/nf_conntrack_max"
+
+
+
+
+
+
+
