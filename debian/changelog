@@ -1,3 +1,50 @@
+vyatta-cfg-firewall (0.10) unstable; urgency=low
+
+	  3.1.0
+  [ Mark O'Brien ]
+
+
+  [ Stephen Hemminger ]
+  * Use regular snmpd
+
+  [ Bob Gilligan ]
+  * Bugfix: 2120
+  * Bugfix: 2122
+
+  [ rbalocca ]
+  * Add vyatta-snmpd
+
+  [ An-Cheng Huang ]
+  * rename "mangle" to "modify"
+
+  [ rbalocca ]
+  * Ignore derived files
+
+  [ An-Cheng Huang ]
+  * allow firewall rule to match inbound IPsec packets.
+  * add "inspect" action (maps to QUEUE) so "custom" traffic-filter for
+    IPS
+  * add mangle table support to firewall configuration. initial
+    implementation
+
+  [ rbalocca ]
+  * Convert to our method of changelog creation
+
+  [ Bob Gilligan ]
+  * Add firewall templates for PPPOA, PPPOE, and classical IP over ATM,
+    on
+
+  [ Mohit Mehta ]
+  * Fix Bug 3069 Help strings should be standardized
+
+  [ An-Cheng Huang ]
+  * add post-firewall hook for other features
+  * fix for bug 3127: look for an exact match to replace/delete.
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@firebolt.vyatta.com>  Tue, 17 Jun 2008 09:26:05 -0700
+
 vyatta-cfg-firewall (0.9) unstable; urgency=low
 
   3.0.5
