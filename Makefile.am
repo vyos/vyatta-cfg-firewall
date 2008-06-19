@@ -4,7 +4,7 @@ curverdir = $(sysconfdir)/config-migrate/current
 
 sbin_SCRIPTS =
 share_perl5_DATA =
-curver_DATA = cfg-version/firewall@2
+curver_DATA = cfg-version/firewall@3
 
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
