@@ -24,6 +24,8 @@ my %fields = (
   _mod_dscp    => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
+  _recent_time => undef,
+  _recent_cnt  => undef,
 );
 
 my %dummy_rule = (
@@ -43,6 +45,8 @@ my %dummy_rule = (
   _mod_dscp    => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
+  _recent_time => undef,
+  _recent_cnt  => undef,
 );
 
 sub new {
@@ -87,6 +91,8 @@ sub setup {
   $self->{_mod_dscp} = $config->returnValue("modify dscp");
   $self->{_ipsec} = $config->exists("ipsec match-ipsec");
   $self->{_non_ipsec} = $config->exists("ipsec match-none");
+  $self->{_recent_time} = $config->returnValue('recent time');
+  $self->{_recent_cnt} = $config->returnValue('recent count');
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setup("$level source");
@@ -120,6 +126,8 @@ sub setupOrig {
   $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
   $self->{_ipsec} = $config->existsOrig("ipsec match-ipsec");
   $self->{_non_ipsec} = $config->existsOrig("ipsec match-none");
+  $self->{_recent_time} = $config->returnOrigValue('recent time');
+  $self->{_recent_cnt} = $config->returnOrigValue('recent count');
 
   # TODO: need $config->exists("$level source") in VyattaConfig.pm
   $src->setupOrig("$level source");
@@ -186,6 +194,9 @@ sub get_num_ipt_rules {
                                         || ("$self->{_action}" eq "modify"))) {
     $ipt_rules += 1;
   }
+  if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
+    $ipt_rules += 1;
+  }
   return $ipt_rules;
 }
 
@@ -246,6 +257,19 @@ sub rule {
     $rule .= ' -m policy --pol none --dir in ';
   }
 
+  my $recent_rule = undef;
+  if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
+    $recent_rule = $rule;
+    $rule .= ' -m recent --update ';
+    $recent_rule .= ' -m recent --set ';
+    if (defined($self->{_recent_time})) {
+      $rule .= " --seconds $self->{_recent_time} ";
+    }
+    if (defined($self->{_recent_cnt})) {
+      $rule .= " --hitcount $self->{_recent_cnt} ";
+    }
+  }
+
   my $chain = $self->{_name};
   my $rule_num = $self->{_rule_number};
   my $rule2 = undef;
@@ -292,8 +316,11 @@ sub rule {
     my $tmp = $rule2;
     $rule2 = $rule;
     $rule = $tmp;
+  } elsif (defined($recent_rule)) {
+    $rule2 = $recent_rule;
+    $recent_rule = undef;
   }
-  return (undef, $rule, $rule2, );
+  return (undef, $rule, $rule2, $recent_rule, );
 }
 
 sub outputXmlElem {
