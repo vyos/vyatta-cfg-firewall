@@ -33,6 +33,7 @@ if (defined $setup) {
   exit 0;
 }
 
+my $update_zero_count = 0;
 if (defined $updaterules) {
   foreach (keys %table_hash) {
     update_rules($_);
@@ -75,6 +76,7 @@ if ($#updateints == 3) {
 
 if (defined $teardown) {
   foreach (keys %table_hash) {
+    $update_zero_count += 1;
     teardown_iptables($table_hash{$_});
   }
   exit 0;
@@ -107,6 +109,7 @@ sub update_rules($) {
   %nodes = $config->listNodeStatus();
   if ((scalar (keys %nodes)) == 0) {
     # no names. teardown the user chains and return.
+    $update_zero_count += 1;
     teardown_iptables($table);
     return;
   }
@@ -405,6 +408,7 @@ sub teardown_iptables($) {
   }
  
   # remove the conntrack setup.
+  return if ($update_zero_count != scalar(keys %table_hash));
   my @lines
     = `iptables -t raw -L PREROUTING -vn --line-numbers | egrep ^[0-9]`;
   foreach (@lines) {
@@ -422,6 +426,7 @@ sub teardown_iptables($) {
 
 sub setup_iptables() {
   foreach (keys %table_hash) {
+    $update_zero_count += 1;
     teardown_iptables($table_hash{$_});
   }
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
