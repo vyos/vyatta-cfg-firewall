@@ -24,6 +24,8 @@ my %fields = (
   _mod_dscp    => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
+  _frag        => undef,
+  _non_frag    => undef,
   _recent_time => undef,
   _recent_cnt  => undef,
 );
@@ -45,6 +47,8 @@ my %dummy_rule = (
   _mod_dscp    => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
+  _frag        => undef,
+  _non_frag    => undef,
   _recent_time => undef,
   _recent_cnt  => undef,
 );
@@ -91,6 +95,8 @@ sub setup {
   $self->{_mod_dscp} = $config->returnValue("modify dscp");
   $self->{_ipsec} = $config->exists("ipsec match-ipsec");
   $self->{_non_ipsec} = $config->exists("ipsec match-none");
+  $self->{_frag} = $config->exists("fragment match-frag");
+  $self->{_non_frag} = $config->exists("fragment match-non-frag");
   $self->{_recent_time} = $config->returnValue('recent time');
   $self->{_recent_cnt} = $config->returnValue('recent count');
 
@@ -126,6 +132,8 @@ sub setupOrig {
   $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
   $self->{_ipsec} = $config->existsOrig("ipsec match-ipsec");
   $self->{_non_ipsec} = $config->existsOrig("ipsec match-none");
+  $self->{_frag} = $config->existsOrig("fragment match-frag");
+  $self->{_non_frag} = $config->existsOrig("fragment match-non-frag");
   $self->{_recent_time} = $config->returnOrigValue('recent time');
   $self->{_recent_cnt} = $config->returnOrigValue('recent count');
 
@@ -247,6 +255,14 @@ sub rule {
     }
   }
   $rule .= " $srcrule $dstrule ";
+
+  return ('Cannot specify both "match-frag" and "match-non-frag"', )
+    if (defined($self->{_frag}) && defined($self->{_non_frag}));
+  if (defined($self->{_frag})) {
+    $rule .= ' -f ';
+  } elsif (defined($self->{_non_frag})) {
+    $rule .= ' ! -f ';
+  }
 
   # note: "out" is not valid in the INPUT chain.
   return ('Cannot specify both "match-ipsec" and "match-none"', )
