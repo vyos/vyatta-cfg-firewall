@@ -58,6 +58,11 @@ start () {
     iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
     iptables -A INPUT -j VYATTA_POST_FW_HOOK
     iptables -A FORWARD -j VYATTA_POST_FW_HOOK
+
+    # set up pre-SNAT hook
+    iptables -t nat -N VYATTA_PRE_SNAT_HOOK
+    iptables -t nat -A VYATTA_PRE_SNAT_HOOK -j RETURN
+    iptables -t nat -A POSTROUTING -j VYATTA_PRE_SNAT_HOOK
 }
 
 case "$ACTION" in
