@@ -1,10 +1,10 @@
-package VyattaIpTablesRule;
+package Vyatta::IpTables::Rule;
 
 use VyattaConfig;
-use VyattaIpTablesAddressFilter;
+require Vyatta::IpTables::AddressFilter;
 
-my $src = new VyattaIpTablesAddressFilter;
-my $dst = new VyattaIpTablesAddressFilter;
+my $src = new Vyatta::IpTables::AddressFilter;
+my $dst = new Vyatta::IpTables::AddressFilter;
 
 my %fields = (
   _name	       => undef,
@@ -67,8 +67,8 @@ sub new {
 sub setupDummy {
   my $self = shift;
   %{$self} = %dummy_rule;
-  $src = new VyattaIpTablesAddressFilter;
-  $dst = new VyattaIpTablesAddressFilter;
+  $src = new Vyatta::IpTables::AddressFilter;
+  $dst = new Vyatta::IpTables::AddressFilter;
 }
 
 sub setup {
@@ -362,3 +362,4 @@ sub outputXml {
   $dst->outputXml("dst", $fh);  
 }
 
+1;

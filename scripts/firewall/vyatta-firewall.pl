@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
-use lib "/opt/vyatta/share/perl5/";
+use lib "/opt/vyatta/share/perl5";
 use VyattaConfig;
-use VyattaIpTablesRule;
-use VyattaIpTablesAddressFilter;
+use Vyatta::IpTables::Rule;
+use Vyatta::IpTables::AddressFilter;
 use Getopt::Long;
 
 # Send output of shell commands to syslog for debugging and so that
