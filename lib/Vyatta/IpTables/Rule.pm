@@ -1,6 +1,6 @@
 package Vyatta::IpTables::Rule;
 
-use VyattaConfig;
+use Vyatta::Config;
 require Vyatta::IpTables::AddressFilter;
 
 my $src = new Vyatta::IpTables::AddressFilter;
@@ -73,7 +73,7 @@ sub setupDummy {
 
 sub setup {
   my ( $self, $level ) = @_;
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
 
@@ -100,7 +100,7 @@ sub setup {
   $self->{_recent_time} = $config->returnValue('recent time');
   $self->{_recent_cnt} = $config->returnValue('recent count');
 
-  # TODO: need $config->exists("$level source") in VyattaConfig.pm
+  # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setup("$level source");
   $dst->setup("$level destination");
 
@@ -109,7 +109,7 @@ sub setup {
 
 sub setupOrig {
   my ( $self, $level ) = @_;
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
 
@@ -137,7 +137,7 @@ sub setupOrig {
   $self->{_recent_time} = $config->returnOrigValue('recent time');
   $self->{_recent_cnt} = $config->returnOrigValue('recent count');
 
-  # TODO: need $config->exists("$level source") in VyattaConfig.pm
+  # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setupOrig("$level source");
   $dst->setupOrig("$level destination");
 

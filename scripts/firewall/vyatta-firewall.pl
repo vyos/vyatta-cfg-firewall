@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use lib "/opt/vyatta/share/perl5";
-use VyattaConfig;
+use Vyatta::Config;
 use Vyatta::IpTables::Rule;
 use Vyatta::IpTables::AddressFilter;
 use Getopt::Long;
@@ -98,7 +98,7 @@ sub help() {
 sub update_rules($) {
   my $tree = shift;
   my $table = $table_hash{$tree};
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
   my $name = undef;
   my %nodes = ();
 
@@ -263,7 +263,7 @@ sub update_rules($) {
 sub chain_configured($$$) {
   my ($mode, $chain, $tree) = @_;
   
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
   my %chains = ();
   foreach (keys %table_hash) {
     next if ($mode == 1 && $_ ne $tree);
