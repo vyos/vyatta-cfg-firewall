@@ -22,7 +22,7 @@
 package Vyatta::IpTables::AddressFilter;
 
 require Vyatta::Config;
-use Vyatta::Misc;
+use Vyatta::Misc qw(getPortRuleString);
 use Vyatta::TypeChecker;
 
 use strict;
@@ -186,9 +186,9 @@ sub rule {
   }
 
   my ($port_str, $port_err)
-    = VyattaMisc::getPortRuleString($self->{_port}, $can_use_port,
-                                    ($self->{_srcdst} eq "source") ? "s" : "d",
-                                    $self->{_protocol});
+      = getPortRuleString($self->{_port}, $can_use_port,
+			  ($self->{_srcdst} eq "source") ? "s" : "d",
+			  $self->{_protocol});
   return (undef, $port_err) if (!defined($port_str));
   $rule .= $port_str;
   return ($rule, undef);
