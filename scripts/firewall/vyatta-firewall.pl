@@ -123,7 +123,7 @@ sub update_rules($) {
       $config->setLevel("firewall $tree $name rule");
       my @rules = $config->listOrigNodes();
       foreach (sort numerically @rules) {
-	my $node = new VyattaIpTablesRule;
+	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $_");
         if ($node->is_stateful()) {
           $stateful = 1;
@@ -175,7 +175,7 @@ sub update_rules($) {
     my $iptablesrule = 1;
     foreach $rule (sort numerically keys %rulehash) {
       if ("$rulehash{$rule}" eq "static") {
-	my $node = new VyattaIpTablesRule;
+	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
@@ -184,7 +184,7 @@ sub update_rules($) {
 	$iptablesrule += $ipt_rules;
       } elsif ("$rulehash{$rule}" eq "added") {
 	# create a new iptables object of the current rule
-	my $node = new VyattaIpTablesRule;
+	my $node = new Vyatta::IpTables::Rule;
 	$node->setup("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
@@ -206,9 +206,9 @@ sub update_rules($) {
         }
       } elsif ("$rulehash{$rule}" eq "changed") {
         # create a new iptables object of the current rule
-        my $oldnode = new VyattaIpTablesRule;
+        my $oldnode = new Vyatta::IpTables::Rule;
         $oldnode->setupOrig("firewall $tree $name rule $rule");
-        my $node = new VyattaIpTablesRule;
+        my $node = new Vyatta::IpTables::Rule;
         $node->setup("firewall $tree $name rule $rule");
         if ($node->is_stateful()) {
           $stateful = 1;
@@ -237,7 +237,7 @@ sub update_rules($) {
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "deleted") {
-	my $node = new VyattaIpTablesRule;
+	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $rule");
 
         my $ipt_rules = $node->get_num_ipt_rules();
