@@ -28,6 +28,15 @@ my %fields = (
   _non_frag    => undef,
   _recent_time => undef,
   _recent_cnt  => undef,
+  _p2p         => {
+                    _all   => undef,
+                    _apple => undef,
+                    _bit   => undef,
+                    _dc    => undef,
+                    _edk   => undef,
+                    _gnu   => undef,
+                    _kazaa => undef,
+                  },
 );
 
 my %dummy_rule = (
@@ -51,6 +60,15 @@ my %dummy_rule = (
   _non_frag    => undef,
   _recent_time => undef,
   _recent_cnt  => undef,
+  _p2p         => {
+                    _all   => undef,
+                    _apple => undef,
+                    _bit   => undef,
+                    _dc    => undef,
+                    _edk   => undef,
+                    _gnu   => undef,
+                    _kazaa => undef,
+                  },
 );
 
 sub new {
@@ -99,6 +117,14 @@ sub setup {
   $self->{_non_frag} = $config->exists("fragment match-non-frag");
   $self->{_recent_time} = $config->returnValue('recent time');
   $self->{_recent_cnt} = $config->returnValue('recent count');
+  
+  $self->{_p2p}->{_all} = $config->exists("p2p all");
+  $self->{_p2p}->{_apple} = $config->exists("p2p applejuice");
+  $self->{_p2p}->{_bit} = $config->exists("p2p bittorrent");
+  $self->{_p2p}->{_dc} = $config->exists("p2p directconnect");
+  $self->{_p2p}->{_edk} = $config->exists("p2p edonkey");
+  $self->{_p2p}->{_gnu} = $config->exists("p2p gnutella");
+  $self->{_p2p}->{_kazaa} = $config->exists("p2p kazaa");
 
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setup("$level source");
@@ -136,6 +162,14 @@ sub setupOrig {
   $self->{_non_frag} = $config->existsOrig("fragment match-non-frag");
   $self->{_recent_time} = $config->returnOrigValue('recent time');
   $self->{_recent_cnt} = $config->returnOrigValue('recent count');
+
+  $self->{_p2p}->{_all} = $config->existsOrig("p2p all");
+  $self->{_p2p}->{_apple} = $config->existsOrig("p2p applejuice");
+  $self->{_p2p}->{_bit} = $config->existsOrig("p2p bittorrent");
+  $self->{_p2p}->{_dc} = $config->existsOrig("p2p directconnect");
+  $self->{_p2p}->{_edk} = $config->existsOrig("p2p edonkey");
+  $self->{_p2p}->{_gnu} = $config->existsOrig("p2p gnutella");
+  $self->{_p2p}->{_kazaa} = $config->existsOrig("p2p kazaa");
 
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setupOrig("$level source");
@@ -284,6 +318,21 @@ sub rule {
     if (defined($self->{_recent_cnt})) {
       $rule .= " --hitcount $self->{_recent_cnt} ";
     }
+  }
+
+  my $p2p = undef;
+  if (defined($self->{_p2p}->{_all})) {
+    $p2p = '--apple --bit --dc --edk --gnu --kazaa ';
+  } else {
+    my @apps = qw(apple bit dc edk gnu kazaa);
+    foreach (@apps) {
+      if (defined($self->{_p2p}->{"_$_"})) {
+        $p2p .= "--$_ ";
+      }
+    }
+  }
+  if (defined($p2p)) {
+    $rule .= " -m ipp2p $p2p ";
   }
 
   my $chain = $self->{_name};
