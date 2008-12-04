@@ -1,3 +1,25 @@
+vyatta-cfg-firewall (0.13) unstable; urgency=low
+
+	  3.2.0
+  [ Mark O'Brien ]
+
+
+  [ Bob Gilligan ]
+  * Bugfix: 3684
+
+  [ Stephen Hemminger ]
+  * add firewall hooks for ethernet bonding
+
+  [ An-Cheng Huang ]
+  * fix for bug 3622: add pre-SNAT hook
+  * fix for bug 3604: add fragment matching options
+  * fix conntrack enabling mechanism
+  * fix for bug 2224: add "recent" matching
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@firebolt.vyatta.com>  Tue, 25 Nov 2008 19:08:40 -0800
+
 vyatta-cfg-firewall (0.12) unstable; urgency=low
 
 	  3.1.3
