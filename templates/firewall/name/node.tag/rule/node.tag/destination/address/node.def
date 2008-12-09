@@ -1,9 +1,11 @@
 type: txt
+
 help: Set destination IP address, subnet, or range
+
 comp_help: Possible completions:
-  <x.x.x.x>                 IP address to match
-  <x.x.x.x/x>               Subnet to match
-  <x.x.x.x>-<x.x.x.x>       IP range to match
+  <x.x.x.x>                 IPv4 address to match
+  <x.x.x.x/x>               IPv4 Subnet to match
+  <x.x.x.x>-<x.x.x.x>       IPv4 range to match
   !<x.x.x.x>                Match everything except the specified address
   !<x.x.x.x/x>              Match everything except the specified subnet
   !<x.x.x.x>-<x.x.x.x>      Match everything except the specified range 

@@ -1,5 +1,7 @@
 type: txt
+
 help: Set destination port
+
 comp_help: Destination port(s) can be specified as a comma-separated list of:
   <port name>           Named port (any name in /etc/services, e.g., http)
   <1-65535>             Numbered port

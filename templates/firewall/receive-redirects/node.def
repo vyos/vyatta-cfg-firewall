@@ -1,11 +1,28 @@
 type: txt
-help: Set receive ICMP redirects (default: disable)
+
+help: Set policy for handling received IPv4 ICMP redirect messages
+
+comp_help:Possible completions:
+  enable\tEnable processing of received IPv4 ICMP redirect messages
+  disable\tDisable processing of received IPv4 ICMP redirect messages
+
 default: "disable"
+
 syntax:expression: $VAR(@) in "enable", "disable"; "receive-redirects must be enable or disable"
-create:expression: "if [ x$VAR(@) == xenable ]; \
-            then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; \
-            else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; fi"
-update:expression: "if [ x$VAR(@) == xenable ]; \
-            then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; \
-            else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\"; fi"
-delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects\""
+
+create:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+        else
+	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+	fi
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+        else
+	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"

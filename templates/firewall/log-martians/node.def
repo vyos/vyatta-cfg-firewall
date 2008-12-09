@@ -1,11 +1,28 @@
 type: txt
-help: Set syslog logging of packets with impossible addresses (default: enable)
+
+help: Set policy for logging IPv4 packets with invalid addresses
+
+comp_help:Possible completions:
+  enable\tEnable logging of IPv4 packets with invalid addresses
+  disable\tDisable logging of Ipv4 packets with invalid addresses
+
 default: "enable"
+
 syntax:expression: $VAR(@) in "enable", "disable"; "log-martians must be enable or disable"
-create:expression: "if [ x$VAR(@) == xenable ]; \
-                 then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\"; \
-                 else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/log_martians\"; fi"
-update:expression: "if [ x$VAR(@) == xenable ]; \
-                 then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\"; \
-                 else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/log_martians\"; fi"
-delete:expression: "sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/log_martians\""
+
+create:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/log_martians"
+        else
+	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/log_martians"
+	fi
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/log_martians"
+        else
+	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/log_martians" 
+	fi
+
+delete:
+	sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/log_martians"

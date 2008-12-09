@@ -1,11 +1,34 @@
 type: txt
-help: Set ignorance of all ICMP ECHO and TIMESTAMP requests sent via broadcast/multicast (default: disable)
+
+help: Set handling of broadcast IPv4 ICMP echo and timestamp requests
+
+comp_help:Possible completions:
+  disable\tDisable processing of broadcast IPv4 ICMP echo/timestamp requests
+  enable\tEnable processing of broadcast IPv4 ICMP echo/timestamp requests
+
 default: "disable"
+
 syntax:expression: $VAR(@) in "enable", "disable"; "broadcast-ping must be enable or disable"
-create:expression: "if [ x$VAR(@) == xenable ]; \
-          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; \
-          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; fi"
-update:expression: "if [ x$VAR(@) == xenable ]; \
-          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; \
-          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\"; fi"
-delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts\""
+
+create:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+        else
+	    sudo sh -c "echo 0 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+	fi
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+        else
+	    sudo sh -c "echo 0 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > \
+	     /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
+

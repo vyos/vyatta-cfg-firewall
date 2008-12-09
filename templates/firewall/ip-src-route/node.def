@@ -1,11 +1,32 @@
 type: txt
-help: Set acceptance for packets with SRR option (default: disable)
+
+help: Set policy for handling IPv4 packets with source route option
+
+comp_help:Possible completions:
+  enable\tEnable processing of IPv4 packets with source route option
+  disable\tDisable processing of IPv4 packets with source route option
+
 default: "disable"
+
 syntax:expression: $VAR(@) in "enable", "disable"; "ip-src-route must be enable or disable"
-create:expression: "if [ x$VAR(@) == xenable ]; \
-          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
-          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
-update:expression: "if [ x$VAR(@) == xenable ]; \
-          then sudo sh -c \"echo 1 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; \
-          else sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\"; fi"
-delete:expression: "sudo sh -c \"echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route\""
+
+create:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > \
+	   	/proc/sys/net/ipv4/conf/all/accept_source_route"
+	else
+	    sudo sh -c "echo 0 > \
+		/proc/sys/net/ipv4/conf/all/accept_source_route"
+	fi
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > \
+		/proc/sys/net/ipv4/conf/all/accept_source_route"
+        else
+	    sudo sh -c "echo 0 > \
+		/proc/sys/net/ipv4/conf/all/accept_source_route"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route"
