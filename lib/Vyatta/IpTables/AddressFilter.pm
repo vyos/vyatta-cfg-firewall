@@ -196,6 +196,7 @@ sub rule {
 
 sub outputXmlElem {
   my ($name, $value, $fh) = @_;
+  return if ! defined $value;
   print $fh "    <$name>$value</$name>\n";
 }
 
