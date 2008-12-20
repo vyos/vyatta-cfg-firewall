@@ -3,6 +3,6 @@ help: Set protocol to match (protocol name in /etc/protocols or protocol number 
 syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl protocol_negate '$VAR(@)'" ; "invalid protocol \"$VAR(@)\""
 comp_help:Possible completions:
   <text>        An IP protocol name from /etc/protocols (e.g. "tcp" or "udp")
-  <0-255>       An IP protocol number
+  <1-255>       An IP protocol number
   all           All IP protocols
   !<protocol>   All IP protocols except for the specified name or number (negation)
