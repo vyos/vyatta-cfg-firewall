@@ -37,6 +37,7 @@ my %fields = (
                     _gnu   => undef,
                     _kazaa => undef,
                   },
+  _disable     => undef,
 );
 
 my %dummy_rule = (
@@ -69,6 +70,7 @@ my %dummy_rule = (
                     _gnu   => undef,
                     _kazaa => undef,
                   },
+  _disable     => undef,
 );
 
 sub new {
@@ -126,6 +128,8 @@ sub setup {
   $self->{_p2p}->{_gnu} = $config->exists("p2p gnutella");
   $self->{_p2p}->{_kazaa} = $config->exists("p2p kazaa");
 
+  $self->{_disable} = $config->exists("disable");
+
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setup("$level source");
   $dst->setup("$level destination");
@@ -171,6 +175,8 @@ sub setupOrig {
   $self->{_p2p}->{_gnu} = $config->existsOrig("p2p gnutella");
   $self->{_p2p}->{_kazaa} = $config->existsOrig("p2p kazaa");
 
+  $self->{_disable} = $config->existsOrig("disable");
+
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
   $src->setupOrig("$level source");
   $dst->setupOrig("$level destination");
@@ -199,6 +205,7 @@ sub print {
 
 sub is_stateful {
   my $self = shift;
+  return 0 if defined $self->{_disable};
   my @states = qw(established new related invalid);
   foreach (@states) {
     if (defined($self->{_state}->{"_$_"})
@@ -206,6 +213,12 @@ sub is_stateful {
       return 1;
     }
   }
+  return 0;
+}
+
+sub is_disabled {
+  my $self = shift;
+  return 1 if defined $self->{_disable};
   return 0;
 }
 
@@ -230,6 +243,7 @@ sub get_state_str {
 sub get_num_ipt_rules {
   my $self = shift;
   my $ipt_rules = 1;
+  return 0 if defined $self->{_disable};
   if (("$self->{_log}" eq "enable") && (("$self->{_action}" eq "drop")
                                         || ("$self->{_action}" eq "accept")
                                         || ("$self->{_action}" eq "reject")
@@ -385,6 +399,7 @@ sub rule {
     $rule2 = $recent_rule;
     $recent_rule = undef;
   }
+  return (undef, undef) if defined $self->{_disable};
   return (undef, $rule, $rule2, $recent_rule, );
 }
 
