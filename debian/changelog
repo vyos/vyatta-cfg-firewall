@@ -1,3 +1,41 @@
+vyatta-cfg-firewall (0.13.1) unstable; urgency=low
+
+  [ An-Cheng Huang ]
+  * add support for development build
+
+  [ Stephen Hemminger ]
+  * Rename VyattaIpTablesRule to Vyatta::IpTables::Rule
+  * Convert to Vyatta::Config
+  * Convert VyattaConfig to Vyatta::Config
+  * Fix reference to Vyatta::Misc
+
+  [ An-Cheng Huang ]
+  * fix for perl module reorganization
+  * add ipp2p config options
+
+  [ Stig Thormodsrud ]
+  * Convert to use Vyatta::
+
+  [ Bob Gilligan ]
+  * Cleanup firewall templates for readability.  Update help strings to
+    reflect IPv4.
+
+  [ Stig Thormodsrud ]
+  * Warning are now enabled - don't reference undefined values.
+
+  [ An-Cheng Huang ]
+  * update maintainer information
+  * "files" file should be removed before package build
+
+  [ Stig Thormodsrud ]
+  * Fix 3626: Not all protocol numbers are accepted in firewall rules.
+  * Fix 2563: Add firewall-rule specific disable configuration
+    parameter.
+
+  [ An-Cheng Huang ]
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Thu, 08 Jan 2009 09:20:14 -0800
+
 vyatta-cfg-firewall (0.13) unstable; urgency=low
 
 	  3.2.0
