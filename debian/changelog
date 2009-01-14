@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.2) unstable; urgency=low
+
+  * UNRELEASED
+  * Fix Bug 3653 Add the ability to configure time-based firewall rules
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 13 Jan 2009 18:09:11 -0800
+
 vyatta-cfg-firewall (0.13.1) unstable; urgency=low
 
   [ An-Cheng Huang ]
