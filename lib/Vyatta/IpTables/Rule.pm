@@ -37,6 +37,15 @@ my %fields = (
                     _gnu   => undef,
                     _kazaa => undef,
                   },
+  _time        => {
+                   _startdate => undef,
+                   _stopdate  => undef,
+                   _starttime => undef,
+                   _stoptime  => undef,
+                   _monthdays => undef,
+                   _weekdays  => undef,
+                   _utc       => undef,
+                  },
   _disable     => undef,
 );
 
@@ -69,6 +78,15 @@ my %dummy_rule = (
                     _edk   => undef,
                     _gnu   => undef,
                     _kazaa => undef,
+                  },
+  _time        => {
+                   _startdate => undef,
+                   _stopdate  => undef,
+                   _starttime => undef,
+                   _stoptime  => undef,
+                   _monthdays => undef,
+                   _weekdays  => undef,
+                   _utc       => undef,
                   },
   _disable     => undef,
 );
@@ -128,6 +146,14 @@ sub setup {
   $self->{_p2p}->{_gnu} = $config->exists("p2p gnutella");
   $self->{_p2p}->{_kazaa} = $config->exists("p2p kazaa");
 
+  $self->{_time}->{_startdate} = $config->returnValue("time startdate");
+  $self->{_time}->{_stopdate} = $config->returnValue("time stopdate");
+  $self->{_time}->{_starttime} = $config->returnValue("time starttime");
+  $self->{_time}->{_stoptime} = $config->returnValue("time stoptime");
+  $self->{_time}->{_monthdays} = $config->returnValue("time monthdays");
+  $self->{_time}->{_weekdays} = $config->returnValue("time weekdays");
+  $self->{_time}->{_utc} = $config->exists("time utc");
+
   $self->{_disable} = $config->exists("disable");
 
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
@@ -174,6 +200,14 @@ sub setupOrig {
   $self->{_p2p}->{_edk} = $config->existsOrig("p2p edonkey");
   $self->{_p2p}->{_gnu} = $config->existsOrig("p2p gnutella");
   $self->{_p2p}->{_kazaa} = $config->existsOrig("p2p kazaa");
+
+  $self->{_time}->{_startdate} = $config->returnOrigValue("time startdate");
+  $self->{_time}->{_stopdate} = $config->returnOrigValue("time stopdate");
+  $self->{_time}->{_starttime} = $config->returnOrigValue("time starttime");
+  $self->{_time}->{_stoptime} = $config->returnOrigValue("time stoptime");
+  $self->{_time}->{_monthdays} = $config->returnOrigValue("time monthdays");
+  $self->{_time}->{_weekdays} = $config->returnOrigValue("time weekdays");
+  $self->{_time}->{_utc} = $config->existsOrig("time utc");
 
   $self->{_disable} = $config->existsOrig("disable");
 
@@ -349,6 +383,62 @@ sub rule {
     $rule .= " -m ipp2p $p2p ";
   }
 
+  my $time = undef;
+  if (defined($self->{_time}->{_utc})) {
+      $time .= " --utc ";
+  }
+  if (defined($self->{_time}->{_startdate})) {
+  return ("Invalid startdate $self->{_time}->{_startdate}.
+Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19", )
+    if (!validate_timevalues($self->{_time}->{_startdate}, "date"));
+      $time .= " --datestart $self->{_time}->{_startdate} ";
+  }
+  if (defined($self->{_time}->{_stopdate})) {
+  return ("Invalid stopdate $self->{_time}->{_stopdate}.
+Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19", )
+    if (!validate_timevalues($self->{_time}->{_stopdate}, "date"));
+      $time .= " --datestop $self->{_time}->{_stopdate} ";
+  }
+  if (defined($self->{_time}->{_starttime})) {
+  return ("Invalid starttime $self->{_time}->{_starttime}.
+Time should use 24 hour notation hh:mm:ss and lie in between 00:00:00 and 23:59:59", )
+    if (!validate_timevalues($self->{_time}->{_starttime}, "time"));
+      $time .= " --timestart $self->{_time}->{_starttime} ";
+  }
+  if (defined($self->{_time}->{_stoptime})) {
+  return ("Invalid stoptime $self->{_time}->{_stoptime}.
+Time should use 24 hour notation hh:mm:ss and lie in between 00:00:00 and 23:59:59", )
+    if (!validate_timevalues($self->{_time}->{_stoptime}, "time"));
+      $time .= " --timestop $self->{_time}->{_stoptime} ";
+  }
+  if (defined($self->{_time}->{_monthdays})) {
+      my $negate = " ";
+      if ($self->{_time}->{_monthdays} =~ m/^!/) {
+          $negate = "! ";
+          $self->{_time}->{_monthdays} = substr $self->{_time}->{_monthdays}, 1;
+      }
+  return ("Invalid monthdays value $self->{_time}->{_monthdays}.
+Monthdays should have values between 1 and 31 with multiple days separated by commas
+eg. 2,12,21 For negation, add ! in front eg. !2,12,21", )
+    if (!validate_timevalues($self->{_time}->{_monthdays}, "monthdays"));
+      $time .= " $negate --monthdays $self->{_time}->{_monthdays} ";
+  }
+  if (defined($self->{_time}->{_weekdays})) {
+      my $negate = " ";
+      if ($self->{_time}->{_weekdays} =~ m/^!/) {
+          $negate = "! ";
+          $self->{_time}->{_weekdays} = substr $self->{_time}->{_weekdays}, 1;
+      }
+  return ("Invalid weekdays value $self->{_time}->{_weekdays}.
+Weekdays should be specified using the first three characters of the day with the
+first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mon,Thu,Sat", )
+    if (!validate_timevalues($self->{_time}->{_weekdays}, "weekdays"));
+      $time .= " $negate --weekdays $self->{_time}->{_weekdays} ";
+  }
+  if (defined($time)) {
+    $rule .= " -m time $time ";
+  }
+
   my $chain = $self->{_name};
   my $rule_num = $self->{_rule_number};
   my $rule2 = undef;
@@ -424,6 +514,48 @@ sub outputXml {
   
   $src->outputXml("src", $fh);  
   $dst->outputXml("dst", $fh);  
+}
+
+sub validate_timevalues {
+ my ($string, $type) = @_;
+ use Switch;
+ use Time::Local;
+ switch ($type) {
+  case "date"      { $string =~ s/-//g;
+                     my ($year, $month, $day) = unpack "A4 A2 A2", $string;
+                     eval { timelocal(0,0,0,$day, $month-1, $year);
+                            1;
+                          } or return 0;
+                   }
+
+  case "time"      { $string =~ s/://g;
+                     my ($hour, $min, $sec) = unpack "A2 A2 A2", $string;
+                     eval { timelocal($sec,$min,$hour, 01, 00, 1970);
+                            1;
+                          } or return 0;
+                   }
+
+  case "monthdays" { while($string =~ m/(\d+)/g) {
+                        if ($1 < 1 || $1 > 31) {
+                           return 0;
+                        }
+                     }
+                   }
+
+  case "weekdays"  { my @weekdays = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
+                     while($string =~ m/(\w+)/g) {
+                        if (!grep(/$1/,@weekdays)) {
+                           return 0;
+                        }
+                     }
+                   }
+
+  else             { print
+                     "Invalid type '$type' passed to sub validate_timevalues()\n";
+		     return 0;
+                   }
+ }
+  return 1;
 }
 
 1;

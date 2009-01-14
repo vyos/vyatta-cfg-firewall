@@ -1,0 +1,7 @@
+type: txt
+help: Set to apply rule till specified date
+syntax:expression: pattern $VAR(@) "^[[:digit:]]\{4\}[-][[:digit:]]\{2\}[-][[:digit:]]\{2\}$" ; \
+                   "Incorrect value for stopdate. Date should be entered as yyyy-mm-dd"
+
+comp_help: Format for date : yyyy-mm-dd
+
