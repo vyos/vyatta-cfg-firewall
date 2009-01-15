@@ -1,7 +1,12 @@
 type: txt
 help: Set to apply rule till specified date
-syntax:expression: pattern $VAR(@) "^[[:digit:]]\{4\}[-][[:digit:]]\{2\}[-][[:digit:]]\{2\}$" ; \
-                   "Incorrect value for stopdate. Date should be entered as yyyy-mm-dd"
+syntax:expression: pattern $VAR(@) "^[[:digit:]]\{4\}[-][[:digit:]]\{2\}[-][[:digit:]]\{2\}(T[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\})?$" ; \
+"Invalid value for stopdate. Date should use yyyy-mm-dd format. To specify time
+of date with stopdate, append 'T' to date followed by time in 24 hour notation
+hh:mm:ss. For example stopdate value of 2009-01-31T13:30:00 refers to
+31st Jan 2009 with time 13:30:00"
 
-comp_help: Format for date : yyyy-mm-dd
+comp_help: Format for date : yyyy-mm-dd. To specify time of date with stopdate,
+append 'T' to date followed by time in 24 hour notation hh:mm:ss. For eg
+stopdate value of 2009-01-31T13:30:00 refers to 31st Jan 2009 with time 13:30:00
 

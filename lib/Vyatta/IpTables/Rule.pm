@@ -388,16 +388,18 @@ sub rule {
       $time .= " --utc ";
   }
   if (defined($self->{_time}->{_startdate})) {
-  return ("Invalid startdate $self->{_time}->{_startdate}.
-Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19", )
-    if (!validate_timevalues($self->{_time}->{_startdate}, "date"));
-      $time .= " --datestart $self->{_time}->{_startdate} ";
+   my $check_date = validate_date($self->{_time}->{_startdate}, "startdate");
+   if (!($check_date eq "")) {
+     return ($check_date, );
+   }
+   $time .= " --datestart $self->{_time}->{_startdate} ";
   }
   if (defined($self->{_time}->{_stopdate})) {
-  return ("Invalid stopdate $self->{_time}->{_stopdate}.
-Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19", )
-    if (!validate_timevalues($self->{_time}->{_stopdate}, "date"));
-      $time .= " --datestop $self->{_time}->{_stopdate} ";
+   my $check_date = validate_date($self->{_time}->{_stopdate}, "stopdate");
+   if (!($check_date eq "")) {
+     return ($check_date, );
+   }
+   $time .= " --datestop $self->{_time}->{_stopdate} ";
   }
   if (defined($self->{_time}->{_starttime})) {
   return ("Invalid starttime $self->{_time}->{_starttime}.
@@ -556,6 +558,26 @@ sub validate_timevalues {
                    }
  }
   return 1;
+}
+
+sub validate_date {
+
+ my ($date, $string) = @_;
+ if ($date =~ m/T/) {
+     my $actualdate = substr $date, 0 , 10;
+     my $datetime = substr $date, 11;
+     return ("Invalid  $string $actualdate.
+Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19")
+     if (!validate_timevalues($actualdate, "date"));
+     return ("Invalid time $datetime for $string $actualdate.
+Time should use 24 hour notation hh:mm:ss and lie in between 00:00:00 and 23:59:59")
+     if (!validate_timevalues($datetime, "time"));
+   } else {
+      return ("Invalid $string $date.
+Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19")
+      if (!validate_timevalues($date, "date"));
+   }
+ return ("");
 }
 
 1;
