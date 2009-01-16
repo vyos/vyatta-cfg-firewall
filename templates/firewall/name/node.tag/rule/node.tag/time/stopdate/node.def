@@ -1,5 +1,5 @@
 type: txt
-help: Set to apply rule till specified date
+help: Set to match rule until the given date
 syntax:expression: pattern $VAR(@) "^[[:digit:]]\{4\}[-][[:digit:]]\{2\}[-][[:digit:]]\{2\}(T[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\})?$" ; \
 "Invalid value for stopdate. Date should use yyyy-mm-dd format. To specify time
 of date with stopdate, append 'T' to date followed by time in 24 hour notation

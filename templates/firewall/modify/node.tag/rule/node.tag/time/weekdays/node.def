@@ -1,5 +1,5 @@
 type: txt
-help: Set weekdays on which to apply rules on
+help: Set weekdays on which to match rules on
 syntax:expression: pattern $VAR(@) "^!?([[:upper:]][[:lower:]]\{2\}\,)*[[:upper:]][[:lower:]]\{2\}$" ; \
 "Incorrect value for weekdays. Weekdays should be specified using the first
 three characters of the day with the first character capitalized eg. Mon,Thu,Sat
