@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.4) unstable; urgency=low
+
+  * Initial support for IPv6.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Thu, 22 Jan 2009 13:36:29 -0800
+
 vyatta-cfg-firewall (0.13.3) unstable; urgency=low
 
   * UNRELEASED
