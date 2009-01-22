@@ -44,6 +44,7 @@ my %fields = (
   _port            => undef,
   _protocol        => undef,
   _src_mac         => undef,
+  _name		   => undef,
 );
 
 sub new {
@@ -62,6 +63,8 @@ sub setup {
   my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
+
+  $self->{_name}        = $config->returnParent(".. .. .. .. ..");
 
   # setup needed parent nodes
   $self->{_srcdst}          = $config->returnParent("..");
@@ -94,6 +97,8 @@ sub setupOrig {
   my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
+
+  $self->{_name}        = $config->returnParent(".. .. .. .. ..");
 
   # setup needed parent nodes
   $self->{_srcdst}          = $config->returnParent("..");
@@ -140,6 +145,30 @@ sub rule {
   my ($self) = @_;
   my $rule = "";
   my $can_use_port = 1;
+
+  my $addr_checker;
+  my $prefix_checker;
+  my $ip_term;
+  my $prefix_term;
+
+  if (($self->{_name} eq "name") || ($self->{_name} eq "modify")) {
+    # This is an IPv4 rule
+
+    $addr_checker = 'ipv4_negate';
+    $prefix_checker = 'ipv4net_negate';
+    $ip_term = "IPv4";
+    $prefix_term = "subnet";
+  } elsif (($self->{_name} eq "ipv6-name") || 
+           ($self->{_name} eq "ipv6-modify")) {
+    # This is an IPv6 rule
+
+    $addr_checker = 'ipv6_negate';
+    $prefix_checker = 'ipv6net_negate';
+    $ip_term = "IPv6";
+    $prefix_term = "prefix"
+  } else {
+    return (undef, "Invalid firewall tree: $self->{_name}");
+  }
   
   if (!defined($self->{_protocol})
       || !defined($_protocolswithports{$self->{_protocol}})) {
@@ -156,17 +185,18 @@ sub rule {
   # set the address filter parameters
   if (defined($self->{_network})) {
     my $str = $self->{_network};
-    return (undef, "\"$str\" is not a valid IP subnet")
-      if (!Vyatta::TypeChecker::validateType('ipv4net_negate', $str, 1));
+    return (undef, "\"$str\" is not a valid $ip_term $prefix_term")
+      if (!Vyatta::TypeChecker::validateType($prefix_checker, $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif (defined($self->{_address})) {
     my $str = $self->{_address};
-    return (undef, "\"$str\" is not a valid IP address")
-      if (!Vyatta::TypeChecker::validateType('ipv4_negate', $str, 1));
+    return (undef, "\"$str\" is not a valid $ip_term address")
+      if (!Vyatta::TypeChecker::validateType($addr_checker, $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
+    # Ranges are supported for IPv4 only
     my $start = $self->{_range_start};
     my $stop = $self->{_range_stop};
     return (undef, "\"$start-$stop\" is not a valid IP range")
@@ -209,3 +239,8 @@ sub outputXml {
   outputXmlElem("${prefix}_port", $self->{_port}, $fh);
 }
 
+# Local Variables:
+# mode: perl
+# indent-tabs-mode: nil
+# perl-indent-level: 2
+# End:

@@ -1,0 +1,3 @@
+type: txt
+help: Set related state
+syntax:expression: $VAR(@) in "enable", "disable" ; "state value must be enable or disable"

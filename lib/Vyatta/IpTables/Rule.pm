@@ -581,3 +581,9 @@ Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19")
 }
 
 1;
+
+# Local Variables:
+# mode: perl
+# indent-tabs-mode: nil
+# perl-indent-level: 2
+# End:
