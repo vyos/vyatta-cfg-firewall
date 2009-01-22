@@ -46,6 +46,10 @@ my %fields = (
                    _weekdays  => undef,
                    _utc       => undef,
                   },
+  _limit       => {
+                    _rate     => undef,
+                    _burst    => undef,
+                  },
   _disable     => undef,
 );
 
@@ -87,6 +91,10 @@ my %dummy_rule = (
                    _monthdays => undef,
                    _weekdays  => undef,
                    _utc       => undef,
+                  },
+  _limit       => {
+                    _rate     => undef,
+                    _burst    => undef,
                   },
   _disable     => undef,
 );
@@ -154,6 +162,9 @@ sub setup {
   $self->{_time}->{_weekdays} = $config->returnValue("time weekdays");
   $self->{_time}->{_utc} = $config->exists("time utc");
 
+  $self->{_limit}->{_rate} = $config->returnValue("limit rate");
+  $self->{_limit}->{_burst} = $config->returnValue("limit burst");
+
   $self->{_disable} = $config->exists("disable");
 
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
@@ -208,6 +219,9 @@ sub setupOrig {
   $self->{_time}->{_monthdays} = $config->returnOrigValue("time monthdays");
   $self->{_time}->{_weekdays} = $config->returnOrigValue("time weekdays");
   $self->{_time}->{_utc} = $config->existsOrig("time utc");
+
+  $self->{_limit}->{_rate} = $config->returnOrigValue("limit rate");
+  $self->{_limit}->{_burst} = $config->returnOrigValue("limit burst");
 
   $self->{_disable} = $config->existsOrig("disable");
 
@@ -439,6 +453,17 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
   }
   if (defined($time)) {
     $rule .= " -m time $time ";
+  }
+
+  my $limit = undef;
+  if (defined($self->{_limit}->{_burst})) {
+    return ("Limit rate not defined", ) if (!defined($self->{_limit}->{_rate}));
+    $limit = "--limit $self->{_limit}->{_rate} --limit-burst $self->{_limit}->{_burst}";
+  } elsif (defined($self->{_limit}->{_rate})) {
+     $limit = "--limit $self->{_limit}->{_rate} --limit-burst 1";
+  }
+  if (defined($limit)) {
+    $rule .= " -m limit $limit ";
   }
 
   my $chain = $self->{_name};

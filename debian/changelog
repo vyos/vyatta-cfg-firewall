@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.3) unstable; urgency=low
+
+  * UNRELEASED
+  * - Fix Bug 2223 Add rate rate limiting / burst limiting functions to
+    the Vyatta firewall
+  * Fix Bug 3653 Add the ability to configure time-based firewall rules
+  * Fix Bug 3653 Add the ability to configure time-based firewall rules
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 16 Jan 2009 18:33:11 -0800
+
 vyatta-cfg-firewall (0.13.2) unstable; urgency=low
 
   * UNRELEASED
