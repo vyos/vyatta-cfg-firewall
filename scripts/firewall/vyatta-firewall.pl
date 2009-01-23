@@ -41,6 +41,13 @@ my %cmd_hash = ( 'name'        => 'iptables',
 		 'modify'      => 'iptables',
                  'ipv6-modify' => 'ip6tables');
 
+# mapping from config node to IP version string.
+my %ip_version_hash = ( 'name'        => 'ipv4',
+                        'ipv6-name'   => 'ipv6',
+                        'modify'      => 'ipv4',
+                        'ipv6-modify' => 'ipv6');
+
+
 sub other_table {
   my $this = shift;
   return (($this eq 'filter') ? 'mangle' : 'filter');
@@ -195,6 +202,7 @@ sub update_rules($) {
       foreach (sort numerically @rules) {
 	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $_");
+        $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
           $stateful = 1;
           last;
@@ -252,6 +260,7 @@ sub update_rules($) {
       if ("$rulehash{$rule}" eq "static") {
 	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $rule");
+        $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -261,6 +270,7 @@ sub update_rules($) {
 	# create a new iptables object of the current rule
 	my $node = new Vyatta::IpTables::Rule;
 	$node->setup("firewall $tree $name rule $rule");
+        $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -286,8 +296,10 @@ sub update_rules($) {
         # create a new iptables object of the current rule
         my $oldnode = new Vyatta::IpTables::Rule;
         $oldnode->setupOrig("firewall $tree $name rule $rule");
+        $oldnode->set_ip_version($ip_version_hash{$tree});
         my $node = new Vyatta::IpTables::Rule;
         $node->setup("firewall $tree $name rule $rule");
+        $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
           $stateful = 1;
         }
@@ -321,6 +333,7 @@ sub update_rules($) {
       } elsif ("$rulehash{$rule}" eq "deleted") {
 	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $rule");
+        $node->set_ip_version($ip_version_hash{$tree});
 
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {

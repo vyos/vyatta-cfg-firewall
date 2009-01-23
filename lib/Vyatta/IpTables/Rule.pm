@@ -51,6 +51,7 @@ my %fields = (
                     _burst    => undef,
                   },
   _disable     => undef,
+  _ip_version  => undef,
 );
 
 my %dummy_rule = (
@@ -97,6 +98,7 @@ my %dummy_rule = (
                     _burst    => undef,
                   },
   _disable     => undef,
+  _ip_version  => undef,
 );
 
 sub new {
@@ -171,6 +173,8 @@ sub setup {
   $src->setup("$level source");
   $dst->setup("$level destination");
 
+  # Default to IPv4
+  $self->{_ip_version} = "ipv4";
   return 0;
 }
 
@@ -229,9 +233,19 @@ sub setupOrig {
   $src->setupOrig("$level source");
   $dst->setupOrig("$level destination");
 
+  # Default to IPv4
+  $self->{_ip_version} = "ipv4";
   return 0;
 }
 
+sub set_ip_version {
+  my ($self, $ip_version) = @_;
+
+  $self->{_ip_version} = $ip_version;
+  $src->set_ip_version($ip_version);
+  $dst->set_ip_version($ip_version);
+}
+  
 sub print {
   my ( $self ) = @_;
 

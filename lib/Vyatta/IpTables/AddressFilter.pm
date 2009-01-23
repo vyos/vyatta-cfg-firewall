@@ -44,7 +44,7 @@ my %fields = (
   _port            => undef,
   _protocol        => undef,
   _src_mac         => undef,
-  _name		   => undef,
+  _ip_version	   => undef,
 );
 
 sub new {
@@ -58,13 +58,20 @@ sub new {
   return $self;
 }
 
+sub set_ip_version($$) {
+  my ($self, $ip_version) = @_;
+
+  $self->{_ip_version} = $ip_version;
+}
+
 sub setup {
   my ($self, $level) = @_;
   my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
 
-  $self->{_name}        = $config->returnParent(".. .. .. .. ..");
+  # Default to IPv4.  
+  $self->{_ip_version}        = "ipv4";
 
   # setup needed parent nodes
   $self->{_srcdst}          = $config->returnParent("..");
@@ -98,7 +105,8 @@ sub setupOrig {
 
   $config->setLevel("$level");
 
-  $self->{_name}        = $config->returnParent(".. .. .. .. ..");
+  # Default to IPv4.
+  $self->{_ip_version}        = "ipv4";
 
   # setup needed parent nodes
   $self->{_srcdst}          = $config->returnParent("..");
@@ -151,15 +159,14 @@ sub rule {
   my $ip_term;
   my $prefix_term;
 
-  if (($self->{_name} eq "name") || ($self->{_name} eq "modify")) {
+  if ($self->{_ip_version} eq "ipv4") {
     # This is an IPv4 rule
 
     $addr_checker = 'ipv4_negate';
     $prefix_checker = 'ipv4net_negate';
     $ip_term = "IPv4";
     $prefix_term = "subnet";
-  } elsif (($self->{_name} eq "ipv6-name") || 
-           ($self->{_name} eq "ipv6-modify")) {
+  } elsif ($self->{_ip_version} eq "ipv6") {
     # This is an IPv6 rule
 
     $addr_checker = 'ipv6_negate';
@@ -167,7 +174,7 @@ sub rule {
     $ip_term = "IPv6";
     $prefix_term = "prefix"
   } else {
-    return (undef, "Invalid firewall tree: $self->{_name}");
+    return (undef, "Invalid IP version: $self->{_ip_version}");
   }
   
   if (!defined($self->{_protocol})
