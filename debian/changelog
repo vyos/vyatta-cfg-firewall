@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.5) unstable; urgency=low
+
+  * Bugfix 4062: Don't reference parameters outside the config tree.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Fri, 23 Jan 2009 14:09:27 -0800
+
 vyatta-cfg-firewall (0.13.4) unstable; urgency=low
 
   * Initial support for IPv6.
