@@ -18,6 +18,7 @@ my %fields = (
                   },
   _action      => undef,
   _log         => undef,
+  _tcp_flags   => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
   _mod_mark    => undef,
@@ -65,6 +66,7 @@ my %dummy_rule = (
                   },
   _action      => "DROP",
   _log         => undef,
+  _tcp_flags   => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
   _mod_mark    => undef,
@@ -137,6 +139,7 @@ sub setup {
   $self->{_state}->{_invalid} = $config->returnValue("state invalid");
   $self->{_action}    = $config->returnValue("action");
   $self->{_log}       = $config->returnValue("log");
+  $self->{_tcp_flags} = $config->returnValue("tcp flags");
   $self->{_icmp_code} = $config->returnValue("icmp code");
   $self->{_icmp_type} = $config->returnValue("icmp type");
   $self->{_mod_mark} = $config->returnValue("modify mark");
@@ -197,6 +200,7 @@ sub setupOrig {
   $self->{_state}->{_invalid} = $config->returnOrigValue("state invalid");
   $self->{_action}    = $config->returnOrigValue("action");
   $self->{_log}       = $config->returnOrigValue("log");
+  $self->{_tcp_flags} = $config->returnOrigValue("tcp flags");
   $self->{_icmp_code} = $config->returnOrigValue("icmp code");
   $self->{_icmp_type} = $config->returnOrigValue("icmp type");
   $self->{_mod_mark} = $config->returnOrigValue("modify mark");
@@ -335,6 +339,19 @@ sub rule {
   my $state_str = uc (get_state_str($self));
   if ($state_str ne "") {
     $rule .= "-m state --state $state_str ";
+  }
+
+  # set tcp flags if applicable
+  my $tcp_flags = undef;
+  if (defined $self->{_tcp_flags}) {
+   if (($self->{_protocol} eq "tcp") || ($self->{_protocol} eq "6")) {
+      $tcp_flags = get_tcp_flags_string($self->{_tcp_flags});
+    } else {
+      return ("TCP flags can only be set if protocol is set to TCP", );
+    }
+  }
+  if (defined($tcp_flags)) {
+    $rule .= " -m tcp --tcp-flags $tcp_flags ";
   }
 
   # set the icmp code and type if applicable
@@ -617,6 +634,28 @@ Date should use yyyy-mm-dd format and lie in between 1970-01-01 and 2038-01-19")
       if (!validate_timevalues($date, "date"));
    }
  return ("");
+}
+
+sub get_tcp_flags_string {
+
+ my $string = shift;
+ my @list_of_flags = (); # list of tcp flags to be examined
+ my @list_of_set_flags = (); # list of flags which must be set
+
+ my @string_list = split(/,/, $string);
+ while(@string_list) {
+  if (!grep(/!/,$string_list[0])) {
+   push @list_of_flags, $string_list[0];
+   push @list_of_set_flags, $string_list[0];
+  } else {
+    $string_list[0] =~ s/!//g;
+    push @list_of_flags, $string_list[0];
+  }
+  shift(@string_list);
+ }
+
+ push @list_of_set_flags, 'NONE' if @list_of_set_flags == ();
+ return join(",",@list_of_flags) . " " . join(",",@list_of_set_flags);
 }
 
 1;

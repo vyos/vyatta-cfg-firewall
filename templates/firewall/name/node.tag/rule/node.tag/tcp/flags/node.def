@@ -1,0 +1,12 @@
+type: txt
+help: Set TCP flags to match
+syntax:expression: pattern $VAR(@) "^((!?ALL)|((!?(SYN|ACK|FIN|RST|PSH|URG),)*(!?(SYN|ACK|FIN|RST|PSH|URG))))$" ; \
+"Invalid value for TCP flags. Allowed values : SYN ACK FIN RST URG PSH ALL
+When specifying more than one flag, flags should be comma-separated.
+For example : value of 'SYN,!ACK,!FIN,!RST' will only match packets with
+the SYN flag set, and the ACK, FIN and RST flags unset"
+
+comp_help: Allowed values for TCP flags : SYN ACK FIN RST URG PSH ALL
+When specifying more than one flag, flags should be comma-separated.
+For example : value of 'SYN,!ACK,!FIN,!RST' will only match packets with
+the SYN flag set, and the ACK, FIN and RST flags unset
