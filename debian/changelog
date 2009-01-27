@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.6) unstable; urgency=low
+
+  * Fix Bug 2474 https://bugzilla.vyatta.com/show_bug.cgi?id=2474
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Mon, 26 Jan 2009 16:45:01 -0800
+
 vyatta-cfg-firewall (0.13.5) unstable; urgency=low
 
   * Bugfix 4062: Don't reference parameters outside the config tree.
