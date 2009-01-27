@@ -156,6 +156,7 @@ sub rule {
 
   my $addr_checker;
   my $prefix_checker;
+  my $pure_addr_checker;
   my $ip_term;
   my $prefix_term;
 
@@ -164,6 +165,7 @@ sub rule {
 
     $addr_checker = 'ipv4_negate';
     $prefix_checker = 'ipv4net_negate';
+    $pure_addr_checker = 'ipv4';
     $ip_term = "IPv4";
     $prefix_term = "subnet";
   } elsif ($self->{_ip_version} eq "ipv6") {
@@ -171,6 +173,7 @@ sub rule {
 
     $addr_checker = 'ipv6_negate';
     $prefix_checker = 'ipv6net_negate';
+    $pure_addr_checker = 'ipv6';
     $ip_term = "IPv6";
     $prefix_term = "prefix"
   } else {
@@ -203,12 +206,11 @@ sub rule {
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
-    # Ranges are supported for IPv4 only
     my $start = $self->{_range_start};
     my $stop = $self->{_range_stop};
     return (undef, "\"$start-$stop\" is not a valid IP range")
-      if (!Vyatta::TypeChecker::validateType('ipv4_negate', $start, 1)
-          || !Vyatta::TypeChecker::validateType('ipv4', $stop, 1));
+      if (!Vyatta::TypeChecker::validateType($addr_checker, $start, 1)
+          || !Vyatta::TypeChecker::validateType($pure_addr_checker, $stop, 1));
     my $negate = '';
     if ($self->{_range_start} =~ /^!(.*)$/) {
       $start = $1;
