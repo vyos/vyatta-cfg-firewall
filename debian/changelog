@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.7) unstable; urgency=low
+
+  [ Bob Gilligan ]
+  * Add support for IPv6 address ranges.
+
+  [ Mohit Mehta ]
+  * Use iptables comment to identify CLI rule numbers in iptables output
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 30 Jan 2009 11:17:19 -0800
+
 vyatta-cfg-firewall (0.13.6) unstable; urgency=low
 
   * Fix Bug 2474 https://bugzilla.vyatta.com/show_bug.cgi?id=2474
