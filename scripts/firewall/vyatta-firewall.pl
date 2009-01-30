@@ -575,7 +575,7 @@ sub setup_iptables($) {
 sub add_default_drop_rule($$$) {
   my ($table, $chain, $iptables_cmd) = @_;
   # system("$iptables_cmd -t $table -A $chain -j DROP 2>&1 | $logger");
-  run_cmd("$iptables_cmd -t $table -A $chain -j DROP", 1, 1);
+  run_cmd("$iptables_cmd -t $table -A $chain -m comment --comment \"$chain-1025\" -j DROP", 1, 1);
 }
 
 sub setup_chain($$$) {

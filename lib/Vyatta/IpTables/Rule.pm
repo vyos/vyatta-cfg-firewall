@@ -53,6 +53,7 @@ my %fields = (
                   },
   _disable     => undef,
   _ip_version  => undef,
+  _comment     => undef
 );
 
 my %dummy_rule = (
@@ -101,6 +102,7 @@ my %dummy_rule = (
                   },
   _disable     => undef,
   _ip_version  => undef,
+  _comment     => undef
 );
 
 sub new {
@@ -125,6 +127,7 @@ sub setup {
   my ( $self, $level ) = @_;
   my $config = new Vyatta::Config;
 
+  $self->{_comment} = $level;
   $config->setLevel("$level");
 
   # for documentation sake.  nodes returns an array so must transform
@@ -185,6 +188,7 @@ sub setupOrig {
   my ( $self, $level ) = @_;
   my $config = new Vyatta::Config;
 
+  $self->{_comment} = $level;
   $config->setLevel("$level");
 
   # for documentation sake.  nodes returns an array so must transform
@@ -327,6 +331,10 @@ sub rule {
   my $rule = undef;
   my $srcrule = $dstrule = undef;
   my $err_str = undef;
+
+  # set CLI rule num as comment
+  my @level_nodes = split (' ', $self->{_comment});
+  $rule .= "-m comment --comment \"$level_nodes[2]-$level_nodes[4]\" ";
 
   # set the protocol
   if (defined($self->{_protocol})) {
