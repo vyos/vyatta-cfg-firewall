@@ -21,6 +21,7 @@ my %fields = (
   _tcp_flags   => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
+  _icmp_name   => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
   _ipsec       => undef,
@@ -70,6 +71,7 @@ my %dummy_rule = (
   _tcp_flags   => undef,
   _icmp_code   => undef,
   _icmp_type   => undef,
+  _icmp_name   => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
   _ipsec       => undef,
@@ -145,6 +147,7 @@ sub setup {
   $self->{_tcp_flags} = $config->returnValue("tcp flags");
   $self->{_icmp_code} = $config->returnValue("icmp code");
   $self->{_icmp_type} = $config->returnValue("icmp type");
+  $self->{_icmp_name} = $config->returnValue("icmp type-name");
   $self->{_mod_mark} = $config->returnValue("modify mark");
   $self->{_mod_dscp} = $config->returnValue("modify dscp");
   $self->{_ipsec} = $config->exists("ipsec match-ipsec");
@@ -207,6 +210,7 @@ sub setupOrig {
   $self->{_tcp_flags} = $config->returnOrigValue("tcp flags");
   $self->{_icmp_code} = $config->returnOrigValue("icmp code");
   $self->{_icmp_type} = $config->returnOrigValue("icmp type");
+  $self->{_icmp_name} = $config->returnOrigValue("icmp type-name");
   $self->{_mod_mark} = $config->returnOrigValue("modify mark");
   $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
   $self->{_ipsec} = $config->existsOrig("ipsec match-ipsec");
@@ -364,18 +368,23 @@ sub rule {
 
   # set the icmp code and type if applicable
   if (($self->{_protocol} eq "icmp") || ($self->{_protocol} eq "1")) {
-    if (defined $self->{_icmp_type}) {
+   if (defined $self->{_icmp_name}) {
+     if (defined($self->{_icmp_type}) || defined($self->{_icmp_code})){
+      return ("Cannot use ICMP type/code with ICMP type-name", );
+     }
+     $rule .= "--icmp-type $self->{_icmp_name} ";
+   } elsif (defined $self->{_icmp_type}) {
       $rule .= "--icmp-type $self->{_icmp_type}";
       if (defined $self->{_icmp_code}) {
         $rule .= "/$self->{_icmp_code}";
       }
       $rule .= " ";
-    } elsif (defined $self->{_icmp_code}) {
+   } elsif (defined $self->{_icmp_code}) {
       return ("ICMP code can only be defined if ICMP type is defined", );
-              
-    }
-  } elsif (defined($self->{_icmp_type}) || defined($self->{_icmp_code})) {
-    return ("ICMP type/code can only be defined if protocol is ICMP", );
+   }
+  } elsif (defined($self->{_icmp_type}) || defined($self->{_icmp_code}) 
+           || defined($self->{_icmp_name})) {
+     return ("ICMP type/code or type-name can only be defined if protocol is ICMP", );
   }
 
   # add the source and destination rules

@@ -1,0 +1,15 @@
+type: txt
+help: Set icmp type-name to match
+allowed: sudo /sbin/iptables -p icmp -h | awk 'NR>67 {print $1}'
+syntax:expression: exec "
+        icmp_type_array=($(sudo /sbin/iptables -p icmp -h | awk 'NR>67 {print $1}'))
+        icmp_type_array_len=${#icmp_type_array[*]}
+        i=0
+        while [ $i -lt $icmp_type_array_len ]; do
+             if [ \"${icmp_type_array[$i]}\" == \"$VAR(@)\" ] ; then
+                   exit 0
+             fi
+             let i++
+        done
+        echo Invalid ICMP type-name [$VAR(@)]
+        exit 1 "
