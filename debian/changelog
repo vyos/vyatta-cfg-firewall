@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-1) unstable; urgency=low
+
+  * Fix Bug 2741 ENH: filter based on ICMP Type/code by name
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 30 Jan 2009 18:39:18 -0800
+
 vyatta-cfg-firewall (0.13.7) unstable; urgency=low
 
   [ Bob Gilligan ]
