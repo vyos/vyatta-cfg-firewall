@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 
 use lib "/opt/vyatta/share/perl5";
+use strict;
+
 use Vyatta::Config;
 use Vyatta::IpTables::Rule;
 use Vyatta::IpTables::AddressFilter;
@@ -18,6 +20,8 @@ my $debug_flag = 0;
 my $syslog_flag = 0;
 
 my @updateints = ();
+my ($setup, $teardown, $updaterules);
+
 GetOptions("setup"             => \$setup, 
            "teardown"          => \$teardown,
  	   "update-rules"      => \$updaterules,
@@ -54,8 +58,8 @@ sub other_table {
 }
 
 if (defined $setup) {
-  setup_iptables(iptables);
-  setup_iptables(ip6tables);
+  setup_iptables('iptables');
+  setup_iptables('ip6tables');
   exit 0;
 }
 
@@ -84,7 +88,7 @@ if ($#updateints == 3) {
     # chain must have been set up. no need to set up again.
     # user may specify a chain in a different tree. try to delete it
     # from the "other" trees first.
-    foreach $other_tree (keys %table_hash) {
+    foreach my $other_tree (keys %table_hash) {
       if ($other_tree ne $tree) {
         update_ints('delete', $int_name, $direction, $chain, 
                     $table_hash{$other_tree}, $cmd_hash{$other_tree});
@@ -118,7 +122,7 @@ if (defined $teardown) {
 help();
 exit 1;
 
-sub help() {
+sub help {
   print "usage: vyatta-firewall.pl\n";
   print "\t--setup              setup Vyatta specific iptables settings\n";
   print "\t--update-rules       update iptables with the current firewall rules\n";
@@ -128,7 +132,7 @@ sub help() {
   print "\n";
 }
 
-sub run_cmd($$$) {
+sub run_cmd {
     my ($cmd_to_run, $redirect_flag, $logger_flag) = @_;
 
     my $cmd_extras;
@@ -152,7 +156,7 @@ sub run_cmd($$$) {
     system("$cmd_to_run $cmd_extras");
 }
 
-sub log_msg($) {
+sub log_msg {
   my $message = shift;
 
   if ($debug_flag) {
@@ -164,7 +168,7 @@ sub log_msg($) {
   }
 }
 
-sub update_rules($) {
+sub update_rules {
   my $tree = shift;			# name, modify, ipv6-name or ipv6-modify
   my $table = $table_hash{$tree};	# "filter" or "mangle"
   my $iptables_cmd = $cmd_hash{$tree};  # "iptables" or "ip6tables"
@@ -191,7 +195,7 @@ sub update_rules($) {
   my $stateful = 0;
 
   # Iterate through ruleset names under "name" or "modify" 
-  for $name (keys %nodes) { 
+  for my $name (keys %nodes) { 
 
     log_msg "update_rules: status of node $name is $nodes{$name} \n";
 
@@ -256,7 +260,7 @@ sub update_rules($) {
     }
 
     my $iptablesrule = 1;
-    foreach $rule (sort numerically keys %rulehash) {
+    foreach my $rule (sort numerically keys %rulehash) {
       if ("$rulehash{$rule}" eq "static") {
 	my $node = new Vyatta::IpTables::Rule;
         $node->setupOrig("firewall $tree $name rule $rule");
@@ -327,7 +331,7 @@ sub update_rules($) {
           # system ("$iptables_cmd -t $table --insert $name $iptablesrule $_");
           run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
                   0, 0);
-          die "$iptables_cmd error: $! - $rule_str" if ($? >> 8);
+          die "$iptables_cmd error: $! - " , join(' ', @rule_strs) if ($? >> 8);
           $iptablesrule++;
         }
       } elsif ("$rulehash{$rule}" eq "deleted") {
@@ -358,7 +362,7 @@ sub update_rules($) {
 # mode: 0: check if the chain is configured in either tree.
 #       1: check if it is configured in the specified tree.
 #       2: check if it is configured in the "other" tree.
-sub chain_configured($$$) {
+sub chain_configured {
   my ($mode, $chain, $tree) = @_;
   
   my $config = new Vyatta::Config;
@@ -376,10 +380,10 @@ sub chain_configured($$$) {
       }
     }
   }
-  return undef;
+  return; # undef
 }
 
-sub update_ints() {
+sub update_ints {
   my ($action, $int_name, $direction, $chain, $table, $iptables_cmd) = @_;
   my $interface = undef;
  
@@ -495,7 +499,7 @@ sub update_ints() {
   return 0;
 }
 
-sub enable_fw_conntrack($) {
+sub enable_fw_conntrack {
   # potentially we can add rules in the FW_CONNTRACK chain to provide
   # finer-grained control over which packets are tracked.
   my $iptables_cmd = shift;
@@ -504,14 +508,14 @@ sub enable_fw_conntrack($) {
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT", 1, 1);
 }
 
-sub disable_fw_conntrack($) {
+sub disable_fw_conntrack {
   my $iptables_cmd = shift;
   # system("$logger Running: $iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN");
   # system("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN", 1, 1);
 }
 
-sub teardown_iptables($$) {
+sub teardown_iptables {
   my ($table, $iptables_cmd) = @_;
   log_msg "teardown_iptables executing: $iptables_cmd -L -n -t $table\n";
   my @chains = `$iptables_cmd -L -n -t $table`;
@@ -519,7 +523,7 @@ sub teardown_iptables($$) {
 
   # $chain is going to look like this...
   # Chain inbound (0 references)
-  foreach $chain (@chains) {
+  foreach my $chain (@chains) {
     # chains start with Chain 
     if ($chain =~ s/^Chain//) {
       # make sure this is a user chain by looking at "references".
@@ -537,8 +541,8 @@ sub teardown_iptables($$) {
   my @lines
     = `$iptables_cmd -t raw -L PREROUTING -vn --line-numbers | egrep ^[0-9]`;
   foreach (@lines) {
-    my ($num, $ignore, $ignore, $chain, $ignore, $ignore, $in, $out,
-        $ignore, $ignore) = split /\s+/;
+    my ($num, undef, undef, $chain, undef, undef, $in, $out,
+        undef, undef) = split /\s+/;
     if ($chain eq "FW_CONNTRACK") {
       # system("$iptables_cmd -t raw -D PREROUTING $num 2>&1 | $logger");
       run_cmd("$iptables_cmd -t raw -D PREROUTING", 1, 1);
@@ -553,9 +557,9 @@ sub teardown_iptables($$) {
   }
 }
 
-sub setup_iptables($) {
+sub setup_iptables {
   my $iptables_cmd = shift;
-  foreach $table (filter, mangle) {
+  foreach my $table (qw(filter mangle)) {
     $update_zero_count += 1;
     teardown_iptables($table, $iptables_cmd);
   }
@@ -572,13 +576,13 @@ sub setup_iptables($) {
   return 0;
 }
 
-sub add_default_drop_rule($$$) {
+sub add_default_drop_rule {
   my ($table, $chain, $iptables_cmd) = @_;
   # system("$iptables_cmd -t $table -A $chain -j DROP 2>&1 | $logger");
   run_cmd("$iptables_cmd -t $table -A $chain -m comment --comment \"$chain-1025\" -j DROP", 1, 1);
 }
 
-sub setup_chain($$$) {
+sub setup_chain {
   my ($table, $chain, $iptables_cmd) = @_;
 
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
@@ -592,7 +596,7 @@ sub setup_chain($$$) {
   }
 }
 
-sub chain_referenced($$$) {
+sub chain_referenced {
   my ($table, $chain, $iptables_cmd) = @_;
 
   log_msg "chain_referenced executing: $iptables_cmd -t $table -n -L $chain \n";
@@ -606,7 +610,7 @@ sub chain_referenced($$$) {
   return 0;
 }
 
-sub delete_chain($$$) {
+sub delete_chain {
   my ($table, $chain, $iptables_cmd) = @_;
   
   log_msg "delete_chain executing: $iptables_cmd -t $table -n -L $chain \n";
