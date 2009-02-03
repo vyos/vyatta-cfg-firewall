@@ -96,7 +96,7 @@ sub create {
     my $rc = system("sudo $cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
-    return undef;
+    return; # undef
 }
 
 sub references {
@@ -126,7 +126,7 @@ sub delete {
     my $rc = system("sudo $cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
-    return undef;
+    return; # undef
 }
 
 sub check_member {
@@ -158,7 +158,7 @@ sub check_member {
     } else {
 	return "Error: invalid set type [$self->{_type}]";
     }
-    return undef;
+    return; #undef 
 }
 
 sub member_exists {
@@ -185,7 +185,7 @@ sub add_member {
     my $rc = system("sudo $cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
-    return undef;
+    return; # undef
 }
 
 sub delete_member {
@@ -202,7 +202,7 @@ sub delete_member {
     my $rc = system("sudo $cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
-    return undef;
+    return; # undef
 }
 
 sub rule {
