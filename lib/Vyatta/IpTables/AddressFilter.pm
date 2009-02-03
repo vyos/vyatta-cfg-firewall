@@ -178,6 +178,10 @@ sub rule {
     $rule .= "-m mac --mac-source $str ";
   }
 
+  my %group_ok;
+  foreach my $group_type ('address', 'network', 'port') {
+    $group_ok{$group_type} = 1;
+  }
   # set the address filter parameters
   if (defined($self->{_network})) {
     my $str = $self->{_network};
@@ -185,12 +189,14 @@ sub rule {
       if (!Vyatta::TypeChecker::validateType($prefix_checker, $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
+    $group_ok{network} = 0;
   } elsif (defined($self->{_address})) {
     my $str = $self->{_address};
     return (undef, "\"$str\" is not a valid $ip_term address")
       if (!Vyatta::TypeChecker::validateType($addr_checker, $str, 1));
     $str =~ s/^\!(.*)$/! $1/;
     $rule .= "--$self->{_srcdst} $str ";
+    $group_ok{address} = 0;
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
     my $start = $self->{_range_start};
     my $stop = $self->{_range_stop};
@@ -208,13 +214,28 @@ sub rule {
     elsif ("$self->{_srcdst}" eq "destination") { 
       $rule .= ("-m iprange $negate--dst-range $start-$self->{_range_stop} ");
     }
+    $group_ok{address} = 0;
   }
-  # so far ipset only supports IPv4
+
+  $group_ok{port} = 0 if defined $self->{_port};
+  my ($port_str, $port_err)
+      = getPortRuleString($self->{_port}, $can_use_port,
+			  ($self->{_srcdst} eq "source") ? "s" : "d",
+			  $self->{_protocol});
+  return (undef, $port_err) if (!defined($port_str));
+  $rule .= $port_str;
+
+  # Handle groups last so we can check $group_ok
   if ($self->{_ip_version} eq "ipv4") {
+    # so far ipset only supports IPv4
     foreach my $group_type ('address', 'network', 'port') {
       my $var_name = '_' . $group_type . '_group';
       if (defined($self->{$var_name})) {
         my $name = $self->{$var_name};
+        if (! $group_ok{$group_type}) {
+          return (undef, "Can't mix $self->{_srcdst} $group_type group " .
+                  "[$name] and $group_type");
+        }
         my $group = new Vyatta::IpTables::IpSet($name, $group_type);
         my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
         return ($err_str, ) if ! defined $set_rule;
@@ -223,12 +244,6 @@ sub rule {
     }
   }
 
-  my ($port_str, $port_err)
-      = getPortRuleString($self->{_port}, $can_use_port,
-			  ($self->{_srcdst} eq "source") ? "s" : "d",
-			  $self->{_protocol});
-  return (undef, $port_err) if (!defined($port_str));
-  $rule .= $port_str;
   return ($rule, undef);
 }
 
