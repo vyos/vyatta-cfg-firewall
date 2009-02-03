@@ -237,26 +237,15 @@ sub rule {
   }
   # so far ipset only supports IPv4
   if ($self->{_ip_version} eq "ipv4") {
-    if (defined($self->{_address_group})) {
-      my $name = $self->{_address_group};
-      my $group = new Vyatta::IpTables::IpSet($name, 'address');
-      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
-      return ($err_str, ) if ! defined $set_rule;
-      $rule .= $set_rule;
-    }
-    if (defined($self->{_network_group})) {
-      my $name = $self->{_network_group};
-      my $group = new Vyatta::IpTables::IpSet($name, 'network');
-      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
-      return ($err_str, ) if ! defined $set_rule;
-      $rule .= $set_rule;
-    }
-    if (defined($self->{_port_group})) {
-      my $name = $self->{_port_group};
-      my $group = new Vyatta::IpTables::IpSet($name, 'port');
-      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
-      return ($err_str, ) if ! defined $set_rule;
-      $rule .= $set_rule;
+    foreach my $group_type ('address', 'network', 'port') {
+      my $var_name = '_' . $group_type . '_group';
+      if (defined($self->{$var_name})) {
+        my $name = $self->{$var_name};
+        my $group = new Vyatta::IpTables::IpSet($name, $group_type);
+        my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
+        return ($err_str, ) if ! defined $set_rule;
+        $rule .= $set_rule;
+      }
     }
   }
 
