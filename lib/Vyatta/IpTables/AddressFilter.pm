@@ -137,7 +137,7 @@ sub setupOrig {
   }
 
   $self->{_port}    = $config->returnOrigValue("port");
-  $self->{_src_mac} = $config->returnValue("mac-address");
+  $self->{_src_mac} = $config->returnOrigValue("mac-address");
 
   $self->{_address_group} = $config->returnOrigValue("group address-group");
   $self->{_network_group} = $config->returnOrigValue("group network-group");
