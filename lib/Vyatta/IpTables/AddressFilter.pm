@@ -62,7 +62,7 @@ sub new {
   return $self;
 }
 
-sub set_ip_version($$) {
+sub set_ip_version {
   my ($self, $ip_version) = @_;
 
   $self->{_ip_version} = $ip_version;
