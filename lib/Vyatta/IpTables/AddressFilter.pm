@@ -15,13 +15,14 @@
 # General Public License for more details.
 # 
 # This code was originally developed by Vyatta, Inc.
-# Portions created by Vyatta are Copyright (C) 2006, 2007, 2008 Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2006-2009 Vyatta, Inc.
 # All Rights Reserved.
 # **** End License ****
 
 package Vyatta::IpTables::AddressFilter;
 
 require Vyatta::Config;
+require Vyatta::IpTables::IpSet;
 use Vyatta::Misc qw(getPortRuleString);
 use Vyatta::TypeChecker;
 
@@ -45,6 +46,9 @@ my %fields = (
   _protocol        => undef,
   _src_mac         => undef,
   _ip_version	   => undef,
+  _address_group   => undef,
+  _network_group   => undef,
+  _port_group      => undef,
 );
 
 sub new {
@@ -93,8 +97,12 @@ sub setup {
     }
   }
 
-  $self->{_port}         = $config->returnValue("port");
-  $self->{_src_mac}  = $config->returnValue("mac-address");
+  $self->{_port}    = $config->returnValue("port");
+  $self->{_src_mac} = $config->returnValue("mac-address");
+
+  $self->{_address_group} = $config->returnValue("group address-group");
+  $self->{_network_group} = $config->returnValue("group network-group");
+  $self->{_port_group}    = $config->returnValue("group port-group");
 
   return 0;
 }
@@ -128,8 +136,12 @@ sub setupOrig {
     }
   }
 
-  $self->{_port}         = $config->returnOrigValue("port");
-  $self->{_src_mac}  = $config->returnValue("mac-address");
+  $self->{_port}    = $config->returnOrigValue("port");
+  $self->{_src_mac} = $config->returnValue("mac-address");
+
+  $self->{_address_group} = $config->returnOrigValue("group address-group");
+  $self->{_network_group} = $config->returnOrigValue("group network-group");
+  $self->{_port_group}    = $config->returnOrigValue("group port-group");
 
   return 0;
 }
@@ -221,6 +233,30 @@ sub rule {
     }
     elsif ("$self->{_srcdst}" eq "destination") { 
       $rule .= ("-m iprange $negate--dst-range $start-$self->{_range_stop} ");
+    }
+  }
+  # so far ipset only supports IPv4
+  if ($self->{_ip_version} eq "ipv4") {
+    if (defined($self->{_address_group})) {
+      my $name = $self->{_address_group};
+      my $group = new Vyatta::IpTables::IpSet($name, 'address');
+      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
+      return ($err_str, ) if ! defined $set_rule;
+      $rule .= $set_rule;
+    }
+    if (defined($self->{_network_group})) {
+      my $name = $self->{_network_group};
+      my $group = new Vyatta::IpTables::IpSet($name, 'network');
+      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
+      return ($err_str, ) if ! defined $set_rule;
+      $rule .= $set_rule;
+    }
+    if (defined($self->{_port_group})) {
+      my $name = $self->{_port_group};
+      my $group = new Vyatta::IpTables::IpSet($name, 'port');
+      my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
+      return ($err_str, ) if ! defined $set_rule;
+      $rule .= $set_rule;
     }
   }
 

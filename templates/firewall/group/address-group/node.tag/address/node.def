@@ -1,0 +1,17 @@
+multi: 
+type: ipv4
+help: Set a address-group member
+
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl \
+                           --action=check-member          \
+                           --set-name=$VAR(../@)          \
+                           --set-type=address             \
+                           --member=\"$VAR(@)\"; "
+
+create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
+          --set-name=$VAR(../@)                                   \
+          --member="$VAR(@) "
+
+delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
+          --set-name=$VAR(../@) \
+          --member="$VAR(@) "

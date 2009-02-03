@@ -20,7 +20,8 @@ Depends: sed (>= 4.1.5),
  busybox,
  whois,
  sudo,
- snmpd
+ snmpd,
+ ipset
 Suggests: util-linux (>= 2.13-5),
  net-tools,
  ethtool,
