@@ -68,81 +68,55 @@ sub set_ip_version {
   $self->{_ip_version} = $ip_version;
 }
 
-sub setup {
-  my ($self, $level) = @_;
+sub setup_base {
+  my ($self, $level, $func) = @_;
   my $config = new Vyatta::Config;
 
   $config->setLevel("$level");
 
   # Default to IPv4.  
-  $self->{_ip_version}        = "ipv4";
+  $self->{_ip_version}      = "ipv4";
 
   # setup needed parent nodes
   $self->{_srcdst}          = $config->returnParent("..");
-  $self->{_protocol}        = $config->returnValue(".. protocol");
+  $self->{_protocol}        = $config->$func(".. protocol");
 
   # setup address filter nodes
-  $self->{_address}         = $config->returnValue("address");
-  $self->{_network} = undef;
-  $self->{_range_start} = undef;
-  $self->{_range_stop} = undef;
+  $self->{_address}         = $config->$func("address");
+  $self->{_network}         = undef;
+  $self->{_range_start}     = undef;
+  $self->{_range_stop}      = undef;
   if (defined($self->{_address})) {
     if ($self->{_address} =~ /\//) {
-      $self->{_network} = $self->{_address};
-      $self->{_address} = undef;
+      $self->{_network}     = $self->{_address};
+      $self->{_address}     = undef;
     } elsif ($self->{_address} =~ /^([^-]+)-([^-]+)$/) {
       $self->{_range_start} = $1;
-      $self->{_range_stop} = $2;
-      $self->{_address} = undef;
+      $self->{_range_stop}  = $2;
+      $self->{_address}     = undef;
     }
   }
 
-  $self->{_port}    = $config->returnValue("port");
-  $self->{_src_mac} = $config->returnValue("mac-address");
+  $self->{_port}          = $config->$func("port");
+  $self->{_src_mac}       = $config->$func("mac-address");
+  $self->{_address_group} = $config->$func("group address-group");
+  $self->{_network_group} = $config->$func("group network-group");
+  $self->{_port_group}    = $config->$func("group port-group");
 
-  $self->{_address_group} = $config->returnValue("group address-group");
-  $self->{_network_group} = $config->returnValue("group network-group");
-  $self->{_port_group}    = $config->returnValue("group port-group");
+  return 0;
+}
 
+sub setup {
+  my ($self, $level) = @_;
+
+  $self->setup_base($level, 'returnValue');
   return 0;
 }
 
 sub setupOrig {
   my ($self, $level) = @_;
-  my $config = new Vyatta::Config;
 
-  $config->setLevel("$level");
-
-  # Default to IPv4.
-  $self->{_ip_version}        = "ipv4";
-
-  # setup needed parent nodes
-  $self->{_srcdst}          = $config->returnParent("..");
-  $self->{_protocol}        = $config->returnOrigValue(".. protocol");
-
-  # setup address filter nodes
-  $self->{_address}         = $config->returnOrigValue("address");
-  $self->{_network} = undef;
-  $self->{_range_start} = undef;
-  $self->{_range_stop} = undef;
-  if (defined($self->{_address})) {
-    if ($self->{_address} =~ /\//) {
-      $self->{_network} = $self->{_address};
-      $self->{_address} = undef;
-    } elsif ($self->{_address} =~ /^([^-]+)-([^-]+)$/) {
-      $self->{_range_start} = $1;
-      $self->{_range_stop} = $2;
-      $self->{_address} = undef;
-    }
-  }
-
-  $self->{_port}    = $config->returnOrigValue("port");
-  $self->{_src_mac} = $config->returnOrigValue("mac-address");
-
-  $self->{_address_group} = $config->returnOrigValue("group address-group");
-  $self->{_network_group} = $config->returnOrigValue("group network-group");
-  $self->{_port_group}    = $config->returnOrigValue("group port-group");
-
+  $self->setup_base($level, 'returnOrigValue');
   return 0;
 }
 
