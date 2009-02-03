@@ -1,5 +1,6 @@
 package Vyatta::IpTables::Rule;
 
+use strict;
 use Vyatta::Config;
 require Vyatta::IpTables::AddressFilter;
 
@@ -332,9 +333,7 @@ sub get_num_ipt_rules {
 
 sub rule {
   my ( $self ) = @_;
-  my $rule = undef;
-  my $srcrule = $dstrule = undef;
-  my $err_str = undef;
+  my ($rule, $srcrule, $dstrule, $err_str);
 
   # set CLI rule num as comment
   my @level_nodes = split (' ', $self->{_comment});
@@ -605,7 +604,7 @@ sub validate_timevalues {
 
   case "time"      { $string =~ s/://g;
                      my ($hour, $min, $sec) = unpack "A2 A2 A2", $string;
-                     eval { timelocal($sec,$min,$hour, 01, 00, 1970);
+                     eval { timelocal($sec,$min,$hour, 1, 0, 1970);
                             1;
                           } or return 0;
                    }
