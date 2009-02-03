@@ -1,3 +1,21 @@
+vyatta-cfg-firewall (0.13.7-2) unstable; urgency=low
+
+  [ Bob Gilligan ]
+  * Rever to specific IP version in help text.
+  * Bugfix 4052: Support PPPOE over an ethernet VIF.
+
+  [ Stig Thormodsrud ]
+  * Add 1st pass of firewall group support (ipset netfilter module
+  * Fix call to returnValue that should be returnOrigValue.
+
+  [ Stephen Hemminger ]
+  * Remove prototype
+  * Enable strict checking
+  * Fix perlcritic warnings
+  * Turn on strict checking and fix warnings
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Tue, 03 Feb 2009 09:24:52 -0800
+
 vyatta-cfg-firewall (0.13.7-1) unstable; urgency=low
 
   * Fix Bug 2741 ENH: filter based on ICMP Type/code by name
