@@ -126,8 +126,8 @@ sub setupDummy {
   $dst = new Vyatta::IpTables::AddressFilter;
 }
 
-sub setup {
-  my ( $self, $level ) = @_;
+sub setup_base {
+  my ($self, $level, $val_func, $exists_func, $addr_setup) = @_;
   my $config = new Vyatta::Config;
 
   $self->{_comment} = $level;
@@ -138,115 +138,70 @@ sub setup {
   $self->{_name}        = $config->returnParent(".. .. ..");
   $self->{_rule_number} = $config->returnParent("..");
 
-  $self->{_protocol}  = $config->returnValue("protocol");
-  $self->{_state}->{_established} = $config->returnValue("state established");
-  $self->{_state}->{_new} = $config->returnValue("state new");
-  $self->{_state}->{_related} = $config->returnValue("state related");
-  $self->{_state}->{_invalid} = $config->returnValue("state invalid");
-  $self->{_action}    = $config->returnValue("action");
-  $self->{_log}       = $config->returnValue("log");
-  $self->{_tcp_flags} = $config->returnValue("tcp flags");
-  $self->{_icmp_code} = $config->returnValue("icmp code");
-  $self->{_icmp_type} = $config->returnValue("icmp type");
-  $self->{_icmp_name} = $config->returnValue("icmp type-name");
-  $self->{_mod_mark} = $config->returnValue("modify mark");
-  $self->{_mod_dscp} = $config->returnValue("modify dscp");
-  $self->{_ipsec} = $config->exists("ipsec match-ipsec");
-  $self->{_non_ipsec} = $config->exists("ipsec match-none");
-  $self->{_frag} = $config->exists("fragment match-frag");
-  $self->{_non_frag} = $config->exists("fragment match-non-frag");
-  $self->{_recent_time} = $config->returnValue('recent time');
-  $self->{_recent_cnt} = $config->returnValue('recent count');
+  $self->{_protocol}    = $config->$val_func("protocol");
+
+  $self->{_state}->{_established} = $config->$val_func("state established");
+  $self->{_state}->{_new}         = $config->$val_func("state new");
+  $self->{_state}->{_related}     = $config->$val_func("state related");
+  $self->{_state}->{_invalid}     = $config->$val_func("state invalid");
+
+  $self->{_action}      = $config->$val_func("action");
+  $self->{_log}         = $config->$val_func("log");
+  $self->{_tcp_flags}   = $config->$val_func("tcp flags");
+  $self->{_icmp_code}   = $config->$val_func("icmp code");
+  $self->{_icmp_type}   = $config->$val_func("icmp type");
+  $self->{_icmp_name}   = $config->$val_func("icmp type-name");
+  $self->{_mod_mark}    = $config->$val_func("modify mark");
+  $self->{_mod_dscp}    = $config->$val_func("modify dscp");
+  $self->{_ipsec}       = $config->$exists_func("ipsec match-ipsec");
+  $self->{_non_ipsec}   = $config->$exists_func("ipsec match-none");
+  $self->{_frag}        = $config->$exists_func("fragment match-frag");
+  $self->{_non_frag}    = $config->$exists_func("fragment match-non-frag");
+  $self->{_recent_time} = $config->$val_func('recent time');
+  $self->{_recent_cnt}  = $config->$val_func('recent count');
   
-  $self->{_p2p}->{_all} = $config->exists("p2p all");
-  $self->{_p2p}->{_apple} = $config->exists("p2p applejuice");
-  $self->{_p2p}->{_bit} = $config->exists("p2p bittorrent");
-  $self->{_p2p}->{_dc} = $config->exists("p2p directconnect");
-  $self->{_p2p}->{_edk} = $config->exists("p2p edonkey");
-  $self->{_p2p}->{_gnu} = $config->exists("p2p gnutella");
-  $self->{_p2p}->{_kazaa} = $config->exists("p2p kazaa");
+  $self->{_p2p}->{_all}   = $config->$exists_func("p2p all");
+  $self->{_p2p}->{_apple} = $config->$exists_func("p2p applejuice");
+  $self->{_p2p}->{_bit}   = $config->$exists_func("p2p bittorrent");
+  $self->{_p2p}->{_dc}    = $config->$exists_func("p2p directconnect");
+  $self->{_p2p}->{_edk}   = $config->$exists_func("p2p edonkey");
+  $self->{_p2p}->{_gnu}   = $config->$exists_func("p2p gnutella");
+  $self->{_p2p}->{_kazaa} = $config->$exists_func("p2p kazaa");
 
-  $self->{_time}->{_startdate} = $config->returnValue("time startdate");
-  $self->{_time}->{_stopdate} = $config->returnValue("time stopdate");
-  $self->{_time}->{_starttime} = $config->returnValue("time starttime");
-  $self->{_time}->{_stoptime} = $config->returnValue("time stoptime");
-  $self->{_time}->{_monthdays} = $config->returnValue("time monthdays");
-  $self->{_time}->{_weekdays} = $config->returnValue("time weekdays");
-  $self->{_time}->{_utc} = $config->exists("time utc");
+  $self->{_time}->{_startdate} = $config->$val_func("time startdate");
+  $self->{_time}->{_stopdate}  = $config->$val_func("time stopdate");
+  $self->{_time}->{_starttime} = $config->$val_func("time starttime");
+  $self->{_time}->{_stoptime}  = $config->$val_func("time stoptime");
+  $self->{_time}->{_monthdays} = $config->$val_func("time monthdays");
+  $self->{_time}->{_weekdays}  = $config->$val_func("time weekdays");
+  $self->{_time}->{_utc}       = $config->$exists_func("time utc");
 
-  $self->{_limit}->{_rate} = $config->returnValue("limit rate");
-  $self->{_limit}->{_burst} = $config->returnValue("limit burst");
+  $self->{_limit}->{_rate}  = $config->$val_func("limit rate");
+  $self->{_limit}->{_burst} = $config->$val_func("limit burst");
 
-  $self->{_disable} = $config->exists("disable");
+  $self->{_disable} = $config->$exists_func("disable");
 
   # TODO: need $config->exists("$level source") in Vyatta::Config.pm
-  $src->setup("$level source");
-  $dst->setup("$level destination");
+  $src->$addr_setup("$level source");
+  $dst->$addr_setup("$level destination");
 
   # Default to IPv4
   $self->{_ip_version} = "ipv4";
   return 0;
 }
 
+sub setup {
+  my ($self, $level) = @_;
+  
+  $self->setup_base($level, 'returnValue', 'exists', 'setup');
+  return 0;
+}
+
 sub setupOrig {
-  my ( $self, $level ) = @_;
-  my $config = new Vyatta::Config;
+  my ($self, $level) = @_;
+  
+  $self->setup_base($level, 'returnOrigValue', 'existsOrig', 'setupOrig');
 
-  $self->{_comment} = $level;
-  $config->setLevel("$level");
-
-  # for documentation sake.  nodes returns an array so must transform
-  # and ".. .. .." means go up three levels in the current hierarchy
-  $self->{_name}        = $config->returnParent(".. .. ..");
-  $self->{_rule_number} = $config->returnParent("..");
-
-  $self->{_protocol}  = $config->returnOrigValue("protocol");
-  $self->{_state}->{_established}
-    = $config->returnOrigValue("state established");
-  $self->{_state}->{_new} = $config->returnOrigValue("state new");
-  $self->{_state}->{_related} = $config->returnOrigValue("state related");
-  $self->{_state}->{_invalid} = $config->returnOrigValue("state invalid");
-  $self->{_action}    = $config->returnOrigValue("action");
-  $self->{_log}       = $config->returnOrigValue("log");
-  $self->{_tcp_flags} = $config->returnOrigValue("tcp flags");
-  $self->{_icmp_code} = $config->returnOrigValue("icmp code");
-  $self->{_icmp_type} = $config->returnOrigValue("icmp type");
-  $self->{_icmp_name} = $config->returnOrigValue("icmp type-name");
-  $self->{_mod_mark} = $config->returnOrigValue("modify mark");
-  $self->{_mod_dscp} = $config->returnOrigValue("modify dscp");
-  $self->{_ipsec} = $config->existsOrig("ipsec match-ipsec");
-  $self->{_non_ipsec} = $config->existsOrig("ipsec match-none");
-  $self->{_frag} = $config->existsOrig("fragment match-frag");
-  $self->{_non_frag} = $config->existsOrig("fragment match-non-frag");
-  $self->{_recent_time} = $config->returnOrigValue('recent time');
-  $self->{_recent_cnt} = $config->returnOrigValue('recent count');
-
-  $self->{_p2p}->{_all} = $config->existsOrig("p2p all");
-  $self->{_p2p}->{_apple} = $config->existsOrig("p2p applejuice");
-  $self->{_p2p}->{_bit} = $config->existsOrig("p2p bittorrent");
-  $self->{_p2p}->{_dc} = $config->existsOrig("p2p directconnect");
-  $self->{_p2p}->{_edk} = $config->existsOrig("p2p edonkey");
-  $self->{_p2p}->{_gnu} = $config->existsOrig("p2p gnutella");
-  $self->{_p2p}->{_kazaa} = $config->existsOrig("p2p kazaa");
-
-  $self->{_time}->{_startdate} = $config->returnOrigValue("time startdate");
-  $self->{_time}->{_stopdate} = $config->returnOrigValue("time stopdate");
-  $self->{_time}->{_starttime} = $config->returnOrigValue("time starttime");
-  $self->{_time}->{_stoptime} = $config->returnOrigValue("time stoptime");
-  $self->{_time}->{_monthdays} = $config->returnOrigValue("time monthdays");
-  $self->{_time}->{_weekdays} = $config->returnOrigValue("time weekdays");
-  $self->{_time}->{_utc} = $config->existsOrig("time utc");
-
-  $self->{_limit}->{_rate} = $config->returnOrigValue("limit rate");
-  $self->{_limit}->{_burst} = $config->returnOrigValue("limit burst");
-
-  $self->{_disable} = $config->existsOrig("disable");
-
-  # TODO: need $config->exists("$level source") in Vyatta::Config.pm
-  $src->setupOrig("$level source");
-  $dst->setupOrig("$level destination");
-
-  # Default to IPv4
   $self->{_ip_version} = "ipv4";
   return 0;
 }
