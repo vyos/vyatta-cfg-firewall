@@ -255,6 +255,14 @@ sub outputXmlElem {
 
 sub outputXml {
   my ($self, $prefix, $fh) = @_;
+  if (!defined($self->{_address}) && !defined($self->{_network})
+      && !defined($self->{_range_start}) && !defined($self->{_range_stop})) {
+   if (($self->{_ip_version} eq "ipv4")) {
+     $self->{_address} = "0.0.0.0/0";
+   } else {
+     $self->{_address} = "::/0";
+   }
+  }
   outputXmlElem("${prefix}_addr", $self->{_address}, $fh);
   outputXmlElem("${prefix}_net", $self->{_network}, $fh);
   outputXmlElem("${prefix}_addr_start", $self->{_range_start}, $fh);

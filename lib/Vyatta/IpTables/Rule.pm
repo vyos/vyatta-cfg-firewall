@@ -529,6 +529,9 @@ sub outputXmlElem {
 
 sub outputXml {
   my ($self, $fh) = @_;
+  if (!defined($self->{_protocol})) {
+   $self->{_protocol} = "all";
+  }
   outputXmlElem("protocol", $self->{_protocol}, $fh);
   my $state_str = get_state_str($self);
   if ($state_str ne "") {
