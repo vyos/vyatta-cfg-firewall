@@ -252,8 +252,6 @@ sub update_rules {
       # no rules. flush the user rules.
       # note that this clears the counters on the default DROP rule.
       # we could delete rule one by one if those are important.
-#      system("$logger Running: $iptables_cmd -F $name");
-#      system("$iptables_cmd -t $table -F $name 2>&1 | $logger");
       run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
       add_default_drop_rule($table, $name, $iptables_cmd);
       next;
@@ -289,8 +287,6 @@ sub update_rules {
             last;
           }
           
-	  # system ("$logger Insert $iptables_cmd $table $name $iptablesrule $_");
-          # system ("$iptables_cmd -t $table --insert $name $iptablesrule $_");
           run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
                   0, 0);
           die "$iptables_cmd error: $! - $_" if ($? >> 8);
@@ -316,8 +312,6 @@ sub update_rules {
 
         my $ipt_rules = $oldnode->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-          # system ("$logger Delete $iptables_cmd $table $name $iptablesrule");
-          # system ("$iptables_cmd -t $table --delete $name $iptablesrule");
           run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule", 0,
                   0);
           die "$iptables_cmd error: $! - $rule" if ($? >> 8);
@@ -327,8 +321,6 @@ sub update_rules {
           if (!defined) {
             last;
           }
-	  # system ("$logger Insert $iptables_cmd $table $name $iptablesrule $_");
-          # system ("$iptables_cmd -t $table --insert $name $iptablesrule $_");
           run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
                   0, 0);
           die "$iptables_cmd error: $! - " , join(' ', @rule_strs) if ($? >> 8);
@@ -341,8 +333,6 @@ sub update_rules {
 
         my $ipt_rules = $node->get_num_ipt_rules();
         for (1 .. $ipt_rules) {
-	  # system ("$logger Delete $iptables_cmd $table $name $iptablesrule");
-          # system ("$iptables_cmd -t $table --delete $name $iptablesrule");
           run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule", 
                   0, 0);
           die "$iptables_cmd error: $! - $rule" if ($? >> 8);
@@ -482,8 +472,6 @@ sub update_ints {
   # no match. do nothing.
   return 0 if (!defined($cmd));
 
-  # system ("$logger Running: $iptables_cmd -t $table $cmd");
-  # system("$iptables_cmd -t $table $cmd");
   run_cmd("$iptables_cmd -t $table $cmd", 0, 0);
   exit 1 if ($? >> 8);
  
@@ -503,15 +491,11 @@ sub enable_fw_conntrack {
   # potentially we can add rules in the FW_CONNTRACK chain to provide
   # finer-grained control over which packets are tracked.
   my $iptables_cmd = shift;
-  # system("$logger Running: $iptables_cmd -t raw -R FW_CONNTRACK 1 -J ACCEPT");
-  # system("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT", 1, 1);
 }
 
 sub disable_fw_conntrack {
   my $iptables_cmd = shift;
-  # system("$logger Running: $iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN");
-  # system("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN", 1, 1);
 }
 
@@ -544,13 +528,9 @@ sub teardown_iptables {
     my ($num, undef, undef, $chain, undef, undef, $in, $out,
         undef, undef) = split /\s+/;
     if ($chain eq "FW_CONNTRACK") {
-      # system("$iptables_cmd -t raw -D PREROUTING $num 2>&1 | $logger");
       run_cmd("$iptables_cmd -t raw -D PREROUTING", 1, 1);
-      # system("$iptables_cmd -t raw -D OUTPUT $num 2>&1 | $logger");
       run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
-      # system("$iptables_cmd -t raw -F FW_CONNTRACK 2>&1 | $logger");
       run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
-      # system("$iptables_cmd -t raw -X FW_CONNTRACK 2>&1 | $logger");
       run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
       last;
     }
@@ -565,20 +545,15 @@ sub setup_iptables {
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
-  # system("$iptables_cmd -t raw -N FW_CONNTRACK 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -N FW_CONNTRACK", 1 , 1);
-  # system("$iptables_cmd -t raw -A FW_CONNTRACK -j RETURN 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -A FW_CONNTRACK -j RETURN", 1, 1);
-  # system("$iptables_cmd -t raw -I PREROUTING 1 -j FW_CONNTRACK 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -I PREROUTING 1 -j FW_CONNTRACK", 1, 1);
-  # system("$iptables_cmd -t raw -I OUTPUT 1 -j FW_CONNTRACK 2>&1 | $logger");
   run_cmd("$iptables_cmd -t raw -I OUTPUT 1 -j FW_CONNTRACK", 1, 1);
   return 0;
 }
 
 sub add_default_drop_rule {
   my ($table, $chain, $iptables_cmd) = @_;
-  # system("$iptables_cmd -t $table -A $chain -j DROP 2>&1 | $logger");
   run_cmd("$iptables_cmd -t $table -A $chain -m comment --comment \"$chain-1025\" -j DROP", 1, 1);
 }
 
@@ -589,7 +564,6 @@ sub setup_chain {
 
   $_ = $configured;
   if (!/^Chain $chain/) {
-    # system("$iptables_cmd -t $table --new-chain $chain");
     run_cmd("$iptables_cmd -t $table --new-chain $chain", 0, 0);
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
     add_default_drop_rule($table, $chain, $iptables_cmd);
@@ -618,11 +592,9 @@ sub delete_chain {
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    # system("$iptables_cmd -t $table --flush $chain");
     run_cmd("$iptables_cmd -t $table --flush $chain", 0, 0);
     die "$iptables_cmd error: $table $chain --flush: $!" if ($? >> 8);
     if (!chain_referenced($table, $chain, $iptables_cmd)) {
-      # system("$iptables_cmd -t $table --delete-chain $chain");
       run_cmd("$iptables_cmd -t $table --delete-chain $chain", 0, 0);
       die "$iptables_cmd error: $table $chain --delete-chain: $!" if ($? >> 8);
     } else {
