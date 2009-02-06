@@ -1,4 +1,4 @@
-vyatta-cfg-firewall (debian/0.13.7-3) unstable; urgency=low
+vyatta-cfg-firewall (0.13.7-3) unstable; urgency=low
 
   [ Stig Thormodsrud ]
   * Reduce duplicate code.
