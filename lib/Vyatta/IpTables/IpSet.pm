@@ -73,6 +73,24 @@ sub exists {
     return $rc ? 0 : 1;
 }
 
+sub get_type {
+    my ($self) = @_;
+
+    return if ! $self->exists();
+    my @lines = `sudo ipset -L $self->{_name}`;
+    foreach my $line (@lines) {
+	if ($line =~ /^Type:\s+(\w+)$/) {
+	    $self->{_type} = $1;
+	    last;
+	}
+    }
+    return if ! defined $self->{_type};
+    $self->{_type} = 'address' if $self->{_type} eq 'iphash';
+    $self->{_type} = 'network' if $self->{_type} eq 'nethash';
+    $self->{_type} = 'port'    if $self->{_type} eq 'portmap';
+    return $self->{_type};
+}
+
 sub create {
     my ($self) = @_;
         
@@ -209,8 +227,9 @@ sub rule {
     my ($self, $direction) = @_;
 
     if (! $self->exists()) {
-	my $rc = $self->create();
-	return (undef, $rc) if $rc;
+	my $name = $self->{_name};
+	$name = 'undefined' if ! defined $name;
+	return (undef, "Undefined group [$name]");
     }
 
     my $srcdst;

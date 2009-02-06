@@ -77,6 +77,22 @@ sub ipset_delete_member {
     return $group->delete_member($member);
 }
 
+sub ipset_check_set_type {
+   my ($set_name, $set_type) = @_;
+
+   die "Error: undefined set_name\n" if ! defined $set_name; 
+   die "Error: undefined set_type\n" if ! defined $set_type; 
+
+   my $group = new Vyatta::IpTables::IpSet($set_name);
+   return "Group [$set_name] has not been defined\n" if ! $group->exists();
+   my $type = $group->get_type();
+   $type = 'undefined' if ! defined $type;
+   if ($type ne $set_type) {
+       return "Error: group [$set_name] is of type [$type] not [$set_type]";
+   }
+   return;
+}
+
 
 #
 # main
@@ -102,6 +118,8 @@ $rc = ipset_check_member($set_name, $set_type, $member)
 $rc = ipset_add_member($set_name, $member) if $action eq 'add-member';
 
 $rc = ipset_delete_member($set_name, $member) if $action eq 'delete-member';
+
+$rc = ipset_check_set_type($set_name, $set_type) if $action eq 'check-set-type';
 
 if (defined $rc) {
     print $rc;

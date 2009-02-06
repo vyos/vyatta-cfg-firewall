@@ -1,2 +1,7 @@
 type: txt
 help: Set group of ports
+
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl \
+                           --action=check-set-type        \
+                           --set-name=$VAR(@)             \
+                           --set-type=port;"
