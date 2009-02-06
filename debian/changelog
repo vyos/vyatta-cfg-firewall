@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-4) unstable; urgency=low
+
+  * changing debian version string
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 05 Feb 2009 18:52:36 -0800
+
 vyatta-cfg-firewall (0.13.7-3) unstable; urgency=low
 
   [ Stig Thormodsrud ]
