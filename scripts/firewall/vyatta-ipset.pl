@@ -88,7 +88,7 @@ sub ipset_check_set_type {
    my $type = $group->get_type();
    $type = 'undefined' if ! defined $type;
    if ($type ne $set_type) {
-       return "Error: group [$set_name] is of type [$type] not [$set_type]";
+       return "Error: group [$set_name] is of type [$type] not [$set_type]\n";
    }
    return;
 }
