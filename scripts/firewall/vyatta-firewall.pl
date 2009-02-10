@@ -528,7 +528,7 @@ sub teardown_iptables {
     my ($num, undef, undef, $chain, undef, undef, $in, $out,
         undef, undef) = split /\s+/;
     if ($chain eq "FW_CONNTRACK") {
-      run_cmd("$iptables_cmd -t raw -D PREROUTING", 1, 1);
+      run_cmd("$iptables_cmd -t raw -D PREROUTING $num", 1, 1);
       run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
       run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
       run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
