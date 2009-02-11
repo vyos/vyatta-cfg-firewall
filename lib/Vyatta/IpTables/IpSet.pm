@@ -35,8 +35,14 @@ use warnings;
 
 my %fields = (
     _name  => undef,
-    _type  => undef,
+    _type  => undef,  # vyatta group type, not ipset type
     _debug => undef,
+);
+
+my %grouptype_hash = (
+    'address' => 'iphash',
+    'network' => 'nethash',
+    'port'    => 'portmap'
 );
 
 my $logger = 'logger -t IpSet.pm -p local0.warn --';
@@ -76,18 +82,23 @@ sub exists {
 sub get_type {
     my ($self) = @_;
 
+    return $self->{_type} if defined $self->{_type};
     return if ! $self->exists();
     my @lines = `sudo ipset -L $self->{_name}`;
+    my $type;
     foreach my $line (@lines) {
 	if ($line =~ /^Type:\s+(\w+)$/) {
-	    $self->{_type} = $1;
+	    $type = $1;
 	    last;
 	}
     }
-    return if ! defined $self->{_type};
-    $self->{_type} = 'address' if $self->{_type} eq 'iphash';
-    $self->{_type} = 'network' if $self->{_type} eq 'nethash';
-    $self->{_type} = 'port'    if $self->{_type} eq 'portmap';
+    return if ! defined $type;
+    foreach my $vtype (keys(%grouptype_hash)) {
+	if ($grouptype_hash{$vtype} eq $type) {
+	    $self->{_type} = $vtype;
+	    last;
+	}
+    }
     return $self->{_type};
 }
 
@@ -98,16 +109,12 @@ sub create {
     return "Error: undefined group type" if ! defined $self->{_type};
     return "Error: group [$self->{_name}] already exists" if $self->exists();
 	
-    my $ipset_param;
-    if ($self->{_type} eq 'address') {
-	$ipset_param = 'iphash';
-    } elsif ($self->{_type} eq 'network') {
-	$ipset_param = 'nethash';
-    } elsif ($self->{_type} eq 'port') {
-	$ipset_param = 'portmap --from 1 --to 65535';
-    } else {
-	return "Error: invalid group type";
-    }
+    my $ipset_param = $grouptype_hash{$self->{_type}};
+    return "Error: invalid group type\n" if ! defined $ipset_param;
+
+    if ($self->{_type} eq 'port') {
+	$ipset_param .= ' --from 1 --to 65535';
+    } 
     
     my $func = (caller(0))[3];
     my $cmd = "ipset -N $self->{_name} $ipset_param";
