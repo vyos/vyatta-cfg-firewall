@@ -250,7 +250,7 @@ sub rule {
     $srcdst = 'dst' if $direction eq 'destination';
 
     return (undef, "Invalid direction [$direction]") if ! defined $srcdst;
-    return ("-m set --set $grp $srcdst ", );
+    return (" -m set --set $grp $srcdst ", );
 }
 
 1;
