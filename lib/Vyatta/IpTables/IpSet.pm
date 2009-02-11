@@ -74,7 +74,7 @@ sub exists {
     return 0 if ! defined $self->{_name};
     my $func = (caller(0))[3];
     my $cmd = "ipset -L $self->{_name}";
-    my $rc = system("sudo $cmd > /dev/null &>2");
+    my $rc = system("$cmd > /dev/null &>2");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return $rc ? 0 : 1;
 }
@@ -84,7 +84,7 @@ sub get_type {
 
     return $self->{_type} if defined $self->{_type};
     return if ! $self->exists();
-    my @lines = `sudo ipset -L $self->{_name}`;
+    my @lines = `ipset -L $self->{_name}`;
     my $type;
     foreach my $line (@lines) {
 	if ($line =~ /^Type:\s+(\w+)$/) {
@@ -118,7 +118,7 @@ sub create {
     
     my $func = (caller(0))[3];
     my $cmd = "ipset -N $self->{_name} $ipset_param";
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
@@ -128,7 +128,7 @@ sub references {
     my ($self) = @_;
 
     return 0 if ! $self->exists();
-    my @lines = `sudo ipset -L $self->{_name}`;
+    my @lines = `ipset -L $self->{_name}`;
     foreach my $line (@lines) {
 	if ($line =~ /^References:\s+(\d+)$/) {
 	    return $1;
@@ -148,7 +148,7 @@ sub delete {
 
     my $func = (caller(0))[3];
     my $cmd = "ipset -X $self->{_name}";
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
@@ -203,7 +203,7 @@ sub member_exists {
     
     my $func = (caller(0))[3];
     my $cmd = "ipset -T $self->{_name} $member -q";
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return $rc ? 0 : 1;    
 }
@@ -219,7 +219,7 @@ sub add_member {
     }
     my $func = (caller(0))[3];
     my $cmd = "ipset -A $self->{_name} $member";
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
@@ -236,7 +236,7 @@ sub delete_member {
     }
     my $func = (caller(0))[3];
     my $cmd = "ipset -D $self->{_name} $member";
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef

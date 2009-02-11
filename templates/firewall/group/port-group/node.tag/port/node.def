@@ -2,7 +2,7 @@ multi:
 type: txt
 help: Set a port-group member
 
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl \
+syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \
                            --set-name=$VAR(../@)          \
                            --set-type=port                \
