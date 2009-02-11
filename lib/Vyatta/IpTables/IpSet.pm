@@ -157,9 +157,22 @@ sub check_member {
 	if (!Vyatta::TypeChecker::validateType('ipv4', $member, 1)) {
 	    return "Error: [$member] isn't valid IPv4 address\n";
 	}
+	if ($member eq '0.0.0.0') {
+	    return "Error: zero IP address not valid in address-group\n";
+	}
     } elsif ($self->{_type} eq 'network') {
 	if (!Vyatta::TypeChecker::validateType('ipv4net', $member, 1)) {
 	    return "Error: [$member] isn't valid IPv4 network\n";
+	}
+	if ($member =~ /([\d.]+)\/(\d+)/) {
+	    my $net  = $1;
+	    my $cidr = $2;
+	    return "Error: zero net invalid in network-group\n" 
+		if $net eq '0.0.0.0';
+	    return "Error: zero cidr invalid in network-group\n" 
+		if $cidr eq '0';
+	} else {
+	    return "Error: Invalid network group [$member]\n";
 	}
     } elsif ($self->{_type} eq 'port') {
 	if ($member =~ /^\d/) {
