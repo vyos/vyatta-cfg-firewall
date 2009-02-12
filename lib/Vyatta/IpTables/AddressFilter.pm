@@ -215,6 +215,7 @@ sub rule {
       $rule .= ("-m iprange $negate--dst-range $start-$self->{_range_stop} ");
     }
     $group_ok{address} = 0;
+    $group_ok{network} = 0;
   }
 
   $group_ok{port} = 0 if defined $self->{_port};
