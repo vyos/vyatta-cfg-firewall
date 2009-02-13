@@ -1,0 +1,11 @@
+type: txt
+help: Set group of addresses
+
+syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
+                           --action=check-set-type        \
+                           --set-name=$VAR(@)             \
+                           --set-type=address;"
+
+allowed: local -a array
+         array=( /opt/vyatta/config/active/firewall/group/address-group/* )
+         echo -n ${array[@]##*/}
