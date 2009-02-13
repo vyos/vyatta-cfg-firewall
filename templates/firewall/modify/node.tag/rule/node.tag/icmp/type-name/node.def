@@ -12,12 +12,7 @@ array=(any echo-reply destination-unreachable network-unreachable
        ttl-zero-during-reassembly parameter-problem ip-header-bad
        required-option-missing timestamp-request timestamp-reply
        address-mask-request address-mask-reply)
-len=${#array[*]}
-i=0
-while [ $i -lt $len ]; do
- echo "${array[$i]}"
- let i++
-done
+echo -n ${array[@]}
 
 syntax:expression: exec "
 array=(any echo-reply destination-unreachable network-unreachable
