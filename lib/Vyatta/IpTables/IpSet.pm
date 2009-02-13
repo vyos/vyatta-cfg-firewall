@@ -34,9 +34,10 @@ use strict;
 use warnings;
 
 my %fields = (
-    _name  => undef,
-    _type  => undef,  # vyatta group type, not ipset type
-    _debug => undef,
+    _name   => undef,
+    _type   => undef,  # vyatta group type, not ipset type
+    _exists => undef,
+    _debug  => undef,
 );
 
 my %grouptype_hash = (
@@ -71,11 +72,13 @@ sub debug {
 sub exists {
     my ($self) = @_;
 
+    return 1 if defined $self->{_exists};
     return 0 if ! defined $self->{_name};
     my $func = (caller(0))[3];
     my $cmd = "ipset -L $self->{_name}";
     my $rc = system("$cmd > /dev/null &>2");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    $self->{_exists} = 1 if $rc eq 0;
     return $rc ? 0 : 1;
 }
 
