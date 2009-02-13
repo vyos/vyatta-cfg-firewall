@@ -99,12 +99,23 @@ sub ipset_show_members {
     die "Error: undefined set_name\n" if ! defined $set_name; 
     my $group = new Vyatta::IpTables::IpSet($set_name);    
     return "Group [$set_name] has not been defined\n" if ! $group->exists();
-    my $type = $group->get_type();
+    my $type    = $group->get_type();
     my @members = $group->get_members();
     print "Name   : $set_name\n";
     print "Type   : $type\n";
     print "Members:\n";
     print @members;
+    return;
+}
+
+sub ipset_show_sets {
+    my @lines = `ipset -L -n`;
+    foreach my $line (@lines) {
+	if ($line =~ /^Name:\s+(\S+)$/ ) {
+	    ipset_show_members($1);
+	    print "\n";
+	}
+    }
     return;
 }
 
@@ -136,6 +147,8 @@ $rc = ipset_delete_member($set_name, $member) if $action eq 'delete-member';
 $rc = ipset_check_set_type($set_name, $set_type) if $action eq 'check-set-type';
 
 $rc = ipset_show_members($set_name) if $action eq 'show-set-members';
+
+$rc = ipset_show_sets() if $action eq 'show-sets';
 
 if (defined $rc) {
     print $rc;
