@@ -1,3 +1,22 @@
+vyatta-cfg-firewall (0.13.7-6) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * Add back parameter that was dropped when converting to use
+    run_cmd().
+  * Add more firewall group validation before calling ipset.
+  * Add more validation of firewall network-group before calling ipset.
+  * Add space in front of match rule just in case other match rules
+    don't.
+  * Clean up mapping between vyatta firewall group_type vs ipset
+    set_type.
+  * Change sudo usage to be more consistent.
+  * Add check for combination of IP range and network-group.
+
+  [ Mohit Mehta ]
+  * better off storing icmp type-names than depend on iptables help
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 12 Feb 2009 17:33:55 -0800
+
 vyatta-cfg-firewall (0.13.7-5) unstable; urgency=low
 
   * Delete commented out code.
