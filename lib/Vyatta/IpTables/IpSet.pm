@@ -102,6 +102,20 @@ sub get_type {
     return $self->{_type};
 }
 
+sub get_members {
+    my ($self) = @_;
+    
+    my @members = ();
+    if (! defined $self->{_type}) {
+	return @members if ! $self->exists();
+    }
+    my @lines = `ipset -L $self->{_name} -n`;
+    foreach my $line (@lines) {
+	push @members, $line if $line =~ /^\d/;
+    }
+    return @members;
+}
+
 sub create {
     my ($self) = @_;
         
