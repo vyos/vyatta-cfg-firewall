@@ -1,3 +1,25 @@
+vyatta-cfg-firewall (0.13.7-7) unstable; urgency=low
+
+  [ Mohit Mehta ]
+  * no need to use loop to echo allowed values
+
+  [ Stig Thormodsrud ]
+  * Add allow values for firewall groups.
+  * Add firewall group nodes to firewall modify.
+  * Add check for combining network-group and address-group.
+  * Add support for "show firewall group".
+  * Cache exists() to reduce calls to external /usr/sbin/ipset.
+  * Add show-set to display all sets.
+
+  [ Mohit Mehta ]
+  * Fix Bug 4074 firewall broadcast ping parameter needs to be clarified
+
+  [ Stig Thormodsrud ]
+  * Add description and references to "show firewall group".
+  * Make "show firewall group" work for operator.
+
+ -- Stig Thormodsrud <stig@io.vyatta.com>  Fri, 13 Feb 2009 20:52:51 -0800
+
 vyatta-cfg-firewall (0.13.7-6) unstable; urgency=low
 
   [ Stig Thormodsrud ]
