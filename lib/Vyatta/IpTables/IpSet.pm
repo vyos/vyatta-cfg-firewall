@@ -259,6 +259,46 @@ sub delete_member {
     return; # undef
 }
 
+sub get_description {
+    my ($self) = @_;
+
+    return if ! $self->exists();
+    my $config = new Vyatta::Config;
+    my $group_type = "$self->{_type}-group";
+    $config->setLevel("firewall group $group_type $self->{_name}");    
+    return $config->returnOrigValue('description');
+}
+
+sub get_firewall_references {
+    my ($self) = @_;
+    
+    return if ! $self->exists();
+    my @fw_refs = ();
+    my $config = new Vyatta::Config;
+    foreach my $tree ('name', 'modify') {
+	my $path = "firewall $tree ";
+	$config->setLevel($path);
+	my @names = $config->listOrigNodes();
+	foreach my $name (@names) {
+	    my $name_path = "$path $name rule ";
+	    $config->setLevel($name_path);
+	    my @rules = $config->listOrigNodes();
+	    foreach my $rule (@rules) {
+		foreach my $dir ('source', 'destination') {
+		    my $rule_path .= "$name_path $rule $dir group";
+		    $config->setLevel($rule_path);
+		    my $group_type = "$self->{_type}-group";
+		    my $value =  $config->returnOrigValue($group_type);
+		    if (defined $value and $self->{_name} eq $value) {
+			push @fw_refs, "$name-$rule-$dir";
+		    }
+		} # foreach $dir
+	    } # foreach $rule
+	} # foreach $name
+    } # foreach $tree
+    return @fw_refs;
+}
+
 sub rule {
     my ($self, $direction) = @_;
 

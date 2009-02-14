@@ -97,13 +97,19 @@ sub ipset_show_members {
     my ($set_name) = @_;
 
     die "Error: undefined set_name\n" if ! defined $set_name; 
-    my $group = new Vyatta::IpTables::IpSet($set_name);    
+    my $group = new Vyatta::IpTables::IpSet($set_name);
     return "Group [$set_name] has not been defined\n" if ! $group->exists();
     my $type    = $group->get_type();
     my @members = $group->get_members();
-    print "Name   : $set_name\n";
-    print "Type   : $type\n";
-    print "Members:\n";
+    my $desc    = $group->get_description();
+    my @fw_refs = $group->get_firewall_references();
+    push @fw_refs, 'none' if scalar(@fw_refs) == 0;
+
+    print "Name       : $set_name\n";
+    print "Type       : $type\n";
+    print "Description: $desc\n" if defined $desc;
+    print "References : ", join(', ', @fw_refs), "\n";
+    print "Members    :\n";
     print @members;
     return;
 }
