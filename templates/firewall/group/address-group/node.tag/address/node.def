@@ -1,5 +1,5 @@
 multi: 
-type: ipv4
+type: txt
 help: Set a address-group member
 
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
@@ -10,8 +10,12 @@ syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
 
 create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
           --set-name=$VAR(../@)                                   \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
 
 delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
+
+comp_help: Possible completions:
+  <x.x.x.x>                 IPv4 address to match
+  <x.x.x.x>-<x.x.x.x>       IPv4 range to match (e.g. 10.0.0.1-10.0.0.200)

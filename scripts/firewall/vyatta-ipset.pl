@@ -105,12 +105,13 @@ sub ipset_show_members {
     my @fw_refs = $group->get_firewall_references();
     push @fw_refs, 'none' if scalar(@fw_refs) == 0;
 
+    my $padding = ' ' x 13;
     print "Name       : $set_name\n";
     print "Type       : $type\n";
     print "Description: $desc\n" if defined $desc;
     print "References : ", join(', ', @fw_refs), "\n";
     print "Members    :\n";
-    print @members;
+    print $padding, join($padding, @members);
     return;
 }
 

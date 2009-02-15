@@ -10,8 +10,13 @@ syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
 
 create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
           --set-name=$VAR(../@)                                   \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
 
 delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
+
+comp_help: Possible completions:
+  <port name>       Named port (any name in /etc/services, e.g., http)
+  <1-65535>         Numbered port
+  <start>-<end>     Numbered port range (e.g. 1001-1050)

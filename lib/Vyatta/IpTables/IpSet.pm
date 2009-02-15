@@ -72,13 +72,14 @@ sub debug {
 sub exists {
     my ($self) = @_;
 
-    return 1 if defined $self->{_exists};
+    return 1 if   defined $self->{_exists};
     return 0 if ! defined $self->{_name};
     my $func = (caller(0))[3];
     my $cmd = "ipset -L $self->{_name}";
     my $rc = system("$cmd > /dev/null &>2");
     system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
     $self->{_exists} = 1 if $rc eq 0;
+    $self->get_type() if ! defined $self->{_type};
     return $rc ? 0 : 1;
 }
 
@@ -112,7 +113,7 @@ sub get_members {
     if (! defined $self->{_type}) {
 	return @members if ! $self->exists();
     }
-    my @lines = `ipset -L $self->{_name} -n`;
+    my @lines = `ipset -L $self->{_name} -n -s`;
     foreach my $line (@lines) {
 	push @members, $line if $line =~ /^\d/;
     }
@@ -171,22 +172,42 @@ sub delete {
     return; # undef
 }
 
+sub check_member_address {
+    my $member = shift;
+
+    if (!Vyatta::TypeChecker::validateType('ipv4', $member, 1)) {
+	return "Error: [$member] isn't valid IPv4 address\n";
+    }
+    if ($member eq '0.0.0.0') {
+	return "Error: zero IP address not valid in address-group\n";
+    }
+    return;
+}
+
 sub check_member {
     my ($self, $member) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: undefined group type" if ! defined $self->{_type};
 
+    # We can't call $self->member_exists() here since this is a
+    # syntax check and the group may not have been created yet
+    # if there hasn't been a commit yet on this group.  Move the
+    # exists check to $self->add_member().
+
     if ($self->{_type} eq 'address') {
-	if (!Vyatta::TypeChecker::validateType('ipv4', $member, 1)) {
-	    return "Error: [$member] isn't valid IPv4 address\n";
-	}
-	if ($member eq '0.0.0.0') {
-	    return "Error: zero IP address not valid in address-group\n";
+	if ($member =~ /^([\d\.]+)-([\d\.]+)$/) {
+	    foreach my $address ($1, $2) {
+		my $rc = check_member_address($address);
+		return $rc if defined $rc;
+	    }
+	} else {
+	    my $rc = check_member_address($member);
+	    return $rc if defined $rc;
 	}
     } elsif ($self->{_type} eq 'network') {
 	if (!Vyatta::TypeChecker::validateType('ipv4net', $member, 1)) {
-	    return "Error: [$member] isn't valid IPv4 network\n";
+	    return "Error: [$member] isn't a valid IPv4 network\n";
 	}
 	if ($member =~ /([\d.]+)\/(\d+)/) {
 	    my ($net, $mask) = ($1, $2);
@@ -198,15 +219,20 @@ sub check_member {
 	    return "Error: Invalid network group [$member]\n";
 	}
     } elsif ($self->{_type} eq 'port') {
-	if ($member =~ /^\d/) {
+	if ($member =~ /^(\d+)-(\d+)$/) {
+	    my ($success, $err) = Vyatta::Misc::isValidPortRange($member, '-');
+	    if (!defined $success) {
+		return "Error: [$member] isn't a valid port range\n";
+	    }
+	} elsif ($member =~ /^\d/) {
 	    my ($success, $err) = Vyatta::Misc::isValidPortNumber($member);
 	    if (!defined $success) {
-		return "Error: [$member] isn't valid port number\n";
+		return "Error: [$member] isn't a valid port number\n";
 	    }
 	} else {
 	    my ($success, $err) = Vyatta::Misc::isValidPortName($member);
 	    if (!defined $success) {
-		return "Error: [$member] isn't valid port name\n";
+		return "Error: [$member] isn't a valid port name\n";
 	    }
 	}
     } else {
@@ -225,11 +251,36 @@ sub member_exists {
     return $rc ? 0 : 1;    
 }
 
+sub add_member_range {
+    my ($self, $start, $stop) = @_;    
+    
+    if ($self->{_type} eq 'port') {
+	foreach my $member ($start .. $stop) {
+	    my $rc = $self->add_member($member);
+	    return $rc if defined $rc;
+	}
+    } elsif ($self->{_type} eq 'address') {
+	# $start_ip++ won't work if it doesn't know the 
+	# prefix, so we'll make a big range.
+	my $start_ip = new NetAddr::IP("$start/16");
+	my $stop_ip  = new NetAddr::IP($stop);
+	for (; $start_ip <= $stop_ip; $start_ip++) {
+	    my $rc = $self->add_member($start_ip->addr());
+	    return $rc if defined $rc;
+	}
+    }
+    return;
+}
+
 sub add_member {
     my ($self, $member) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
+
+    if ($member =~ /^([^-]+)-([^-]+)$/) {
+	return $self->add_member_range($1, $2);
+    }
 
     if ($self->member_exists($member)) {
 	return "Error: member [$member] already exists in [$self->{_name}]\n";
@@ -242,11 +293,34 @@ sub add_member {
     return; # undef
 }
 
+sub delete_member_range {
+    my ($self, $start, $stop) = @_;    
+    
+    if ($self->{_type} eq 'port') {
+	foreach my $member ($start .. $stop) {
+	    my $rc = $self->delete_member($member);
+	    return $rc if defined $rc;
+	}
+    } elsif ($self->{_type} eq 'address') {
+	my $start_ip = new NetAddr::IP("$start/8");
+	my $stop_ip  = new NetAddr::IP($stop);
+	for (; $start_ip <= $stop_ip; $start_ip++) {
+	    my $rc = $self->delete_member($start_ip->addr());
+	    return $rc if defined $rc;
+	}
+    }
+    return;
+}
+
 sub delete_member {
     my ($self, $member) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
+
+    if ($member =~ /^([^-]+)-([^-]+)$/) {
+	return $self->delete_member_range($1, $2);
+    }
 
     if (!$self->member_exists($member)) {
 	return "Error: member [$member] doesn't exists in [$self->{_name}]\n";
@@ -272,8 +346,8 @@ sub get_description {
 sub get_firewall_references {
     my ($self) = @_;
     
-    return if ! $self->exists();
     my @fw_refs = ();
+    return @fw_refs if ! $self->exists();
     my $config = new Vyatta::Config;
     foreach my $tree ('name', 'modify') {
 	my $path = "firewall $tree ";
@@ -285,7 +359,7 @@ sub get_firewall_references {
 	    my @rules = $config->listOrigNodes();
 	    foreach my $rule (@rules) {
 		foreach my $dir ('source', 'destination') {
-		    my $rule_path .= "$name_path $rule $dir group";
+		    my $rule_path = "$name_path $rule $dir group";
 		    $config->setLevel($rule_path);
 		    my $group_type = "$self->{_type}-group";
 		    my $value =  $config->returnOrigValue($group_type);

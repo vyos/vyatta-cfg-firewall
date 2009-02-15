@@ -13,8 +13,11 @@ syntax:expression: exec "                                 \
 
 create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
           --set-name=$VAR(../@)                                   \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
 
 delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
-          --member="$VAR(@) "
+          --member="$VAR(@)"
+
+comp_help: Possible completions:
+  <x.x.x.x/x>               IPv4 Subnet to match
