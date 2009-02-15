@@ -302,7 +302,7 @@ sub delete_member_range {
 	    return $rc if defined $rc;
 	}
     } elsif ($self->{_type} eq 'address') {
-	my $start_ip = new NetAddr::IP("$start/8");
+	my $start_ip = new NetAddr::IP("$start/16");
 	my $stop_ip  = new NetAddr::IP($stop);
 	for (; $start_ip <= $stop_ip; $start_ip++) {
 	    my $rc = $self->delete_member($start_ip->addr());
