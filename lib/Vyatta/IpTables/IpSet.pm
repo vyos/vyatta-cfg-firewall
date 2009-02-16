@@ -69,15 +69,24 @@ sub debug {
     $self->{_debug} = 1 if $onoff eq "on";
 }
 
+sub run_cmd {
+    my ($self, $cmd) = @_;
+
+    my $rc = system("$cmd");
+    if (defined $self->{_debug}) {
+	my $func = (caller(1))[3];
+	system("$logger [$func] [$cmd] = [$rc]");
+    }
+    return $rc;
+}
+
 sub exists {
     my ($self) = @_;
 
     return 1 if   defined $self->{_exists};
     return 0 if ! defined $self->{_name};
-    my $func = (caller(0))[3];
-    my $cmd = "ipset -L $self->{_name}";
-    my $rc = system("$cmd > /dev/null &>2");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    my $cmd = "ipset -L $self->{_name} > /dev/null &>2";
+    my $rc = $self->run_cmd($cmd);
     $self->{_exists} = 1 if $rc eq 0;
     $self->get_type() if ! defined $self->{_type};
     return $rc ? 0 : 1;
@@ -133,11 +142,9 @@ sub create {
     if ($self->{_type} eq 'port') {
 	$ipset_param .= ' --from 1 --to 65535';
     } 
-    
-    my $func = (caller(0))[3];
-    my $cmd = "ipset -N $self->{_name} $ipset_param";
-    my $rc = system("$cmd");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+
+    my $cmd = "ipset -N $self->{_name} $ipset_param";    
+    my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
 }
@@ -164,10 +171,8 @@ sub delete {
     my $refs = $self->references();
     return "Error: group [$self->{_name}] still in use.\n" if $refs != 0;
 
-    my $func = (caller(0))[3];
     my $cmd = "ipset -X $self->{_name}";
-    my $rc = system("$cmd");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
 }
@@ -196,7 +201,7 @@ sub check_member {
     # exists check to $self->add_member().
 
     if ($self->{_type} eq 'address') {
-	if ($member =~ /^([\d\.]+)-([\d\.]+)$/) {
+	if ($member =~ /^([^-]+)-([^-]+)$/) {
 	    foreach my $address ($1, $2) {
 		my $rc = check_member_address($address);
 		return $rc if defined $rc;
@@ -219,22 +224,15 @@ sub check_member {
 	    return "Error: Invalid network group [$member]\n";
 	}
     } elsif ($self->{_type} eq 'port') {
+	my ($success, $err) = (undef, "invalid port [$member]");
 	if ($member =~ /^(\d+)-(\d+)$/) {
-	    my ($success, $err) = Vyatta::Misc::isValidPortRange($member, '-');
-	    if (!defined $success) {
-		return "Error: [$member] isn't a valid port range\n";
-	    }
+	    ($success, $err) = Vyatta::Misc::isValidPortRange($member, '-');
 	} elsif ($member =~ /^\d/) {
-	    my ($success, $err) = Vyatta::Misc::isValidPortNumber($member);
-	    if (!defined $success) {
-		return "Error: [$member] isn't a valid port number\n";
-	    }
+	    ($success, $err) = Vyatta::Misc::isValidPortNumber($member);
 	} else {
-	    my ($success, $err) = Vyatta::Misc::isValidPortName($member);
-	    if (!defined $success) {
-		return "Error: [$member] isn't a valid port name\n";
-	    }
+	    ($success, $err) = Vyatta::Misc::isValidPortName($member);
 	}
+	return "Error: $err\n" if defined $err;
     } else {
 	return "Error: invalid set type [$self->{_type}]";
     }
@@ -244,10 +242,8 @@ sub check_member {
 sub member_exists {
     my ($self, $member) = @_;
     
-    my $func = (caller(0))[3];
     my $cmd = "ipset -T $self->{_name} $member -q";
-    my $rc = system("$cmd");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    my $rc = $self->run_cmd($cmd);
     return $rc ? 0 : 1;    
 }
 
@@ -285,10 +281,8 @@ sub add_member {
     if ($self->member_exists($member)) {
 	return "Error: member [$member] already exists in [$self->{_name}]\n";
     }
-    my $func = (caller(0))[3];
     my $cmd = "ipset -A $self->{_name} $member";
-    my $rc = system("$cmd");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
 }
@@ -325,10 +319,8 @@ sub delete_member {
     if (!$self->member_exists($member)) {
 	return "Error: member [$member] doesn't exists in [$self->{_name}]\n";
     }
-    my $func = (caller(0))[3];
     my $cmd = "ipset -D $self->{_name} $member";
-    my $rc = system("$cmd");
-    system("$logger [$func] [$cmd] = [$rc]") if defined $self->{_debug};
+    my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
 }
