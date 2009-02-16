@@ -87,8 +87,10 @@ sub exists {
     return 0 if ! defined $self->{_name};
     my $cmd = "ipset -L $self->{_name} > /dev/null &>2";
     my $rc = $self->run_cmd($cmd);
-    $self->{_exists} = 1 if $rc eq 0;
-    $self->get_type() if ! defined $self->{_type};
+    if ($rc eq 0) {
+	$self->{_exists} = 1;
+	$self->get_type() if ! defined $self->{_type};
+    }
     return $rc ? 0 : 1;
 }
 
@@ -115,16 +117,45 @@ sub get_type {
     return $self->{_type};
 }
 
+sub alphanum_split {
+    my ($str) = @_;
+    my @list = split m/(?=(?<=\D)\d|(?<=\d)\D)/, $str;
+    return @list;
+}
+
+sub natural_order {
+    my ($a, $b) = @_;
+    my @a = alphanum_split($a);
+    my @b = alphanum_split($b);
+  
+    while (@a && @b) {
+	my $a_seg = shift @a;
+	my $b_seg = shift @b;
+	my $val;
+	if (($a_seg =~ /\d/) && ($b_seg =~ /\d/)) {
+	    $val = $a_seg <=> $b_seg;
+	} else {
+	    $val = $a_seg cmp $b_seg;
+	}
+	if ($val != 0) {
+	    return $val;
+	}
+    }
+    return @a <=> @b;
+}
+
 sub get_members {
     my ($self) = @_;
     
     my @members = ();
-    if (! defined $self->{_type}) {
-	return @members if ! $self->exists();
-    }
+    return @members if ! $self->exists();
+
     my @lines = `ipset -L $self->{_name} -n -s`;
     foreach my $line (@lines) {
 	push @members, $line if $line =~ /^\d/;
+    }
+    if ($self->{_type} ne 'port') {
+	@members = sort { natural_order($a,$b) } @members;
     }
     return @members;
 }
@@ -205,6 +236,11 @@ sub check_member {
 	    foreach my $address ($1, $2) {
 		my $rc = check_member_address($address);
 		return $rc if defined $rc;
+	    }
+	    my $start_ip = new NetAddr::IP($1);
+	    my $stop_ip  = new NetAddr::IP($2);
+	    if ($stop_ip <= $start_ip) {
+		return "Error: $1 must be less than $2\n";
 	    }
 	} else {
 	    my $rc = check_member_address($member);
