@@ -23,6 +23,7 @@ my %fields = (
   _icmp_code   => undef,
   _icmp_type   => undef,
   _icmp_name   => undef,
+  _icmpv6_type => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
   _ipsec       => undef,
@@ -73,6 +74,7 @@ my %dummy_rule = (
   _icmp_code   => undef,
   _icmp_type   => undef,
   _icmp_name   => undef,
+  _icmpv6_type => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
   _ipsec       => undef,
@@ -151,6 +153,7 @@ sub setup_base {
   $self->{_icmp_code}   = $config->$val_func("icmp code");
   $self->{_icmp_type}   = $config->$val_func("icmp type");
   $self->{_icmp_name}   = $config->$val_func("icmp type-name");
+  $self->{_icmpv6_type} = $config->$val_func("icmpv6 type");
   $self->{_mod_mark}    = $config->$val_func("modify mark");
   $self->{_mod_dscp}    = $config->$val_func("modify dscp");
   $self->{_ipsec}       = $config->$exists_func("ipsec match-ipsec");
@@ -225,6 +228,8 @@ sub print {
   print "log: $self->{_log}\n"             if defined $self->{_log};
   print "icmp code: $self->{_icmp_code}\n" if defined $self->{_icmp_code};
   print "icmp type: $self->{_icmp_type}\n" if defined $self->{_icmp_type};
+  print "icmpv6 type: $self->{_icmpv6_type}\n"
+                                           if defined $self->{_icmpv6_type};
   print "mod mark: $self->{_mod_mark}\n"   if defined $self->{_mod_mark};
   print "mod dscp: $self->{_mod_dscp}\n"   if defined $self->{_mod_dscp};
 
@@ -339,6 +344,18 @@ sub rule {
   } elsif (defined($self->{_icmp_type}) || defined($self->{_icmp_code}) 
            || defined($self->{_icmp_name})) {
      return ("ICMP type/code or type-name can only be defined if protocol is ICMP", );
+  }
+
+  # Setup ICMPv6 rule if configured
+  # ICMPv6 parameters are only valid if the rule is matching on the 
+  # ICMPv6 protocol ID.
+  # 
+  if (($self->{_protocol} eq "icmpv6") || 
+      ($self->{_protocol} eq "ipv6-icmp") || 
+      ($self->{_protocol} eq "58")) {
+    if (defined($self->{_icmpv6_type})) {
+      $rule .= "-m icmpv6 --icmpv6-type $self->{_icmpv6_type}";
+    }
   }
 
   # add the source and destination rules

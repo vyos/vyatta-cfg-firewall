@@ -1,5 +1,0 @@
-type: u32; "ICMP code must be between 0 and 255"
-
-help: Set ICMP code (0-255)
-
-syntax:expression: $VAR(@) >=0 && $VAR(@) <= 255; "ICMP code must be between 0 and 255"
