@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-10) unstable; urgency=low
+
+  * Multiple updates for IPv6:
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Wed, 18 Feb 2009 16:52:51 -0800
+
 vyatta-cfg-firewall (0.13.7-9) UNRELEASED; urgency=low
 
   * Add check for address range starting with higher address.
