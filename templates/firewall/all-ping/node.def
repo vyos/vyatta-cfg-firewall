@@ -1,0 +1,29 @@
+# icmp_echo_ignore_all 
+# default value - 0
+# If set non-zero, then kernel will ignore all ICMP ECHO requests sent to it
+
+type: txt
+
+help: Set handling of all IPv4 ICMP echo requests
+
+comp_help:Possible completions:
+  disable\tDisable processing of all IPv4 ICMP echo requests
+  enable\tEnable processing of all IPv4 ICMP echo requests
+
+default: "enable"
+
+syntax:expression: $VAR(@) in "enable", "disable"; "all-ping must be enable or disable"
+
+update:
+	if [ x$VAR(@) == xdisable ]; then
+	    sudo sh -c "echo 1 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_all"
+        else
+	    sudo sh -c "echo 0 > \
+	    	 /proc/sys/net/ipv4/icmp_echo_ignore_all"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > \
+	     /proc/sys/net/ipv4/icmp_echo_ignore_all"
+

@@ -1,0 +1,35 @@
+# rp_filter 
+# default value - 0
+# conf/all/rp_filter and conf/[interface]/rp_filter both must be set to TRUE 
+# to do source validation on the interface
+
+
+type: txt
+
+help: Set policy for source validation by reversed path, as specified in RFC1812
+
+comp_help:Possible completions:
+  enable\tDo source validation
+  disable\tNo source validation
+
+default: "disable"
+
+syntax:expression: $VAR(@) in "enable", "disable"; "source-validation must be enable or disable"
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+            array=(`ls /proc/sys/net/ipv4/conf/`)
+            array_len=${#array[*]}
+            i=0
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 1 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/rp_filter"
+               let i++
+            done
+        else
+	    sudo sh -c "echo 0 > \
+		/proc/sys/net/ipv4/conf/all/rp_filter"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter"
