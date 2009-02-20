@@ -1,3 +1,12 @@
+vyatta-cfg-firewall (0.13.7-11) unstable; urgency=low
+
+  * Fix Bug 3951 default values for kernel tunable security parameters
+    under firewall
+  * Fix Bug 3951 default values for kernel tunable security parameters
+    under firewall
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 19 Feb 2009 19:14:17 -0800
+
 vyatta-cfg-firewall (0.13.7-10) unstable; urgency=low
 
   * Multiple updates for IPv6:
