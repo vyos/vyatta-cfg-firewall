@@ -1,3 +1,8 @@
+# tcp_syncookies 
+# default value - 1 
+# Send out syncookies when the syn backlog queue of a socket overflows. 
+# This is to prevent against the common 'syn flood attack' 
+
 type: txt
 
 help: Set policy for using TCP SYN cookies with IPv4

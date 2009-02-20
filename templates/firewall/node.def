@@ -8,3 +8,5 @@ create:
 
 delete:
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown
+        # set conntrack table size to standard 16384 entries if firewall disabled
+        sudo sh -c "echo 16384 > /proc/sys/net/nf_conntrack_max"

@@ -11,10 +11,15 @@
 # tracking table consumes kernel memory, so the size selected should
 # be no larger than necessary.
 #
+# default value when firewall is not set - 16384
+# default value when firewall is set - 32768
+#
 
 type: u32
 
 help: Set size of netfilter connection tracking table
+
+default: 32768
 
 comp_help:Possible completions:
   <1 - 50000000>\tNumber of entries allowed in connection tracking table
@@ -23,9 +28,6 @@ syntax:expression: ($VAR(@) >= 1 && $VAR(@) <= 50000000) ; "Value must be betwee
 
 update:
 	sudo sh -c "echo $VAR(@) > \
-    	 		/proc/sys/net/nf_conntrack_max"
-delete:
-	sudo sh -c "echo 32768 > \
     	 		/proc/sys/net/nf_conntrack_max"
 
 

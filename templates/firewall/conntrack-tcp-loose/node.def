@@ -10,7 +10,7 @@
 #
 # If this parameter is set to "enable", tracking such connections is
 # allowed.  If disabled, such tracking is disabled.
-# 
+# default value - 1
 
 type: txt
 

@@ -1,3 +1,8 @@
+# icmp_echo_ignore_broadcasts
+# default value - 1
+# If set non-zero, then the kernel will ignore all 
+# ICMP ECHO and TIMESTAMP requests sent to it via broadcast/multicast.
+
 type: txt
 
 help: Set handling of broadcast IPv4 ICMP echo and timestamp requests
@@ -9,15 +14,6 @@ comp_help:Possible completions:
 default: "disable"
 
 syntax:expression: $VAR(@) in "enable", "disable"; "broadcast-ping must be enable or disable"
-
-create:
-	if [ x$VAR(@) == xenable ]; then
-	    sudo sh -c "echo 0 > \
-	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
-        else
-	    sudo sh -c "echo 1 > \
-	    	 /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts"
-	fi
 
 update:
 	if [ x$VAR(@) == xenable ]; then

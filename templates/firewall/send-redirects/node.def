@@ -1,3 +1,9 @@
+# send_redirects 
+# default value - 1 
+# send_redirects for the interface will be enabled if at least one of 
+# conf/{all,interface}/send_redirects is set to TRUE, else it will be disabled.
+
+
 type: txt
 
 help: Set policy for sending IPv4 ICMP redirect messages
@@ -6,23 +12,25 @@ comp_help:Possible completions:
   enable\tEnable sending IPv4 ICMP redirect messages
   disable\tDisable sending IPv4 ICMP redirect messages
 
-default: "disable"
+default: "enable"
 
 syntax:expression: $VAR(@) in "enable", "disable"; "send-redirects must be enable or disable"
-
-create:
-	if [ x$VAR(@) == xenable ]; then
-	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects"
-        else
-	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects"
-	fi
 
 update:
 	if [ x$VAR(@) == xenable ]; then
 	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects"
         else
-	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects"
+            # send-redirects can work when either set for 'all' or 'interface'
+            # thus, unset all send-redirects parameters
+            array=(`ls /proc/sys/net/ipv4/conf/`)
+            array_len=${#array[*]}
+            i=0
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 0 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/send_redirects"
+               let i++
+            done
 	fi
 
 delete:
-	sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects"
+	sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects"

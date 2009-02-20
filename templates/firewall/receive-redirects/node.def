@@ -1,3 +1,17 @@
+# accept_redirects - Accept ICMP redirect messages.
+# default value - 0 
+# 
+# accept_redirects for the interface will be enabled if:
+#
+# - both conf/{all,interface}/accept_redirects are TRUE 
+#   in the case forwarding for the interface is enabled
+# or
+# - at least one of conf/{all,interface}/accept_redirects 
+# is TRUE in the case forwarding for the interface is disabled
+#
+# accept_redirects for the interface will be disabled otherwise
+
+
 type: txt
 
 help: Set policy for handling received IPv4 ICMP redirect messages
@@ -10,19 +24,33 @@ default: "disable"
 
 syntax:expression: $VAR(@) in "enable", "disable"; "receive-redirects must be enable or disable"
 
-create:
-	if [ x$VAR(@) == xenable ]; then
-	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects"
-        else
-	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"
-	fi
-
 update:
 	if [ x$VAR(@) == xenable ]; then
-	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+            array=(`ls /proc/sys/net/ipv4/conf/`)
+            array_len=${#array[*]}
+            i=0
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 1 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/accept_redirects"
+               let i++
+            done
         else
-	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+            array=(`ls /proc/sys/net/ipv4/conf/`)
+            array_len=${#array[*]}
+            i=0
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 0 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/accept_redirects"
+               let i++
+            done
 	fi
 
 delete:
-	sudo sh -c "echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects"
+            array=(`ls /proc/sys/net/ipv4/conf/`)
+            array_len=${#array[*]}
+            i=0
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 0 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/accept_redirects"
+               let i++
+            done
