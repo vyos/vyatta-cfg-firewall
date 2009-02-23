@@ -1,0 +1,9 @@
+type: txt
+help: Set weekdays on which to apply rules on
+syntax:expression: pattern $VAR(@) "^!?([[:upper:]][[:lower:]]\{2\}\,)*[[:upper:]][[:lower:]]\{2\}$" ; \
+"Incorrect value for weekdays. Weekdays should be specified using the first
+three characters of the day with the first character capitalized eg. Mon,Thu,Sat
+For negation, add ! in front eg. !Mon,Thu,Sat"
+
+comp_help: Format for weekdays - Mon,Thu,Sat
+To negate add ! at the front eg. !Mon,Thu,Sat

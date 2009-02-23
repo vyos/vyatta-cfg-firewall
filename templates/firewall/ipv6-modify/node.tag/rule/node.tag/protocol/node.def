@@ -1,0 +1,26 @@
+type: txt
+
+help: Set IPv6 protocol to match (protocol name, number, or "all")
+
+syntax:expression: exec "
+	param=$VAR(@)
+	if [ \"$param\" = \"icmpv6\" ]; then 
+	    exit 0
+	fi
+	/opt/vyatta/sbin/vyatta-validate-type.pl protocol_negate '$VAR(@)'
+	" ;
+	"invalid protocol \"$VAR(@)\""
+
+# Provide some help for command completion.  Doesn't return negated
+# values or protocol numbers
+allowed:
+	protos=`cat /etc/protocols | sed -e '/^#.*/d' | awk '{ print $1 }'`
+	protos="all icmpv6 $protos"
+	echo -n $protos
+
+comp_help:Possible completions:
+  <text>        An IPv6 protocol name (e.g. "tcp" or "udp")
+  <1-255>       An IPv6 protocol number
+  all           All IPv6 protocols
+  !<text>       All IPv6 protocols except for the specified name
+  !<1-255>      All IPv6 protocols except for the specified number
