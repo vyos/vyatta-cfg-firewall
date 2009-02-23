@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-12) unstable; urgency=low
+
+  * Add "ipv6-modify" firewall configuration sub-tree.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Mon, 23 Feb 2009 12:00:44 -0800
+
 vyatta-cfg-firewall (0.13.7-11) unstable; urgency=low
 
   * Fix Bug 3951 default values for kernel tunable security parameters
