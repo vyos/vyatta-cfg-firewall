@@ -1,34 +1,41 @@
-# rp_filter 
+# rp_filter
 # default value - 0
-# conf/all/rp_filter and conf/[interface]/rp_filter both must be set to TRUE 
-# to do source validation on the interface
+# conf/all/rp_filter and conf/[interface]/rp_filter both must be set to
+# a value greater than 0 to do source validation on the interface
 
 
 type: txt
 
-help: Set policy for source validation by reversed path, as specified in RFC1812
+help: Set policy for source validation by reversed path, as specified in RFC3704
 
 comp_help:Possible completions:
-  enable\tDo source validation
+  strict\tEnable Strict Reverse Path Forwarding as defined in RFC3704
+  loose\t\tEnable Loose Reverse Path Forwarding as defined in RFC3704
   disable\tNo source validation
 
 default: "disable"
 
-syntax:expression: $VAR(@) in "enable", "disable"; "source-validation must be enable or disable"
+syntax:expression: $VAR(@) in "strict", "loose", "disable"; "source-validation must be set to 'loose', 'strict' or 'disable'"
 
 update:
-	if [ x$VAR(@) == xenable ]; then
-            array=(`ls /proc/sys/net/ipv4/conf/`)
-            array_len=${#array[*]}
-            i=0
+        array=(`ls /proc/sys/net/ipv4/conf/`)
+        array_len=${#array[*]}
+        i=0
+        if [ x$VAR(@) == xstrict ]; then
             while [ $i -lt $array_len ]; do
                sudo sh -c "echo 1 > \
                  /proc/sys/net/ipv4/conf/${array[$i]%:*}/rp_filter"
                let i++
             done
+        elif [ x$VAR(@) == xloose ]; then
+            while [ $i -lt $array_len ]; do
+               sudo sh -c "echo 2 > \
+                 /proc/sys/net/ipv4/conf/${array[$i]%:*}/rp_filter"
+               let i++
+            done
         else
-	    sudo sh -c "echo 0 > \
-		/proc/sys/net/ipv4/conf/all/rp_filter"
+           sudo sh -c "echo 0 > \
+               /proc/sys/net/ipv4/conf/all/rp_filter"
 	fi
 
 delete:
