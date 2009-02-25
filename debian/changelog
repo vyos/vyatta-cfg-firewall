@@ -1,3 +1,14 @@
+vyatta-cfg-firewall (0.13.7-13) unstable; urgency=low
+
+  [ Mohit Mehta ]
+  * Fix Bug 4150 enable loose reverse path filtering
+
+  [ Bob Gilligan ]
+  * Allow IPv6 firewall rulesets to be configured on an interface
+    independent of IPv4.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Tue, 24 Feb 2009 16:43:15 -0800
+
 vyatta-cfg-firewall (0.13.7-12) unstable; urgency=low
 
   * Add "ipv6-modify" firewall configuration sub-tree.
