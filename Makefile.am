@@ -15,9 +15,17 @@ share_perl5_DATA += lib/Vyatta/IpTables/AddressFilter.pm
 share_perl5_DATA += lib/Vyatta/IpTables/IpSet.pm
 
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
-  cpio -0pd
+  cpio -0pdu
+
+
+all-local:
+	./gen-interface-templates.pl
+
+clean-local:
+	rm -rf generated-templates
 
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(cfgdir)
-	cd templates; $(cpiop) $(DESTDIR)$(cfgdir)
+	cd templates; $(cpiop) $(DESTDIR)$(cfgdir); cd ..
+	cd generated-templates; $(cpiop) $(DESTDIR)$(cfgdir); cd ..
 

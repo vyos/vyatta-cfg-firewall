@@ -25,7 +25,7 @@ my ($setup, $teardown, $updaterules);
 GetOptions("setup"             => \$setup, 
            "teardown"          => \$teardown,
  	   "update-rules"      => \$updaterules,
-	   "update-interfaces=s{4}" => \@updateints,
+	   "update-interfaces=s{5}" => \@updateints,
            "debug"             => \$debug_flag,
            "syslog"            => \$syslog_flag
 );
@@ -72,10 +72,13 @@ if (defined $updaterules) {
   exit 0;
 }
 
-if ($#updateints == 3) {
-  my ($action, $int_name, $direction, $chain) = @updateints;
-  my $tree = chain_configured(0, $chain, undef);
+if ($#updateints == 4) {
+  my ($action, $int_name, $direction, $chain, $tree) = @updateints;
+
+  my $tree = chain_configured(1, $chain, $tree);
+
   my $table = $table_hash{$tree};
+
   my $iptables_cmd = $cmd_hash{$tree};
   if ($action eq "update") {
     # make sure chain exists
@@ -90,7 +93,7 @@ if ($#updateints == 3) {
     # from the "other" trees first.
     foreach my $other_tree (keys %table_hash) {
       if ($other_tree ne $tree) {
-        update_ints('delete', $int_name, $direction, $chain, 
+        update_ints('delete', $int_name, $direction, $chain, $tree,
                     $table_hash{$other_tree}, $cmd_hash{$other_tree});
       }
     }
@@ -219,7 +222,7 @@ sub update_rules {
       my $ctree = chain_configured(2, $name, $tree);
       if (defined($ctree)) {
         # chain name must be unique in both trees
-        print STDERR 'Firewall config error: '
+        printf STDERR 'Firewall config error: '
                      . "Rule set name \"$name\" already used in \"$ctree\"\n";
         exit 1;
       }
@@ -349,9 +352,9 @@ sub update_rules {
 }
 
 # returns the "tree" in which the chain is configured; undef if not configured.
-# mode: 0: check if the chain is configured in either tree.
+# mode: 0: check if the chain is configured in any tree.
 #       1: check if it is configured in the specified tree.
-#       2: check if it is configured in the "other" tree.
+#       2: check if it is configured in any "other" tree.
 sub chain_configured {
   my ($mode, $chain, $tree) = @_;
   
@@ -374,7 +377,7 @@ sub chain_configured {
 }
 
 sub update_ints {
-  my ($action, $int_name, $direction, $chain, $table, $iptables_cmd) = @_;
+  my ($action, $int_name, $direction, $chain, $tree, $table, $iptables_cmd) = @_;
   my $interface = undef;
  
   log_msg "update_ints: @_ \n";
