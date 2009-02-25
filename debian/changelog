@@ -1,3 +1,19 @@
+vyatta-cfg-firewall (0.13.7-14) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * Limit firewall name to 29 characters since that is the
+    iptables/ip6tables
+
+  [ Mohit Mehta ]
+  * add ipv6 accept_redirects and accept_source_route under firewall
+
+  [ Stig Thormodsrud ]
+  * Make sure to quote $VAR(@).
+
+  [ Mohit Mehta ]
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 24 Feb 2009 18:56:15 -0800
+
 vyatta-cfg-firewall (0.13.7-13) unstable; urgency=low
 
   [ Mohit Mehta ]
