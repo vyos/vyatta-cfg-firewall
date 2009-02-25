@@ -3,7 +3,7 @@ tag:
 type: txt
 
 syntax:expression: exec "		   	                    \
-        if [ `echo -n $VAR(@) | wc -c` -gt 29 ]; then               \
+        if [ `echo -n \"$VAR(@)\" | wc -c` -gt 29 ]; then           \
           echo  firewall ipv6-modify must be 29 characters or less; \
           exit 1 ;                                                  \
         fi ; "
