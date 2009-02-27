@@ -10,4 +10,6 @@ syntax:expression: exec "			               \
 
 syntax:expression: pattern $VAR(@) "^[^-]" ; "Modify rule set name cannot start with \"-\""
 
+syntax:expression: pattern $VAR(@) "^[^;]*$" ; "Firewall rule set name cannot contain ';'"
+
 help: Set IPv4 modify rule set name
