@@ -48,6 +48,12 @@ my %grouptype_hash = (
 
 my $logger = 'logger -t IpSet.pm -p local0.warn --';
 
+# Currently we restrict an address range to a /24 even 
+# though ipset would support a /16.  The main reason is
+# due to the long time it takes to make that many calls
+# to add each individual member to the set.
+my $addr_range_mask = 24;
+
 sub new {
     my ($that, $name, $type) = @_;
 
@@ -242,6 +248,11 @@ sub check_member {
 	    if ($stop_ip <= $start_ip) {
 		return "Error: $1 must be less than $2\n";
 	    }
+	    my $start_net = new NetAddr::IP("$1/$addr_range_mask");
+	    if (! $start_net->contains($stop_ip)) {
+		return "Error: address range must be within /$addr_range_mask\n";
+	    }
+
 	} else {
 	    my $rc = check_member_address($member);
 	    return $rc if defined $rc;
@@ -294,7 +305,7 @@ sub add_member_range {
     } elsif ($self->{_type} eq 'address') {
 	# $start_ip++ won't work if it doesn't know the 
 	# prefix, so we'll make a big range.
-	my $start_ip = new NetAddr::IP("$start/16");
+	my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
 	my $stop_ip  = new NetAddr::IP($stop);
 	for (; $start_ip <= $stop_ip; $start_ip++) {
 	    my $rc = $self->add_member($start_ip->addr());
@@ -332,7 +343,7 @@ sub delete_member_range {
 	    return $rc if defined $rc;
 	}
     } elsif ($self->{_type} eq 'address') {
-	my $start_ip = new NetAddr::IP("$start/16");
+	my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
 	my $stop_ip  = new NetAddr::IP($stop);
 	for (; $start_ip <= $stop_ip; $start_ip++) {
 	    my $rc = $self->delete_member($start_ip->addr());
