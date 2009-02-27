@@ -4,3 +4,11 @@ help: Set firewall rule action
 
 syntax:expression: $VAR(@) in "drop", "reject", "accept", "inspect";
                    "action must be one of drop, reject, accept, or inspect"
+
+allowed: echo "drop reject accept inspect"
+
+comp_help: Possible completions:
+  drop     Set rule action to drop
+  reject   Set rule action to reject
+  accept   Set rule action to accept
+  inspect  Set rule action to inspect
