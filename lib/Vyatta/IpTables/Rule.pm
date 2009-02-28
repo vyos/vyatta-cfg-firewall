@@ -275,6 +275,19 @@ sub get_state_str {
   }
 }
 
+sub get_log_prefix {
+  my ($chain, $rule_num, $action) = @_;
+
+  # In iptables it allows a 29 character log_prefix, but we ideally
+  # want to include "[$chain-$rule_num-$action] " but that would require
+  #                  1   29 1   4     1  1    11 = 39 
+  # so truncate the chain name so that it'll all fit.
+  $chain = substr($chain, 0, 19) if length($chain) > 19;
+  my $action_char = uc(substr($action, 0, 1));
+  my $log_prefix  = "[$chain-$rule_num-$action_char] ";
+  return $log_prefix;
+}
+
 sub get_num_ipt_rules {
   my $self = shift;
   my $ipt_rules = 1;
@@ -491,7 +504,8 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
   # set the jump target.  Depends on action and log
   if ("$self->{_log}" eq "enable") {
     $rule2 = $rule;
-    $rule2 .= "-j LOG --log-prefix '[$chain $rule_num $self->{_action}] ' ";
+    my $log_prefix = get_log_prefix($chain, $rule_num, $self->{_action});
+    $rule2 .= "-j LOG --log-prefix \"$log_prefix\" ";
   }
   if ("$self->{_action}" eq "drop") {
     $rule .= "-j DROP ";
