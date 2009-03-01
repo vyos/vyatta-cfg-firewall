@@ -1,3 +1,22 @@
+vyatta-cfg-firewall (0.13.7-15) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * Revert "Make sure to quote $VAR(@)."
+  * Use single quote around $VAR(@).
+
+  [ Bob Gilligan ]
+  * The generated-templates directory holds only derived files.
+
+  [ Stig Thormodsrud ]
+  * Add allow/comp_help to firewall action.
+  * Limit address range to a /24, but make easy to change if it's deam
+    too restrictive.
+  * Prevent ';' from being used in a firewall name.
+  * Fix 3422: fw logging fails if logprefix is too long (> 29
+    characters)
+
+ -- Stig Thormodsrud <stig@io.vyatta.com>  Sun, 01 Mar 2009 12:17:09 -0800
+
 vyatta-cfg-firewall (0.13.7-14) unstable; urgency=low
 
   [ Stig Thormodsrud ]
