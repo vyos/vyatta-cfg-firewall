@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-17) unstable; urgency=low
+
+  * Don't attempt to delete ruleset from "other" trees
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Wed, 04 Mar 2009 12:00:51 -0800
+
 vyatta-cfg-firewall (0.13.7-16) unstable; urgency=low
 
   * Fix generated templates for ethernet vifs.
