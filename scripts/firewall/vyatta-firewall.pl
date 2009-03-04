@@ -88,15 +88,7 @@ if ($#updateints == 4) {
                    "Rule set \"$chain\" is not configured\n";
       exit 1;
     }
-    # chain must have been set up. no need to set up again.
-    # user may specify a chain in a different tree. try to delete it
-    # from the "other" trees first.
-    foreach my $other_tree (keys %table_hash) {
-      if ($other_tree ne $tree) {
-        update_ints('delete', $int_name, $direction, $chain, $tree,
-                    $table_hash{$other_tree}, $cmd_hash{$other_tree});
-      }
-    }
+
     # do update action.
     update_ints(@updateints, $table, $iptables_cmd);
   } else {
