@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-18) unstable; urgency=low
+
+  * Remove per-interface firewall templates; They are now generated.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Fri, 06 Mar 2009 17:09:08 -0800
+
 vyatta-cfg-firewall (0.13.7-17) unstable; urgency=low
 
   * Don't attempt to delete ruleset from "other" trees
