@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-19) unstable; urgency=low
+
+  * Automatically generate more per-interface firewall templates.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Mon, 09 Mar 2009 11:19:04 -0700
+
 vyatta-cfg-firewall (0.13.7-18) unstable; urgency=low
 
   * Remove per-interface firewall templates; They are now generated.
