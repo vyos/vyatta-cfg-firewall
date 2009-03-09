@@ -14,15 +14,23 @@
 # Portions created by Vyatta are Copyright (C) 2009 Vyatta, Inc.
 # All Rights Reserved.
 #
-# Author: Bob Gilligan
+# Author: Bob Gilligan (gilligan@vyatta.com)
 # Date: March 2009
-# Description: Script to automatically generate interface firewall templates
+# Description: Script to automatically generate per-interface firewall
+#              templates.
 #
 # **** End License ****
 #
 
+# Set to 1 to enable debug output.
+#
 my $debug = 0;
 
+# This hash maps the root of the tree of firewall templates for each interface
+# into the variable reference that each of the node.def files in that tree
+# will need to use to get the interface name.  The keys of this hash are
+# the partial pathname under the config template tree "interfaces/".
+#
 my %interface_hash = ( 
     'adsl/node.tag/pvc/node.tag/bridged-ethernet' => 
 	'adsl$VAR(../../../../../@)', 
@@ -43,12 +51,35 @@ my %interface_hash = (
 	'pppoe$VAR(../../../@)',
 
     'tunnel/node.tag'  => '$VAR(../../../@)',
+
+    'bridge/node.tag' => '$VAR(../../../@)',
+
+    'openvpn/node.tag' => '$VAR(../../../@)',
+
+    'multilink/node.tag/vif/node.tag' => '$VAR(../../../../@)',
+
+    'serial/node.tag/cisco-hdlc/vif/node.tag' =>
+	'$VAR(../../../../../@).$VAR(../../../@)',
+    'serial/node.tag/frame-relay/vif/node.tag' =>
+	'$VAR(../../../../../@).$VAR(../../../@)',
+    'serial/node.tag/ppp/vif/node.tag' =>
+	'$VAR(../../../../../@).$VAR(../../../@)',
+
+    'wirelessmodem/node.tag' => '$VAR(../../../@)',
 );    
 
+# The subdirectory where the generated templates will go
 my $template_subdir="generated-templates/interfaces";
+
+# The name of the subdir under each interface holding the firewall tree
 my $firewall_subdir="firewall";
+
+# The name of the config file we will be writing.
 my $node_file="node.def";
 
+# Generate the template file located at the root of the firewall tree
+# under an interface.  This template just provides a help message.
+#
 sub gen_firewall_template {
     my ($if_tree) = @_;
 
@@ -64,6 +95,9 @@ sub gen_firewall_template {
 }
 
 
+# Map a firewall "direction" into a sub-string that we will use to compose
+# the help message.
+#
 my %direction_help_hash = (
     "in" => "forwarded packets on inbound interface",
     "out" => "forwarded packets on outbound interface",
@@ -71,6 +105,10 @@ my %direction_help_hash = (
     );
 
 
+# Generate the template file located under the "direction" node in the
+# firewall tree under an interface.  This template just provides a help
+# message.
+#
 sub gen_direction_template {
     my ($if_tree, $direction) = @_;
 
@@ -85,12 +123,18 @@ sub gen_direction_template {
     close(TP);
 }
 
+# Map a firewall "direction" into the term we will use for it in help
+# messages.
+#
 my %direction_term_hash = (
     "in" => "inbound",
     "out" => "outbound",
     "local" => "local",
     );
 
+# Map a firewall ruleset type into the string that we will use to describe
+# it in help messages.
+#
 my %table_help_hash = (
     "name" => "IPv4 firewall",
     "ipv6-name" => "IPv6 firewall",
@@ -98,7 +142,10 @@ my %table_help_hash = (
     "ipv6-modify" => "IPv6 modify",
     );
 
-
+# Generate the template file at the leaf of the per-interface firewall tree.
+# This template contains all the code to activate or deactivate a firewall
+# ruleset on an interface for a particular ruleset type and direction.
+#
 sub gen_template {
     my ($if_tree, $direction, $table, $if_name) = @_;
 
@@ -152,7 +199,10 @@ sub gen_template {
     close(TP);
 }
 
+# The firewall ruleset types
 my @ruleset_tables = ("name", "modify", "ipv6-name", "ipv6-modify");
+
+# The firewall "directions"
 my @ruleset_directions = ("in", "out", "local");
 
 print "Generating interface templates...\n";
@@ -174,8 +224,3 @@ foreach my $if_tree (keys %interface_hash) {
 }
 
 print "Done.\n";
-
-	
-
-    
-    
