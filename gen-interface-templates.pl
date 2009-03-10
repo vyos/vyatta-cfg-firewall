@@ -34,7 +34,7 @@ my $debug = 0;
 my %interface_hash = ( 
     'adsl/node.tag/pvc/node.tag/bridged-ethernet' => 
 	'adsl$VAR(../../../../../@)', 
-    'adsl/node.tag/pvc/node.tag/classical_ipoa' =>
+    'adsl/node.tag/pvc/node.tag/classical-ipoa' =>
 	'adsl$VAR(../../../../../@)', 
     'adsl/node.tag/pvc/node.tag/pppoa/node.tag' => 'pppoa$VAR(../../../@)',
     'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
