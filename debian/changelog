@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-20) unstable; urgency=low
+
+  * Bugfix 4203: Name of template should be classical-ipoa, not
+    classical_ipoa
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Tue, 10 Mar 2009 16:34:31 -0700
+
 vyatta-cfg-firewall (0.13.7-19) unstable; urgency=low
 
   * Automatically generate more per-interface firewall templates.
