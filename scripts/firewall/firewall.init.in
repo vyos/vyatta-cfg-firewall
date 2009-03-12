@@ -56,7 +56,11 @@ start () {
     # set up post-firewall hook
     iptables -N VYATTA_POST_FW_HOOK
     iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
-    iptables -A INPUT -j VYATTA_POST_FW_HOOK
+
+    # enforce strict host matching (see bug 4061)
+    iptables -P INPUT -j DROP
+    iptables -A INPUT -m strict -j VYATTA_POST_FW_HOOK
+
     iptables -A FORWARD -j VYATTA_POST_FW_HOOK
 
     # set up pre-SNAT hook
