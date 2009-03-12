@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-21) unstable; urgency=low
+
+  * Enable strict host matching
+  * Don't use -P
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Thu, 12 Mar 2009 11:32:50 -0700
+
 vyatta-cfg-firewall (0.13.7-20) unstable; urgency=low
 
   * Bugfix 4203: Name of template should be classical-ipoa, not
