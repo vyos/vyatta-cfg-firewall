@@ -58,8 +58,7 @@ start () {
     iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
 
     # enforce strict host matching (see bug 4061)
-    iptables -A INPUT -m strict -j VYATTA_POST_FW_HOOK
-    iptables -A INPUT -j DROP
+    iptables -A INPUT -j VYATTA_POST_FW_HOOK
 
     iptables -A FORWARD -j VYATTA_POST_FW_HOOK
 
