@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-22) unstable; urgency=low
+
+  * Doing strict ES won't work for router
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Fri, 13 Mar 2009 10:19:02 -0700
+
 vyatta-cfg-firewall (0.13.7-21) unstable; urgency=low
 
   * Enable strict host matching
