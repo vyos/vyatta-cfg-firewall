@@ -1,28 +1,28 @@
 type: txt
 help: Set icmp type-name to match
 allowed:
-array=(any echo-reply destination-unreachable network-unreachable
+array=(any echo-reply pong destination-unreachable network-unreachable
        host-unreachable protocol-unreachable port-unreachable
        fragmentation-needed source-route-failed network-unknown host-unknown
        network-prohibited host-prohibited TOS-network-unreachable
        TOS-host-unreachable communication-prohibited host-precedence-violation
        precedence-cutoff source-quench redirect network-redirect host-redirect
-       TOS-network-redirect TOS-host-redirect echo-request router-advertisement
-       router-solicitation time-exceeded ttl-zero-during-transit
+       TOS-network-redirect TOS-host-redirect echo-request ping router-advertisement
+       router-solicitation time-exceeded ttl-exceeded ttl-zero-during-transit
        ttl-zero-during-reassembly parameter-problem ip-header-bad
        required-option-missing timestamp-request timestamp-reply
        address-mask-request address-mask-reply)
 echo -n ${array[@]}
 
 syntax:expression: exec "
-array=(any echo-reply destination-unreachable network-unreachable
+array=(any echo-reply pong destination-unreachable network-unreachable
        host-unreachable protocol-unreachable port-unreachable
        fragmentation-needed source-route-failed network-unknown host-unknown
        network-prohibited host-prohibited TOS-network-unreachable
        TOS-host-unreachable communication-prohibited host-precedence-violation
        precedence-cutoff source-quench redirect network-redirect host-redirect
-       TOS-network-redirect TOS-host-redirect echo-request router-advertisement
-       router-solicitation time-exceeded ttl-zero-during-transit
+       TOS-network-redirect TOS-host-redirect echo-request ping router-advertisement
+       router-solicitation time-exceeded ttl-exceeded ttl-zero-during-transit
        ttl-zero-during-reassembly parameter-problem ip-header-bad
        required-option-missing timestamp-request timestamp-reply
        address-mask-request address-mask-reply)
@@ -36,3 +36,42 @@ while [ $i -lt $len ]; do
 done
 echo Invalid ICMP type-name [$VAR(@)]
 exit 1 "
+
+comp_help: Possible completions:
+any
+echo-reply (pong)
+destination-unreachable
+   network-unreachable
+   host-unreachable
+   protocol-unreachable
+   port-unreachable
+   fragmentation-needed
+   source-route-failed
+   network-unknown
+   host-unknown
+   network-prohibited
+   host-prohibited
+   TOS-network-unreachable
+   TOS-host-unreachable
+   communication-prohibited
+   host-precedence-violation
+   precedence-cutoff
+source-quench
+redirect
+   network-redirect
+   host-redirect
+   TOS-network-redirect
+   TOS-host-redirect
+echo-request (ping)
+router-advertisement
+router-solicitation
+time-exceeded (ttl-exceeded)
+   ttl-zero-during-transit
+   ttl-zero-during-reassembly
+parameter-problem
+   ip-header-bad
+   required-option-missing
+timestamp-request
+timestamp-reply
+address-mask-request
+address-mask-reply

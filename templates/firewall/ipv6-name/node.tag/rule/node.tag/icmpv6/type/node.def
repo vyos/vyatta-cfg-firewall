@@ -26,6 +26,7 @@ comp_help: Possible completions:
   neighbor-solicitation         ICMPv6 type/code name
   neighbour-advertisement       ICMPv6 type/code name
   neighbor-advertisement        ICMPv6 type/code name
+  redirect                      ICMPv6 type/code name
   <0 - 255>                     ICMPv6 type number
   <0 - 255>/<0 - 255>           ICMPv6 type and code numbers
 
@@ -53,7 +54,8 @@ allowed:
         neighbour-solicitation
         neighbor-solicitation
         neighbour-advertisement
-        neighbor-advertisement )
+        neighbor-advertisement
+        redirect )
 	echo -n ${array[@]}
 
 syntax:expression: exec "
@@ -80,7 +82,8 @@ syntax:expression: exec "
         neighbour-solicitation
         neighbor-solicitation
         neighbour-advertisement
-        neighbor-advertisement )
+        neighbor-advertisement
+        redirect )
         len=${#array[*]}
         i=0
         while [ $i -lt $len ]; do
