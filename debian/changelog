@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-23) unstable; urgency=low
+
+  * * add 'redirect' to Valid ICMPv6 Types
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 26 Mar 2009 11:32:39 -0700
+
 vyatta-cfg-firewall (0.13.7-22) unstable; urgency=low
 
   * Doing strict ES won't work for router
