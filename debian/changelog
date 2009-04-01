@@ -1,3 +1,18 @@
+vyatta-cfg-firewall (0.13.7-24) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * Allow user configurable default-policy on firewall.
+  * Revert "Allow user configurable default-policy on firewall."
+
+  [ Stephen Hemminger ]
+  * Cleanup perl code that generates templates
+
+  [ Stig Thormodsrud ]
+  * Remove extra carriage return that was breaking the generated
+    firewall
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 31 Mar 2009 18:02:34 -0700
+
 vyatta-cfg-firewall (0.13.7-23) unstable; urgency=low
 
   * * add 'redirect' to Valid ICMPv6 Types
