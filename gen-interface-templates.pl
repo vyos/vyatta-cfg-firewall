@@ -187,7 +187,6 @@ allowed: local -a params
 	echo -n \${params[@]##*/}
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-
 		update \$ifname $direction \$VAR(@) $table
 
 update:	ifname=$if_name
