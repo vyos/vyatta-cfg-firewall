@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-26) unstable; urgency=low
+
+  * Bugfix 4261: Add support to configure "limit" for IPv6 modify
+    rulesets.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Fri, 03 Apr 2009 14:21:44 -0700
+
 vyatta-cfg-firewall (0.13.7-25) unstable; urgency=low
 
   * Bugfix 4261: Add support to configure "limit" in IPv6.
