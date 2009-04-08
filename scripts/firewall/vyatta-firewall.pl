@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use lib "/opt/vyatta/share/perl5";
+use warnings;
 use strict;
 
 use Vyatta::Config;
@@ -51,6 +52,13 @@ my %ip_version_hash = ( 'name'        => 'ipv4',
                         'modify'      => 'ipv4',
                         'ipv6-modify' => 'ipv6');
 
+# mapping from firewall tree to builtin chain for input
+my %inhook_hash =  ( 'filter' => 'FORWARD',
+	   	     'mangle' => 'PREROUTING' );
+
+# mapping from firewall tree to builtin chain for output
+my %outhook_hash = ( 'filter' => 'FORWARD',
+	   	     'mangle' => 'POSTROUTING' );
 
 sub other_table {
   my $this = shift;
@@ -75,11 +83,14 @@ if (defined $updaterules) {
 if ($#updateints == 4) {
   my ($action, $int_name, $direction, $chain, $tree) = @updateints;
 
-  my $tree = chain_configured(1, $chain, $tree);
+  my ($table, $iptables_cmd) = (undef, undef);
 
-  my $table = $table_hash{$tree};
+  $tree = chain_configured(1, $chain, $tree);
 
-  my $iptables_cmd = $cmd_hash{$tree};
+  if (defined($tree)) {
+    $table = $table_hash{$tree};
+    $iptables_cmd = $cmd_hash{$tree};
+  }
   if ($action eq "update") {
     # make sure chain exists
     if (!defined($tree)) {
@@ -106,10 +117,44 @@ if ($#updateints == 4) {
   exit 0;
 }
 
+sub find_chain_rule {
+  my ($iptables_cmd, $table, $chain, $search) = @_;
+  
+  my ($num, $chain2) = (undef, undef);
+  my @lines = `$iptables_cmd -t $table -L $chain -vn --line | egrep ^[0-9]`;
+  if (scalar(@lines) < 1) {
+    system("$logger DEBUG: find_chain_rule: @_ = none \n") if $syslog_flag;
+    return;
+  }
+  foreach my $line (@lines) {
+    ($num, undef, undef, $chain2) = split /\s+/, $line;
+    last if $chain2 eq $search;
+  }
+
+  if ($syslog_flag) {
+    my $tmp_num = $num ? $num : -1;
+    system("$logger DEBUG: find_chain_rule: @_ = $tmp_num");
+  }
+
+  return $num if defined $num;
+  return;
+}
+
 if (defined $teardown) {
   foreach (keys %table_hash) {
     $update_zero_count += 1;
     teardown_iptables($table_hash{$_}, $cmd_hash{$_});
+  }
+  # remove the conntrack setup.
+  foreach my $iptables_cmd ('iptables', 'ip6tables') {
+    my $num;
+    $num = find_chain_rule($iptables_cmd, 'raw', 'PREROUTING', 'FW_CONNTRACK');
+    if (defined $num) {
+      run_cmd("$iptables_cmd -t raw -D PREROUTING $num", 1, 1);
+      run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
+      run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
+      run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
+    }
   }
   exit 0;
 }
@@ -128,39 +173,26 @@ sub help {
 }
 
 sub run_cmd {
-    my ($cmd_to_run, $redirect_flag, $logger_flag) = @_;
+  my ($cmd_to_run, $redirect_flag, $logger_flag) = @_;
 
-    my $cmd_extras;
-
-    if ($debug_flag) {
-	print "DEBUG: Running: $cmd_to_run \n";
-    }
-
-    if ($syslog_flag) {
-	system("$logger DEBUG: Running: $cmd_to_run");
-    }
-
-    if ($redirect_flag) {
-	$cmd_extras = ' 2>&1';
-    }
-
-    if ($logger_flag) {
-	$cmd_extras = "$cmd_extras | $logger";
-    }
-
-    system("$cmd_to_run $cmd_extras");
+  my $cmd_extras = '';
+  
+  print "DEBUG: Running: $cmd_to_run \n" if $debug_flag;
+  
+  system("$logger DEBUG: Running: $cmd_to_run") if $syslog_flag;
+  
+  $cmd_extras  = ' 2>&1' if $redirect_flag;
+  $cmd_extras .= " | $logger" if $logger_flag;
+  
+  system("$cmd_to_run $cmd_extras");
 }
 
 sub log_msg {
   my $message = shift;
 
-  if ($debug_flag) {
-    print "DEBUG: $message";
-  }
+  print "DEBUG: $message" if $debug_flag;
 
-  if ($syslog_flag) {
-    system("$logger DEBUG: $message");
-  }
+  system("$logger DEBUG: \"$message\"") if $syslog_flag;
 }
 
 sub update_rules {
@@ -391,13 +423,13 @@ sub update_ints {
 
   CASE: {
     /^in/    && do {
-             $direction = ($table eq 'mangle') ? 'PREROUTING' : 'FORWARD';
+             $direction = 'VYATTA_IN_HOOK';
              $interface = "--in-interface $int_name";
              last CASE;
              };
 
     /^out/   && do {   
-             $direction = ($table eq 'mangle') ? 'POSTROUTING' : 'FORWARD';
+             $direction = 'VYATTA_OUT_HOOK';
              $interface = "--out-interface $int_name";
              last CASE;
              };
@@ -432,7 +464,6 @@ sub update_ints {
     } else {
       ($num, $ignore, $ignore, $oldchain, $ignore,  $in, $out,
        $ignore, $ignore) = split /\s+/;
-
     }
 
     # Look for a matching rule...
@@ -473,7 +504,7 @@ sub update_ints {
   # the following delete_chain is probably no longer necessary since we
   # now disallow deleting a chain when it's still referenced
   if ($action eq 'replace' || $action eq 'delete') {
-    if (!defined(chain_configured(2, $oldchain, undef))) {
+    if (!defined(chain_configured(1, $oldchain, $tree))) {
       if (!chain_referenced($table, $oldchain, $iptables_cmd)) {
         delete_chain($table, $oldchain, $iptables_cmd);
       }
@@ -486,13 +517,16 @@ sub enable_fw_conntrack {
   # potentially we can add rules in the FW_CONNTRACK chain to provide
   # finer-grained control over which packets are tracked.
   my $iptables_cmd = shift;
+  log_msg("enable_fw_conntrack($iptables_cmd)");
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT", 1, 1);
 }
 
 sub disable_fw_conntrack {
   my $iptables_cmd = shift;
+  log_msg("disable_fw_conntrack\($iptables_cmd\)");
   run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN", 1, 1);
 }
+
 
 sub teardown_iptables {
   my ($table, $iptables_cmd) = @_;
@@ -514,29 +548,37 @@ sub teardown_iptables {
       }
     }
   }
- 
-  # remove the conntrack setup.
-  return if ($update_zero_count != scalar(keys %table_hash));
-  my @lines
-    = `$iptables_cmd -t raw -L PREROUTING -vn --line-numbers | egrep ^[0-9]`;
-  foreach (@lines) {
-    my ($num, undef, undef, $chain, undef, undef, $in, $out,
-        undef, undef) = split /\s+/;
-    if ($chain eq "FW_CONNTRACK") {
-      run_cmd("$iptables_cmd -t raw -D PREROUTING $num", 1, 1);
-      run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
-      run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
-      run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
-      last;
-    }
+
+  # remove VYATTA_(IN|OUT)_HOOK
+  my $ihook = $inhook_hash{$table};
+  my $num = find_chain_rule($iptables_cmd, $table, $ihook, 'VYATTA_IN_HOOK');
+  if (defined $num) {
+    run_cmd("$iptables_cmd -t $table -D $ihook $num", 1, 1);
+    run_cmd("$iptables_cmd -t $table -F VYATTA_IN_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -X VYATTA_IN_HOOK", 1, 1);
+  }
+  my $ohook = $outhook_hash{$table};
+  $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
+  if (defined $num) {
+    run_cmd("$iptables_cmd -t $table -D $ohook $num", 1, 1);
+    run_cmd("$iptables_cmd -t $table -F VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -X VYATTA_OUT_HOOK", 1, 1);
   }
 }
 
 sub setup_iptables {
   my $iptables_cmd = shift;
+  log_msg "setup_iptables [$iptables_cmd]\n";
   foreach my $table (qw(filter mangle)) {
     $update_zero_count += 1;
     teardown_iptables($table, $iptables_cmd);
+    my $ihook = $inhook_hash{$table};
+    my $ohook = $outhook_hash{$table};
+    # add VYATTA_(IN|OUT)_HOOK
+    run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1, 1);
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
@@ -544,6 +586,7 @@ sub setup_iptables {
   run_cmd("$iptables_cmd -t raw -A FW_CONNTRACK -j RETURN", 1, 1);
   run_cmd("$iptables_cmd -t raw -I PREROUTING 1 -j FW_CONNTRACK", 1, 1);
   run_cmd("$iptables_cmd -t raw -I OUTPUT 1 -j FW_CONNTRACK", 1, 1);
+
   return 0;
 }
 
