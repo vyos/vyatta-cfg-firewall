@@ -129,6 +129,7 @@ sub find_chain_rule {
   foreach my $line (@lines) {
     ($num, undef, undef, $chain2) = split /\s+/, $line;
     last if $chain2 eq $search;
+    ($num, $chain2) = (undef, undef);
   }
 
   if ($syslog_flag) {
