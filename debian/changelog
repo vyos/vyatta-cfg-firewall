@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-28) unstable; urgency=low
+
+  * Fix faulty search loop.
+  * Add ability for firename to select default policy.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 09 Apr 2009 11:28:51 -0700
+
 vyatta-cfg-firewall (0.13.7-27) unstable; urgency=low
 
   * Apply interface firewalls to separate VYATTA_(IN|OUT)_HOOK.
