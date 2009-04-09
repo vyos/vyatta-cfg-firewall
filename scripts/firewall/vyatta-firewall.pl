@@ -60,6 +60,10 @@ my %inhook_hash =  ( 'filter' => 'FORWARD',
 my %outhook_hash = ( 'filter' => 'FORWARD',
 	   	     'mangle' => 'POSTROUTING' );
 
+# mapping from vyatta 'default-policy' to iptables jump target
+my %policy_hash = ( 'drop'    => 'DROP',
+                    'accept'  => 'RETURN' );
+
 sub other_table {
   my $this = shift;
   return (($this eq 'filter') ? 'mangle' : 'filter');
@@ -224,8 +228,11 @@ sub update_rules {
 
   # Iterate through ruleset names under "name" or "modify" 
   for my $name (keys %nodes) { 
-
-    log_msg "update_rules: status of node $name is $nodes{$name} \n";
+    $config->setLevel("firewall $tree $name");
+    my $policy = $config->returnValue("default-policy");
+    $policy = 'drop' if ! defined $policy;
+    my $old_policy = $config->returnOrigValue("default-policy");
+    log_msg "update_rules: status of node $name is $nodes{$name} [$policy]\n";
 
     if ($nodes{$name} eq "static") {
       # not changed. check if stateful.
@@ -251,7 +258,7 @@ sub update_rules {
                      . "Rule set name \"$name\" already used in \"$ctree\"\n";
         exit 1;
       }
-      setup_chain($table, "$name", $iptables_cmd);
+      setup_chain($table, "$name", $iptables_cmd, $policy);
       # handle the rules below.
     } elsif ($nodes{$name} eq "deleted") {
 
@@ -281,7 +288,6 @@ sub update_rules {
       # note that this clears the counters on the default DROP rule.
       # we could delete rule one by one if those are important.
       run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
-      add_default_drop_rule($table, $name, $iptables_cmd);
       next;
     }
 
@@ -366,8 +372,12 @@ sub update_rules {
           die "$iptables_cmd error: $! - $rule" if ($? >> 8);
         }
       }
+    } # foreach rule
+    
+    if (defined $old_policy and $policy ne $old_policy) {
+      change_default_policy($table, $name, $iptables_cmd, $policy);
     }
-  }
+  } # foreach name
 
   if ($stateful) {
     enable_fw_conntrack($iptables_cmd);
@@ -593,11 +603,45 @@ sub setup_iptables {
 
 sub add_default_drop_rule {
   my ($table, $chain, $iptables_cmd) = @_;
-  run_cmd("$iptables_cmd -t $table -A $chain -m comment --comment \"$chain-1025\" -j DROP", 1, 1);
+  log_msg("add_default_drop_rule($iptables_cmd, $table, $chain)");
+  my $comment = "-m comment --comment \"$chain-1025\"";
+  run_cmd("$iptables_cmd -t $table -A $chain $comment -j DROP", 1, 1);
+}
+
+sub set_default_policy {
+  my ($table, $chain, $iptables_cmd, $policy) = @_;
+
+  $policy = 'drop' if ! defined $policy;
+  log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy)");
+  my $target = $policy_hash{$policy};
+  my $comment = "-m comment --comment \"$chain-1025 default-policy $policy\"";
+  run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
+}
+
+sub count_iptables_rules {
+  my ($table, $chain, $iptables_cmd) = @_;
+  my @lines = `$iptables_cmd -t $table -L $chain -n --line`;
+  my $cnt = 0;
+  foreach my $line (@lines) {
+    $cnt++ if $line =~ /^\d/;
+  }
+  return $cnt;
+}
+
+sub change_default_policy {
+  my ($table, $chain, $iptables_cmd, $policy) = @_;
+  
+  $policy = 'drop' if ! defined $policy;
+  log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)");
+  my $target = $policy_hash{$policy};
+  my $comment = "-m comment --comment \"$chain-1025 default-policy $policy\"";
+  my $default_rule = count_iptables_rules($table, $chain, $iptables_cmd);
+  run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
+  run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);
 }
 
 sub setup_chain {
-  my ($table, $chain, $iptables_cmd) = @_;
+  my ($table, $chain, $iptables_cmd, $policy) = @_;
 
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
@@ -605,7 +649,7 @@ sub setup_chain {
   if (!/^Chain $chain/) {
     run_cmd("$iptables_cmd -t $table --new-chain $chain", 0, 0);
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
-    add_default_drop_rule($table, $chain, $iptables_cmd);
+    set_default_policy($table, $chain, $iptables_cmd, $policy);
   }
 }
 

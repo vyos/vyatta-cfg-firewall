@@ -122,10 +122,18 @@ sub new {
 }
 
 sub setupDummy {
-  my $self = shift;
+  my ($self, $level) = @_;
+
   %{$self} = %dummy_rule;
   $src = new Vyatta::IpTables::AddressFilter;
   $dst = new Vyatta::IpTables::AddressFilter;
+
+  # set the default policy
+  my $config = new Vyatta::Config;
+  $config->setLevel("$level");
+  my $policy = $config->returnOrigValue('default-policy');
+  $policy = 'drop' if ! defined $policy;
+  $self->{_action} = $policy;
 }
 
 sub setup_base {
