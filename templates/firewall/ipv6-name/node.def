@@ -12,4 +12,6 @@ syntax:expression: pattern $VAR(@) "^[^-]" ; "Firewall rule set name cannot star
 
 syntax:expression: pattern $VAR(@) "^[^;]*$" ; "Firewall rule set name cannot contain ';'"
 
+end: sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules ipv6-name
+
 help: Set IPv6 firewall rule set name

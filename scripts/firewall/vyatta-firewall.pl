@@ -20,12 +20,14 @@ my $debug_flag = 0;
 # Enable sending debug output to syslog.
 my $syslog_flag = 0;
 
+my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
+
 my @updateints = ();
 my ($setup, $teardown, $updaterules);
 
 GetOptions("setup"             => \$setup, 
            "teardown"          => \$teardown,
- 	   "update-rules"      => \$updaterules,
+ 	   "update-rules=s"    => \$updaterules,
 	   "update-interfaces=s{5}" => \@updateints,
            "debug"             => \$debug_flag,
            "syslog"            => \$syslog_flag
@@ -77,10 +79,7 @@ if (defined $setup) {
 
 my $update_zero_count = 0;
 if (defined $updaterules) {
-  # Iterate through the top-level trees under "firewall"
-  foreach (keys %table_hash) {
-    update_rules($_);
-  }
+  update_rules($updaterules);
   exit 0;
 }
 
@@ -200,6 +199,68 @@ sub log_msg {
   system("$logger DEBUG: \"$message\"") if $syslog_flag;
 }
 
+sub read_stateful {
+    my @lines = ();
+    if ( -e $fw_stateful_file) {
+      open(my $FILE, '<', $fw_stateful_file) or die "Error: read $!";
+      @lines = <$FILE>;
+      close($FILE);
+      chomp @lines;
+    }
+    return @lines;
+}
+
+sub write_stateful {
+    my @lines = @_;
+    if (scalar(@lines) > 0) {
+      open(my $FILE, '>', $fw_stateful_file) or die "Error: write $!";
+      print $FILE join("\n", @lines), "\n";
+      close($FILE);
+    } else {
+      system("rm $fw_stateful_file");
+    }
+}
+
+sub is_conntrack_enabled {
+  my @lines = read_stateful();
+  return 1 if scalar(@lines) > 0;
+  return 0;
+}
+
+sub add_tree_stateful {
+  my ($tree) = @_;
+
+  my @lines = read_stateful();
+  foreach my $line (@lines) {
+    return if $line eq $tree;
+  }
+  push @lines, $tree;
+  write_stateful(@lines);
+  return @lines;
+}
+
+sub remove_tree_stateful {
+  my ($tree) = @_;
+
+  my @lines = read_stateful();
+  my @new_lines = ();
+  foreach my $line (@lines) {
+    push @new_lines, $line if $line ne $tree;
+  }
+  write_stateful(@new_lines);
+  return @new_lines;
+}
+
+sub is_tree_stateful {
+  my ($tree) = @_;
+
+  my @lines = read_stateful();
+  foreach my $line (@lines) {
+    return $tree if $line eq $tree;
+  }
+  return;
+}
+
 sub update_rules {
   my $tree = shift;			# name, modify, ipv6-name or ipv6-modify
   my $table = $table_hash{$tree};	# "filter" or "mangle"
@@ -214,7 +275,8 @@ sub update_rules {
 
   %nodes = $config->listNodeStatus();
   if ((scalar (keys %nodes)) == 0) {
-
+    # I don't think we should be able to get here now
+    # that end node is moved down from the firewall node.
     log_msg "update_rules: no nodes at this level \n";
 
     # no names. teardown the user chains and return.
@@ -224,7 +286,7 @@ sub update_rules {
   }
   
   # by default, nothing needs to be tracked.
-  my $stateful = 0;
+  my $tree_stateful = 0;
 
   # Iterate through ruleset names under "name" or "modify" 
   for my $name (keys %nodes) { 
@@ -243,7 +305,7 @@ sub update_rules {
         $node->setupOrig("firewall $tree $name rule $_");
         $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
-          $stateful = 1;
+          $tree_stateful = 1;
           last;
         }
       }
@@ -298,7 +360,7 @@ sub update_rules {
         $node->setupOrig("firewall $tree $name rule $rule");
         $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
-          $stateful = 1;
+          $tree_stateful = 1;
         }
         my $ipt_rules = $node->get_num_ipt_rules();
 	$iptablesrule += $ipt_rules;
@@ -308,7 +370,7 @@ sub update_rules {
 	$node->setup("firewall $tree $name rule $rule");
         $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
-          $stateful = 1;
+          $tree_stateful = 1;
         }
 
         my ($err_str, @rule_strs) = $node->rule();
@@ -335,7 +397,7 @@ sub update_rules {
         $node->setup("firewall $tree $name rule $rule");
         $node->set_ip_version($ip_version_hash{$tree});
         if ($node->is_stateful()) {
-          $stateful = 1;
+          $tree_stateful = 1;
         }
 
         my ($err_str, @rule_strs) = $node->rule();
@@ -379,10 +441,20 @@ sub update_rules {
     }
   } # foreach name
 
-  if ($stateful) {
-    enable_fw_conntrack($iptables_cmd);
+  #
+  # check if conntrack needs to be enabled/disabled
+  #
+  my $global_stateful = is_conntrack_enabled();
+  if ($tree_stateful) {
+    log_msg "$tree: global_stateful [$global_stateful], tree [$tree_stateful]";
+    add_tree_stateful($tree);
+    enable_fw_conntrack($iptables_cmd) if ! $global_stateful;
   } else {
-    disable_fw_conntrack($iptables_cmd);
+    log_msg "$tree: global_stateful [$global_stateful], tree [$tree_stateful]";
+    if (is_tree_stateful($tree)) {
+      remove_tree_stateful($tree);
+    }
+    disable_fw_conntrack($iptables_cmd) if ! is_conntrack_enabled();
   }
 }
 
