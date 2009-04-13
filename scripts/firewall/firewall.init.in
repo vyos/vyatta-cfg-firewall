@@ -48,19 +48,26 @@ start () {
 	modprobe --syslog $mod
     done
 
-    # set up notrack chains/rules
+    # set up notrack chains/rules for IPv4
     # by default, nothing is tracked.
     iptables -t raw -A PREROUTING -j NOTRACK
     iptables -t raw -A OUTPUT -j NOTRACK
+
+    # set up notrack chains/rules for IPv6
+    ip6tables -t raw -A PREROUTING -j NOTRACK
+    ip6tables -t raw -A OUTPUT -j NOTRACK
     
-    # set up post-firewall hook
+    # set up post-firewall hook for IPv4
     iptables -N VYATTA_POST_FW_HOOK
     iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
-
-    # enforce strict host matching (see bug 4061)
     iptables -A INPUT -j VYATTA_POST_FW_HOOK
-
     iptables -A FORWARD -j VYATTA_POST_FW_HOOK
+
+    # set up post-firewall hook for IPv6
+    ip6tables -N VYATTA_POST_FW_HOOK
+    ip6tables -A VYATTA_POST_FW_HOOK -j ACCEPT
+    ip6tables -A INPUT -j VYATTA_POST_FW_HOOK
+    ip6tables -A FORWARD -j VYATTA_POST_FW_HOOK
 
     # set up pre-SNAT hook
     iptables -t nat -N VYATTA_PRE_SNAT_HOOK
