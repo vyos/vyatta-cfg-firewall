@@ -350,6 +350,7 @@ sub update_rules {
       # note that this clears the counters on the default DROP rule.
       # we could delete rule one by one if those are important.
       run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
+      set_default_policy($table, $name, $iptables_cmd, $policy);
       next;
     }
 
