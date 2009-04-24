@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-33) unstable; urgency=low
+
+  * Move setup/teardown out from top-level firewall node.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 24 Apr 2009 16:20:03 -0700
+
 vyatta-cfg-firewall (0.13.7-32) unstable; urgency=low
 
   [ Stephen Hemminger ]
