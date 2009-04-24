@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.7-32) unstable; urgency=low
+
+  [ Stephen Hemminger ]
+  * Add support for virtual-ethernet
+
+  [ Bob Gilligan ]
+  * bugfix 4297:  Don't allow modify rulesets on local traffic.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Fri, 24 Apr 2009 14:32:27 -0700
+
 vyatta-cfg-firewall (0.13.7-31) unstable; urgency=low
 
   * Fix Bug 4261 - Features missing in various firewall sub-trees
