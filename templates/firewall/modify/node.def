@@ -12,6 +12,19 @@ syntax:expression: pattern $VAR(@) "^[^-]" ; "Modify rule set name cannot start 
 
 syntax:expression: pattern $VAR(@) "^[^;]*$" ; "Firewall rule set name cannot contain ';'"
 
-end: sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules modify
+end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules modify "$VAR(@)" ;
+     then
+       if [ ${COMMIT_ACTION} = 'DELETE' ] ; 
+       then
+          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok modify ; 
+          then
+             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown modify
+          fi
+       fi
+     else
+       exit 1;
+     fi
+
+create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables
 
 help: Set IPv4 modify rule set name
