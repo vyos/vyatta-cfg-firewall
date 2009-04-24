@@ -224,6 +224,11 @@ foreach my $if_tree ( keys %interface_hash ) {
     for my $direction (@ruleset_directions) {
         gen_direction_template( $if_tree, $direction );
         foreach my $table (@ruleset_tables) {
+	    if (($direction eq "local") &&
+		(($table eq "modify") || ($table eq "ipv6-modify"))) {
+		# modify type rules are not used for local traffic
+		next;
+	    }
             gen_template( $if_tree, $direction, $table, $if_name );
         }
     }
