@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-34) unstable; urgency=low
+
+  * enable/disable conntrack separately for ipv4/ipv6
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 24 Apr 2009 18:17:26 -0700
+
 vyatta-cfg-firewall (0.13.7-33) unstable; urgency=low
 
   * Move setup/teardown out from top-level firewall node.
