@@ -12,13 +12,13 @@ use Getopt::Long;
 # Send output of shell commands to syslog for debugging and so that
 # the user is not confused by it.  Log at debug level, which is supressed
 # by default, so that we don't unnecessarily fill up the syslog file.
-my $logger = 'logger -t firewall-cfg -p local0.debug --';
+my $logger = 'logger -t firewall-cfg -p local0.warn --';
 
 # Enable printing debug output to stdout.
 my $debug_flag = 0;
 
 # Enable sending debug output to syslog.
-my $syslog_flag = 0;
+my $syslog_flag = 1;
 
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
@@ -67,6 +67,11 @@ my %outhook_hash = ( 'filter' => 'FORWARD',
 # mapping from vyatta 'default-policy' to iptables jump target
 my %policy_hash = ( 'drop'    => 'DROP',
                     'accept'  => 'RETURN' );
+
+my %other_tree = (  'name'        => 'modify',
+                    'modify'      => 'name',
+                    'ipv6-name'   => 'ipv6-modify',
+                    'ipv6-modify' => 'ipv6-name');
 
 sub log_msg {
   my $message = shift;
@@ -159,7 +164,7 @@ if (defined $teardown) {
   # remove the conntrack setup.
   my $num;
   $num = find_chain_rule($iptables_cmd, 'raw', 'PREROUTING', 'FW_CONNTRACK');
-  if (defined $num) {
+  if (defined $num and ! is_tree_in_use($other_tree{$teardown})) {
     run_cmd("$iptables_cmd -t raw -D PREROUTING $num", 1, 1);
     run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
     run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
@@ -248,8 +253,20 @@ sub remove_refcnt {
 }
 
 sub is_conntrack_enabled {
+  my ($iptables_cmd) = @_;
+  
   my @lines = read_refcnt_file($fw_stateful_file);
-  return 1 if scalar(@lines) > 0;
+  return 0 if scalar(@lines) < 1;
+
+  foreach my $line (@lines) {
+    if ($line =~ /^([^\.]+)\.([^\.]+)$/) {
+      my ($tree, $chain) = ($1, $2);
+      return 1 if $cmd_hash{$tree} eq $iptables_cmd;
+    } else {
+      die "Error: unexpected format [$line]\n";
+    }
+  }
+
   return 0;
 }
 
@@ -457,14 +474,14 @@ end_of_rules:
   #
   # check if conntrack needs to be enabled/disabled
   #
-  my $global_stateful = is_conntrack_enabled();
+  my $global_stateful = is_conntrack_enabled($iptables_cmd);
   log_msg "stateful [$tree][$name] = [$global_stateful][$chain_stateful]\n";
   if ($chain_stateful) {
     add_refcnt($fw_stateful_file, "$tree.$name");
     enable_fw_conntrack($iptables_cmd) if ! $global_stateful;
   } else {
     remove_refcnt($fw_stateful_file, "$tree.$name");
-    disable_fw_conntrack($iptables_cmd) if ! is_conntrack_enabled();
+    disable_fw_conntrack($iptables_cmd) if ! is_conntrack_enabled($iptables_cmd);
   }
 }
 
