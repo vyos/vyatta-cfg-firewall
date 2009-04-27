@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-35) unstable; urgency=low
+
+  * Disable firewall debuging by default.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Mon, 27 Apr 2009 15:37:15 -0700
+
 vyatta-cfg-firewall (0.13.7-34) unstable; urgency=low
 
   * enable/disable conntrack separately for ipv4/ipv6
