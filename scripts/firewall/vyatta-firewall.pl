@@ -12,13 +12,13 @@ use Getopt::Long;
 # Send output of shell commands to syslog for debugging and so that
 # the user is not confused by it.  Log at debug level, which is supressed
 # by default, so that we don't unnecessarily fill up the syslog file.
-my $logger = 'logger -t firewall-cfg -p local0.warn --';
+my $logger = 'logger -t firewall-cfg -p local0.debug --';
 
 # Enable printing debug output to stdout.
 my $debug_flag = 0;
 
 # Enable sending debug output to syslog.
-my $syslog_flag = 1;
+my $syslog_flag = 0;
 
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
