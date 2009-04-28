@@ -8,6 +8,7 @@ use Vyatta::Config;
 use Vyatta::IpTables::Rule;
 use Vyatta::IpTables::AddressFilter;
 use Getopt::Long;
+use Vyatta::Zone;
 
 # Send output of shell commands to syslog for debugging and so that
 # the user is not confused by it.  Log at debug level, which is supressed
@@ -107,6 +108,19 @@ if ($#updateints == 4) {
   $iptables_cmd = $cmd_hash{$tree};
 
   if ($action eq "update") {
+    # make sure interface is not being used in a zone
+    my @all_zones = Vyatta::Zone::get_all_zones("listNodes");
+    foreach my $zone (@all_zones) {
+      my @zone_interfaces =
+         Vyatta::Zone::get_zone_interfaces("returnValues", $zone);
+      if (scalar(grep(/^$int_name$/, @zone_interfaces)) > 0) {
+        print STDERR 'Firewall config error: ' .
+                   "interface $int_name is defined under zone $zone\n" .
+        "Cannot use per interface firewall for a zone interface\n";
+        exit 1;
+      }
+    }
+
     # make sure chain exists
     if (!defined($tree2)) {
       # require chain to be configured in "firewall" first
