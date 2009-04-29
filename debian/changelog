@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-37) unstable; urgency=low
+
+  * Rename virtual-ethernet to pseudo-ethernet
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Wed, 29 Apr 2009 12:33:08 -0700
+
 vyatta-cfg-firewall (0.13.7-36) unstable; urgency=low
 
   * outlaw applying firewall to an interface that is defined under a
