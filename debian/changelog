@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-38) unstable; urgency=low
+
+  * Handle files moved from other packages to this package.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Wed, 29 Apr 2009 16:01:44 -0700
+
 vyatta-cfg-firewall (0.13.7-37) unstable; urgency=low
 
   * Rename virtual-ethernet to pseudo-ethernet
