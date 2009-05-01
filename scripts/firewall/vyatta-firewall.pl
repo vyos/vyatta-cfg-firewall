@@ -24,10 +24,10 @@ my $syslog_flag = 0;
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
 
-my (@updateints, @updaterules);
-my ($setup, $teardown, $teardown_ok);
+my (@setup, @updateints, @updaterules);
+my ($teardown, $teardown_ok);
 
-GetOptions("setup=s"           => \$setup, 
+GetOptions("setup=s{2}"        => \@setup, 
            "teardown=s"        => \$teardown,
            "teardown-ok=s"     => \$teardown_ok,
  	   "update-rules=s{2}" => \@updaterules,
@@ -86,12 +86,11 @@ sub other_table {
   return (($this eq 'filter') ? 'mangle' : 'filter');
 }
 
-if (defined $setup) {
-  setup_iptables($setup);
+if (scalar(@setup) == 2) {
+  setup_iptables(@setup);
   exit 0;
 }
 
-my $update_zero_count = 0;
 if (scalar(@updaterules) == 2) {
   update_rules(@updaterules);
   exit 0;
@@ -316,17 +315,7 @@ sub update_rules {
   $config->setLevel("firewall $tree");
 
   %nodes = $config->listNodeStatus();
-  if ((scalar (keys %nodes)) == 0) {
-    # I don't think we should be able to get here now
-    # that end node is moved down from the firewall node.
-    log_msg "update_rules: no nodes at this level \n";
 
-    # no names. teardown the user chains and return.
-    $update_zero_count += 1;
-    teardown_iptables($table, $iptables_cmd);
-    return;
-  }
-  
   # by default, nothing needs to be tracked.
   my $chain_stateful = 0;
 
@@ -393,7 +382,6 @@ sub update_rules {
     # we could delete rule one by one if those are important.
     run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
     set_default_policy($table, $name, $iptables_cmd, $policy);
-    next;
   }
   
   my $iptablesrule = 1;
@@ -628,15 +616,6 @@ sub update_ints {
   run_cmd("$iptables_cmd -t $table $cmd", 0, 0);
   exit 1 if ($? >> 8);
  
-  # the following delete_chain is probably no longer necessary since we
-  # now disallow deleting a chain when it's still referenced
-  if ($action eq 'replace' || $action eq 'delete') {
-    if (!defined(chain_configured(1, $oldchain, $tree))) {
-      if (!chain_referenced($table, $oldchain, $iptables_cmd)) {
-        delete_chain($table, $oldchain, $iptables_cmd);
-      }
-    }
-  }
   return 0;
 }
 
@@ -661,21 +640,6 @@ sub teardown_iptables {
   my @chains = `$iptables_cmd -L -n -t $table`;
   my $chain;
 
-  # $chain is going to look like this...
-  # Chain inbound (0 references)
-  foreach my $chain (@chains) {
-    # chains start with Chain 
-    if ($chain =~ s/^Chain//) {
-      # make sure this is a user chain by looking at "references".
-      # make sure this is not a hook.
-      if (($chain =~ /references/) && !($chain =~ /VYATTA_\w+_HOOK/)) {
-	($chain) = split /\(/, $chain;
-        $chain =~ s/\s//g;
-        delete_chain($table, "$chain", $iptables_cmd);
-      }
-    }
-  }
-
   # remove VYATTA_(IN|OUT)_HOOK
   my $ihook = $inhook_hash{$table};
   my $num = find_chain_rule($iptables_cmd, $table, $ihook, 'VYATTA_IN_HOOK');
@@ -694,22 +658,19 @@ sub teardown_iptables {
 }
 
 sub setup_iptables {
-  my $iptables_cmd = shift;
+  my ($iptables_cmd, $tree) = @_;
 
-  log_msg "setup_iptables [$iptables_cmd]\n";
-  foreach my $table (qw(filter mangle)) {
-    $update_zero_count += 1;
-    #teardown_iptables($table, $iptables_cmd);
-    my $ihook = $inhook_hash{$table};
-    my $ohook = $outhook_hash{$table};
-    # add VYATTA_(IN|OUT)_HOOK
-    my $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
-    if (! defined $num) {
-      run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1, 1);
-      run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1, 1);
-      run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1, 1);
-      run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1, 1);
-    }
+  log_msg "setup_iptables [$iptables_cmd] [$table_hash{$tree}]\n";
+  my $table = $table_hash{$tree};
+  my $ihook = $inhook_hash{$table};
+  my $ohook = $outhook_hash{$table};
+  # add VYATTA_(IN|OUT)_HOOK
+  my $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
+  if (! defined $num) {
+    run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1, 1);
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
@@ -723,13 +684,6 @@ sub setup_iptables {
     log_msg "FW_CONNTRACK exists $cnt\n";
   }
   return 0;
-}
-
-sub add_default_drop_rule {
-  my ($table, $chain, $iptables_cmd) = @_;
-  log_msg("add_default_drop_rule($iptables_cmd, $table, $chain)\n");
-  my $comment = "-m comment --comment \"$chain-1025\"";
-  run_cmd("$iptables_cmd -t $table -A $chain $comment -j DROP", 1, 1);
 }
 
 sub set_default_policy {
@@ -816,14 +770,12 @@ sub delete_chain {
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    run_cmd("$iptables_cmd -t $table --flush $chain", 0, 0);
-    die "$iptables_cmd error: $table $chain --flush: $!" if ($? >> 8);
     if (!chain_referenced($table, $chain, $iptables_cmd)) {
+      run_cmd("$iptables_cmd -t $table --flush $chain", 0, 0);
+      die "$iptables_cmd error: $table $chain --flush: $!" if ($? >> 8);
       run_cmd("$iptables_cmd -t $table --delete-chain $chain", 0, 0);
       die "$iptables_cmd error: $table $chain --delete-chain: $!" if ($? >> 8);
-    } else {
-      add_default_drop_rule($table, $chain, $iptables_cmd);
-    }
+    } 
   }
 }
 
