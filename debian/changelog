@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-39) unstable; urgency=low
+
+  * * setup table only for specific tree, not both filter and mangle
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 01 May 2009 16:33:59 -0700
+
 vyatta-cfg-firewall (0.13.7-38) unstable; urgency=low
 
   * Handle files moved from other packages to this package.
