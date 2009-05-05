@@ -729,6 +729,10 @@ sub setup_chain {
     run_cmd("$iptables_cmd -t $table --new-chain $chain", 0, 0);
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
     set_default_policy($table, $chain, $iptables_cmd, $policy);
+  } else {
+      printf STDERR 'Firewall config error: '
+. "Chain \"$chain\" being used in system. Cannot use it as a ruleset name\n";
+      exit 1;
   }
 }
 
