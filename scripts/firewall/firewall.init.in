@@ -73,6 +73,12 @@ start () {
     iptables -t nat -N VYATTA_PRE_SNAT_HOOK
     iptables -t nat -A VYATTA_PRE_SNAT_HOOK -j RETURN
     iptables -t nat -A POSTROUTING -j VYATTA_PRE_SNAT_HOOK
+
+    # Loosen the acceptability rules for TCP sequence and ACK numbers in
+    # conntrack.  This allows TCP connections through NAT to survive certain
+    # cases of packet loss where conntrack can not accurately track the
+    # connection state
+    sysctl -q -w net.netfilter.nf_conntrack_tcp_be_liberal=1
 }
 
 case "$ACTION" in
