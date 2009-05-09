@@ -406,6 +406,11 @@ sub update_rules {
       
       my ($err_str, @rule_strs) = $node->rule();
       if (defined($err_str)) {
+        if ($nodes{$name} eq 'added') {
+          # undo setup_chain work, remove_refcnt
+          delete_chain($table, "$name", $iptables_cmd);
+          remove_refcnt($fw_tree_file, "$tree.$name");
+        }
         print STDERR "Firewall config error: $err_str\n";
         exit 1;
       }
@@ -416,7 +421,14 @@ sub update_rules {
           
         run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
                 0, 0);
-        die "$iptables_cmd error: $! - $_" if ($? >> 8);
+        if ($? >> 8) {
+          if ($nodes{$name} eq 'added') {
+            # undo setup_chain work, remove_refcnt
+            delete_chain($table, "$name", $iptables_cmd);
+            remove_refcnt($fw_tree_file, "$tree.$name");
+          }
+          die "$iptables_cmd error: $! - $_";
+        }
         $iptablesrule++;
       }
     } elsif ("$rulehash{$rule}" eq 'changed') {
