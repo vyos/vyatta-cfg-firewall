@@ -67,6 +67,7 @@ my %outhook_hash = ( 'filter' => 'FORWARD',
 
 # mapping from vyatta 'default-policy' to iptables jump target
 my %policy_hash = ( 'drop'    => 'DROP',
+                    'reject'  => 'REJECT',
                     'accept'  => 'RETURN' );
 
 my %other_tree = (  'name'        => 'modify',
