@@ -2,13 +2,12 @@ type:  txt
 
 help: Set firewall rule action
 
-syntax:expression: $VAR(@) in "drop", "reject", "accept", "modify";
-                   "action must be one of drop, reject, accept, or modify"
+syntax:expression: $VAR(@) in "drop", "accept", "modify";
+                   "action must be one of drop, accept, or modify"
 
-allowed: echo "drop reject accept modify"
+allowed: echo "drop accept modify"
 
 comp_help: Possible completions:
   drop     Set rule action to drop
-  reject   Set rule action to reject
   accept   Set rule action to accept
   modify   Set rule action to modify
