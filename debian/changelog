@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-44) unstable; urgency=low
+
+  * rectify regex check
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Wed, 13 May 2009 18:18:58 -0700
+
 vyatta-cfg-firewall (0.13.7-43) unstable; urgency=low
 
   * Fix Bug 4394 reject is an invalid action for rules in modify
