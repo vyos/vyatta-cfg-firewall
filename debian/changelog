@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-45) unstable; urgency=low
+
+  * Fix 4390: Firewall config error: Cannot specify multiple ports when
+    both
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 14 May 2009 16:43:44 -0700
+
 vyatta-cfg-firewall (0.13.7-44) unstable; urgency=low
 
   * rectify regex check
