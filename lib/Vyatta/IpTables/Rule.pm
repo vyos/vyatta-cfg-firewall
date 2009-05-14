@@ -384,7 +384,7 @@ sub rule {
   return ($err_str, ) if (!defined($srcrule));
   ($dstrule, $err_str) = $dst->rule();
   return ($err_str, ) if (!defined($dstrule));
-  if ((grep /multiport/, $srcrule) || (grep /multiport/, $dstrule)) {
+  if ((grep /multiport/, $srcrule) ^ (grep /multiport/, $dstrule)) {
     if ((grep /sport/, $srcrule) && (grep /dport/, $dstrule)) {
       return ('Cannot specify multiple ports when both '
               . 'source and destination ports are specified', );
