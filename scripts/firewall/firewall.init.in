@@ -79,6 +79,9 @@ start () {
     # cases of packet loss where conntrack can not accurately track the
     # connection state
     sysctl -q -w net.netfilter.nf_conntrack_tcp_be_liberal=1
+    
+    # set conntrack table size
+    sysctl -q -w net.nf_conntrack_max=16384
 }
 
 case "$ACTION" in
