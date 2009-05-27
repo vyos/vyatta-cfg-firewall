@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.7-46) unstable; urgency=low
+
+  [ Stephen Hemminger ]
+  * remove unused ifrename
+
+  [ Mohit Mehta ]
+  * explicitly set conntrack table size to 16384 on system boot
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Wed, 27 May 2009 14:08:26 -0700
+
 vyatta-cfg-firewall (0.13.7-45) unstable; urgency=low
 
   * Fix 4390: Firewall config error: Cannot specify multiple ports when
