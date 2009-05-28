@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-47) unstable; urgency=low
+
+  * Bugfix 4462: Fix typo in interface name references.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Thu, 28 May 2009 15:39:53 -0700
+
 vyatta-cfg-firewall (0.13.7-46) unstable; urgency=low
 
   [ Stephen Hemminger ]
