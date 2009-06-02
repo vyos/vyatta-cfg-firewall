@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-49) unstable; urgency=low
+
+  * * add default value of 1 for 'limit burst' in its node.def
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 02 Jun 2009 12:25:46 -0700
+
 vyatta-cfg-firewall (0.13.7-48) unstable; urgency=low
 
   * UNRELEASED
