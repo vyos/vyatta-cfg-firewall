@@ -496,15 +496,15 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
   }
 
   my $limit = undef;
-  if (defined($self->{_limit}->{_burst})) {
-    return ("Limit rate not defined", ) if (!defined($self->{_limit}->{_rate}));
+  if (defined $self->{_limit}->{_rate}) {
+    my $rate_integer = $self->{_limit}->{_rate};
+    $rate_integer =~ s/\/(second|minute|hour|day)//;
+    if ($rate_integer < 1) {
+      return ("integer value in rate cannot be less than 1", );
+    }
     $limit = "--limit $self->{_limit}->{_rate} --limit-burst $self->{_limit}->{_burst}";
-  } elsif (defined($self->{_limit}->{_rate})) {
-     $limit = "--limit $self->{_limit}->{_rate} --limit-burst 1";
   }
-  if (defined($limit)) {
-    $rule .= " -m limit $limit ";
-  }
+  $rule .= " -m limit $limit " if defined $limit;
 
   my $chain = $self->{_name};
   my $rule_num = $self->{_rule_number};
