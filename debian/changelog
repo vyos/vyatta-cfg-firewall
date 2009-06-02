@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-50) unstable; urgency=low
+
+  * Make firewall group comp_help more consistent with the rest of the
+    cli.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 02 Jun 2009 15:41:44 -0700
+
 vyatta-cfg-firewall (0.13.7-49) unstable; urgency=low
 
   * * add default value of 1 for 'limit burst' in its node.def
