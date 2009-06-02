@@ -21,4 +21,5 @@ delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl \
           --action=delete-set                 \
           --set-name="$VAR(@)"
 
-comp_help: Enter the name of the firewall address-group
+comp_help: possible completions:
+  <txt>    Set the name of the firewall address-group
