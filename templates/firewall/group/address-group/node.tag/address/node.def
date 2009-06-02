@@ -16,6 +16,6 @@ delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
           --member="$VAR(@)"
 
-comp_help: Possible completions:
+comp_help: possible completions:
   <x.x.x.x>                 IPv4 address to match
   <x.x.x.x>-<x.x.x.x>       IPv4 range to match (e.g. 10.0.0.1-10.0.0.200)
