@@ -1,6 +1,6 @@
 type:  txt
 
-help: Set firewall default-policy
+help: Set firewall default-action
 
 default: "drop"
 

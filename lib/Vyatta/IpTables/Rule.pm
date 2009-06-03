@@ -131,7 +131,7 @@ sub setupDummy {
   # set the default policy
   my $config = new Vyatta::Config;
   $config->setLevel("$level");
-  my $policy = $config->returnOrigValue('default-policy');
+  my $policy = $config->returnOrigValue('default-action');
   $policy = 'drop' if ! defined $policy;
   $self->{_action} = $policy;
 }
