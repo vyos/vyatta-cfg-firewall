@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-52) unstable; urgency=low
+
+  * Change firewall default-policy to default-action.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 02 Jun 2009 18:52:16 -0700
+
 vyatta-cfg-firewall (0.13.7-51) unstable; urgency=low
 
   * * fix syntax error message
