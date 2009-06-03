@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-47+jenner4) unstable; urgency=low
+
+  * * fix syntax error message
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 02 Jun 2009 18:00:06 -0700
+
 vyatta-cfg-firewall (0.13.7-47+jenner3) unstable; urgency=low
 
   * Make firewall group comp_help more consistent with the rest of the
