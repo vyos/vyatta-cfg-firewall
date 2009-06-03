@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-47+jenner6) unstable; urgency=low
+
+  * Change syntax err msg from default-policy to default-action.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 02 Jun 2009 20:22:44 -0700
+
 vyatta-cfg-firewall (0.13.7-47+jenner5) unstable; urgency=low
 
   * Change firewall default-policy to default-action.
