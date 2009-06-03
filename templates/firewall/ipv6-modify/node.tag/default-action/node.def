@@ -5,7 +5,7 @@ help: Set firewall default-action
 default: "drop"
 
 syntax:expression: $VAR(@) in "drop", "accept";
-                   "default-policy must be either drop or accept"
+                   "default-action must be either drop or accept"
 
 comp_help: possible completions:
   drop            Drop if no prior rules are hit (default)
