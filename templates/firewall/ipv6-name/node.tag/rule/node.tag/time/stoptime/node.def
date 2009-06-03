@@ -1,7 +1,7 @@
 type: txt
 help: Set to apply rule till specified time
 syntax:expression: pattern $VAR(@) "^[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\}$" ; \
-                   "Incorrect value for stoptime. Date should be entered using 24 hour notation - hh:mm:ss"
+                   "Incorrect value for stoptime. Time should be entered using 24 hour notation - hh:mm:ss"
 
 comp_help: Enter time using using 24 hour notation - hh:mm:ss 
 
