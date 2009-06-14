@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-54) unstable; urgency=low
+
+  * Fix 4581: Firewall name issue causes failed commit
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Sun, 14 Jun 2009 11:25:43 -0700
+
 vyatta-cfg-firewall (0.13.7-53) unstable; urgency=low
 
   * Change syntax err msg from default-policy to default-action.
