@@ -273,7 +273,7 @@ sub is_conntrack_enabled {
   return 0 if scalar(@lines) < 1;
 
   foreach my $line (@lines) {
-    if ($line =~ /^([^\.]+)\.([^\.]+)$/) {
+    if ($line =~ /^([^\s]+)\s([^\s]+)$/) {
       my ($tree, $chain) = ($1, $2);
       return 1 if $cmd_hash{$tree} eq $iptables_cmd;
     } else {
@@ -290,7 +290,7 @@ sub is_tree_in_use {
   my @lines = read_refcnt_file($fw_tree_file);
   my %tree_hash;
   foreach my $line (@lines) {
-    if ($line =~ /^([^\.]+)\.([^\.]+)$/) {
+    if ($line =~ /^([^\s]+)\s([^\s]+)$/) {
       my ($tmp_tree, $tmp_chain) = ($1, $2);
       $tree_hash{$tmp_tree}++;
     } else {
@@ -350,7 +350,7 @@ sub update_rules {
       exit 1;
     }
     setup_chain($table, "$name", $iptables_cmd, $policy);
-    add_refcnt($fw_tree_file, "$tree.$name");
+    add_refcnt($fw_tree_file, "$tree $name");
     # handle the rules below.
   } elsif ($nodes{$name} eq 'deleted') {
 
@@ -364,7 +364,7 @@ sub update_rules {
       exit 1;
     }
     delete_chain($table, "$name", $iptables_cmd);
-    remove_refcnt($fw_tree_file, "$tree.$name");
+    remove_refcnt($fw_tree_file, "$tree $name");
     goto end_of_rules;
   } elsif ($nodes{$name} eq 'changed') {
     log_msg "$tree $name = changed\n";
@@ -410,7 +410,7 @@ sub update_rules {
         if ($nodes{$name} eq 'added') {
           # undo setup_chain work, remove_refcnt
           delete_chain($table, "$name", $iptables_cmd);
-          remove_refcnt($fw_tree_file, "$tree.$name");
+          remove_refcnt($fw_tree_file, "$tree $name");
         }
         print STDERR "Firewall config error: $err_str\n";
         exit 1;
@@ -426,7 +426,7 @@ sub update_rules {
           if ($nodes{$name} eq 'added') {
             # undo setup_chain work, remove_refcnt
             delete_chain($table, "$name", $iptables_cmd);
-            remove_refcnt($fw_tree_file, "$tree.$name");
+            remove_refcnt($fw_tree_file, "$tree $name");
           }
           die "$iptables_cmd error: $! - $_";
         }
@@ -492,10 +492,10 @@ end_of_rules:
   my $global_stateful = is_conntrack_enabled($iptables_cmd);
   log_msg "stateful [$tree][$name] = [$global_stateful][$chain_stateful]\n";
   if ($chain_stateful) {
-    add_refcnt($fw_stateful_file, "$tree.$name");
+    add_refcnt($fw_stateful_file, "$tree $name");
     enable_fw_conntrack($iptables_cmd) if ! $global_stateful;
   } else {
-    remove_refcnt($fw_stateful_file, "$tree.$name");
+    remove_refcnt($fw_stateful_file, "$tree $name");
     disable_fw_conntrack($iptables_cmd) if ! is_conntrack_enabled($iptables_cmd);
   }
 }
