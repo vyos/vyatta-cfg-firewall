@@ -37,6 +37,7 @@ my %fields = (
     _name   => undef,
     _type   => undef,  # vyatta group type, not ipset type
     _exists => undef,
+    _negate => undef,
     _debug  => undef,
 );
 
@@ -61,6 +62,10 @@ sub new {
     my $self = {
 	%fields,
     };
+    if ($name =~ m/^!/) {
+	$self->{_negate} = 1;
+	$name =~ s/^!(.*)$/$1/;
+    }
     $self->{_name} = $name;
     $self->{_type} = $type;
     
@@ -402,6 +407,7 @@ sub get_firewall_references {
 		    $config->setLevel($rule_path);
 		    my $group_type = "$self->{_type}-group";
 		    my $value =  $config->returnOrigValue($group_type);
+		    $value =~ s/^!(.*)$/$1/ if defined $value;
 		    if (defined $value and $self->{_name} eq $value) {
 			push @fw_refs, "$name-$rule-$dir";
 		    }
@@ -427,7 +433,9 @@ sub rule {
     $srcdst = 'dst' if $direction eq 'destination';
 
     return (undef, "Invalid direction [$direction]") if ! defined $srcdst;
-    return (" -m set --set $grp $srcdst ", );
+    my $opt = '';
+    $opt = '!' if $self->{_negate};
+    return (" -m set $opt --set $grp $srcdst ", );
 }
 
 1;

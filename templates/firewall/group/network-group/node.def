@@ -11,6 +11,9 @@ syntax:expression: exec "			        \
 syntax:expression: pattern $VAR(@) "^[^-]" ; \
        "Firewall group name cannot start with \"-\""
 
+syntax:expression: pattern $VAR(@) "^[^!]" ; \
+       "Firewall group name cannot start with \"!\""
+
 create: sudo /opt/vyatta/sbin/vyatta-ipset.pl \
           --action=create-set                 \
           --set-type=network                  \
