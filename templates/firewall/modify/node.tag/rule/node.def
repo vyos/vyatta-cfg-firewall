@@ -2,6 +2,6 @@ tag:
 
 type: u32
 
-help: Set modify rule number (1-1024)
+help: Set modify rule number (1-9999)
 
-syntax:expression: $VAR(@) > 0 && $VAR(@) < 1025; "modify rule number must be between 1 and 1024"
+syntax:expression: $VAR(@) > 0 && $VAR(@) <= 9999; "modify rule number must be between 1 and 9999"

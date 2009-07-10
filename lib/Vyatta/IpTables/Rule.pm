@@ -60,7 +60,7 @@ my %fields = (
 );
 
 my %dummy_rule = (
-  _rule_number => 1025,
+  _rule_number => 10000,
   _protocol    => "all",
   _state       => {
                     _established => undef,

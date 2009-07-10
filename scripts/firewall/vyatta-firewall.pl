@@ -24,6 +24,8 @@ my $syslog_flag = 0;
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
 
+my $max_rule = 10000;
+
 my (@setup, @updateints, @updaterules);
 my ($teardown, $teardown_ok);
 
@@ -705,7 +707,7 @@ sub set_default_policy {
   $policy = 'drop' if ! defined $policy;
   log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy)\n");
   my $target = $policy_hash{$policy};
-  my $comment = "-m comment --comment \"$chain-1025 default-action $policy\"";
+  my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
   run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
 }
 
@@ -726,7 +728,7 @@ sub change_default_policy {
   $policy = 'drop' if ! defined $policy;
   log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)\n");
   my $target = $policy_hash{$policy};
-  my $comment = "-m comment --comment \"$chain-1025 default-action $policy\"";
+  my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
   my $default_rule = count_iptables_rules($table, $chain, $iptables_cmd);
   run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
   run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);
