@@ -30,6 +30,13 @@ use strict;
 use warnings;
 
 my %_protocolswithports = (
+  tcp_udp => 1, 
+  # 'tcp_udp' is to be allowed for nat and firewall rules only.
+  # features should have syntax checks for allowing or forbiding
+  # the use of 'tcp_udp' as protocol. to allow tcp_udp see syntax check
+  # in protocol/node.def for NAT rules and to forbid tcp_udp see syntax
+  # check in protocol/node.def for load-balancing rules
+  # when allowed : tcp_udp creates 2 iptable rules - one for tcp, other for udp
   tcp => 1,
   udp => 1,
   6   => 1,
