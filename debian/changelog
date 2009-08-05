@@ -1,3 +1,14 @@
+vyatta-cfg-firewall (0.13.7-57) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * Fix 4683: Firewall Rule number maximum 1024 reached
+  * Another attempt to fix 4760.
+
+  [ Mohit Mehta ]
+  * add tcp_udp as a valid key to hash. feature developer is responsible
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Wed, 05 Aug 2009 12:35:54 -0700
+
 vyatta-cfg-firewall (0.13.7-56) unstable; urgency=low
 
   [ Stephen Hemminger ]
