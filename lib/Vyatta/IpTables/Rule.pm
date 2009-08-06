@@ -409,19 +409,6 @@ sub rule {
     $rule .= ' -m policy --pol none --dir in ';
   }
 
-  my $recent_rule = undef;
-  if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
-    $recent_rule = $rule;
-    $rule .= ' -m recent --update ';
-    $recent_rule .= ' -m recent --set ';
-    if (defined($self->{_recent_time})) {
-      $rule .= " --seconds $self->{_recent_time} ";
-    }
-    if (defined($self->{_recent_cnt})) {
-      $rule .= " --hitcount $self->{_recent_cnt} ";
-    }
-  }
-
   my $p2p = undef;
   if (defined($self->{_p2p}->{_all})) {
     $p2p = '--apple --bit --dc --edk --gnu --kazaa ';
@@ -505,6 +492,21 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     $limit = "--limit $self->{_limit}->{_rate} --limit-burst $self->{_limit}->{_burst}";
   }
   $rule .= " -m limit $limit " if defined $limit;
+
+  # recent match condition SHOULD BE DONE IN THE LAST so
+  # all options in $rule are copied to $recent_rule below
+  my $recent_rule = undef;
+  if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
+    $recent_rule = $rule;
+    $rule .= ' -m recent --update ';
+    $recent_rule .= ' -m recent --set ';
+    if (defined($self->{_recent_time})) {
+      $rule .= " --seconds $self->{_recent_time} ";
+    }
+    if (defined($self->{_recent_cnt})) {
+      $rule .= " --hitcount $self->{_recent_cnt} ";
+    }
+  }
 
   my $chain = $self->{_name};
   my $rule_num = $self->{_rule_number};
