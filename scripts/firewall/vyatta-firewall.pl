@@ -419,7 +419,7 @@ sub update_rules {
       }
       foreach (@rule_strs) {
         if (!defined) {
-          last;
+          next;
         }
           
         run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
@@ -461,7 +461,7 @@ sub update_rules {
       
       foreach (@rule_strs) {
         if (!defined) {
-          last;
+          next;
         }
         run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
                 0, 0);

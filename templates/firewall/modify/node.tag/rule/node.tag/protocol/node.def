@@ -1,8 +1,22 @@
 type: txt
 help: Set protocol to match (protocol name in /etc/protocols or protocol number or "all")
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl protocol_negate '$VAR(@)'" ; "invalid protocol \"$VAR(@)\""
+
 comp_help:Possible completions:
   <text>        An IP protocol name from /etc/protocols (e.g. "tcp" or "udp")
   <0-255>       An IP protocol number
+  tcp_udp       Both TCP and UDP
   all           All IP protocols
   !<protocol>   All IP protocols except for the specified name or number (negation)
+
+syntax:expression: exec "if [ -n \"`/opt/vyatta/sbin/vyatta-validate-type.pl protocol_negate '$VAR(@)'`\" ] \
+                        && [ \"$VAR(@)\" != 'tcp_udp' ]; then \
+        echo invalid protocol \"$VAR(@)\" ; \
+        exit 1 ; \
+     fi ; "
+
+# Provide some help for command completion.  Doesn't return negated
+# values or protocol numbers
+allowed:
+        protos=`cat /etc/protocols | sed -e '/^#.*/d' | awk '{ print $1 }' | grep -v 'v6'`
+        protos="all $protos tcp_udp"
+        echo -n $protos

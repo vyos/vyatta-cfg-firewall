@@ -300,14 +300,22 @@ sub get_num_ipt_rules {
   my $self = shift;
   my $ipt_rules = 1;
   return 0 if defined $self->{_disable};
+  my $protocol_tcpudp = 0;
+  if (defined $self->{_protocol} && $self->{_protocol} eq 'tcp_udp') {
+    $ipt_rules++;
+    $protocol_tcpudp = 1;
+  }
+
   if (("$self->{_log}" eq "enable") && (("$self->{_action}" eq "drop")
                                         || ("$self->{_action}" eq "accept")
                                         || ("$self->{_action}" eq "reject")
                                         || ("$self->{_action}" eq "modify"))) {
     $ipt_rules += 1;
+    $ipt_rules++ if $protocol_tcpudp == 1;
   }
   if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
     $ipt_rules += 1;
+    $ipt_rules++ if $protocol_tcpudp == 1;
   }
   return $ipt_rules;
 }
@@ -315,6 +323,7 @@ sub get_num_ipt_rules {
 sub rule {
   my ( $self ) = @_;
   my ($rule, $srcrule, $dstrule, $err_str);
+  my $tcp_and_udp = 0;
 
   # set CLI rule num as comment
   my @level_nodes = split (' ', $self->{_comment});
@@ -324,10 +333,14 @@ sub rule {
   if (defined($self->{_protocol})) {
     my $str = $self->{_protocol};
     $str =~ s/^\!(.*)$/! $1/;
-    $rule .= "--protocol $str ";
+      if ($str eq 'tcp_udp') {
+        $tcp_and_udp = 1;
+        $rule .= " -p tcp "; # we'll add the '-p udp' to 2nd rule later
+      } else {
+        $rule .= " -p $str ";
+      }
   }
 
-  # set the session state if protocol tcp
   my $state_str = uc (get_state_str($self));
   if ($state_str ne "") {
     $rule .= "-m state --state $state_str ";
@@ -559,8 +572,21 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     $rule2 = $recent_rule;
     $recent_rule = undef;
   }
+
   return (undef, undef) if defined $self->{_disable};
-  return (undef, $rule, $rule2, $recent_rule, );
+
+  my ($udp_rule, $udp_rule2, $udp_recent_rule) = (undef, undef, undef);
+  if ($tcp_and_udp == 1) {
+    # create udp rules
+    $udp_rule = $rule;
+    $udp_rule2 = $rule2 if defined $rule2;
+    $udp_recent_rule = $recent_rule if defined $recent_rule;
+    foreach my $each_udprule ($udp_rule, $udp_rule2, $udp_recent_rule) {
+      $each_udprule =~ s/ \-p tcp / -p udp / if defined $each_udprule;
+    }
+  }
+   
+  return (undef, $rule, $rule2, $recent_rule, $udp_rule, $udp_rule2, $udp_recent_rule);
 }
 
 sub outputXmlElem {
