@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-59) unstable; urgency=low
+
+  * * Fix Bug 3625 Firewall protocol option should have a selection for
+    TCP and UDP
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 07 Aug 2009 18:56:15 -0700
+
 vyatta-cfg-firewall (0.13.7-58) unstable; urgency=low
 
   * prevent possible situation where the two iptables rules for match
