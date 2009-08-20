@@ -50,6 +50,8 @@ my %interface_hash = (
     'pseudo-ethernet/node.tag'              => '$VAR(../../../@)',
  #  'pseudo-ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
 
+    'wireless/node.tag' => '$VAR(../../../@)',
+
     'tunnel/node.tag' => '$VAR(../../../@)',
 
     'bridge/node.tag' => '$VAR(../../../@)',
