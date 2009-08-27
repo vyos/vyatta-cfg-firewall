@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-47+jenner12) unstable; urgency=low
+
+  * fix for bug 4794 SIP Helper/ALG module does not translate RTP
+    traffic...
+
+ -- rbays <rbays@roatan.lenny32.lenny32>  Thu, 27 Aug 2009 09:43:02 -0700
+
 vyatta-cfg-firewall (0.13.7-47+jenner11) unstable; urgency=low
 
   * prevent possible situation where the two iptables rules for match
