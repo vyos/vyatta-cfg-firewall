@@ -1,0 +1,38 @@
+help: Set SIP conntrack options
+end: reload=0
+  sdm=2
+  if [ -f /sys/module/nf_conntrack_sip/parameters/sip_direct_media ]; then
+    sdm=$(sudo cat /sys/module/nf_conntrack_sip/parameters/sip_direct_media)
+  fi
+  if [ -n "$VAR(./enable-indirect-media)" ]; then
+    indirectmedia='sip_direct_media=0'
+    if [ $sdm -ge 1 ]; then reload=1; fi
+  else
+    if [ $sdm -eq 0 ]; then reload=1; fi
+  fi
+
+  sds=2
+  if [ -f /sys/module/nf_conntrack_sip/parameters/sip_direct_signalling ]; then
+    sds=$(sudo cat /sys/module/nf_conntrack_sip/parameters/sip_direct_signalling)
+  fi
+  if [ -n "$VAR(./enable-indirect-signalling)" ]; then
+    indirectsignalling='sip_direct_signalling=0'
+    if [ $sds -ge 1 ]; then reload=1; fi
+  else
+    if [ $sds -eq 0 ]; then reload=1; fi
+  fi
+
+  options=$(grep -s "options nf_conntrack_sip $indirect-media $indirect-signalling" /etc/modprobe.d/options)
+  if [ -z "$options" ] && [ -f /etc/modprobe.d/options ]; then
+    sudo sed -i '/nf_conntrack_sip/d' /etc/modprobe.d/options
+  fi
+
+  if [ -n "$indirectmedia" ] || [ -n "$indirectsignalling" ]; then
+      sudo sh -c "echo options nf_conntrack_sip $indirectmedia $indirectsignalling >> /etc/modprobe.d/options "
+  fi
+
+  if [ $reload -eq 1 ]; then
+    sudo modprobe -r nf_nat_sip nf_conntrack_sip
+    sudo modprobe nf_conntrack_sip
+    sudo modprobe nf_nat_sip
+  fi
