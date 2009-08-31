@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.13.7-61) unstable; urgency=low
+
+  [ rbays ]
+  * fix for bug 4794 SIP Helper/ALG module does not translate RTP
+    traffic...
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Mon, 31 Aug 2009 12:29:12 -0700
+
 vyatta-cfg-firewall (0.13.7-60) unstable; urgency=low
 
   * Add templates for wireless devices
