@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-63) unstable; urgency=low
+
+  * Change syntax exec to syntax pattern.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 02 Oct 2009 18:18:32 -0700
+
 vyatta-cfg-firewall (0.13.7-62) unstable; urgency=low
 
   * Bugfix 4951: Don't fail if IPv6 kernel module is not loaded.
