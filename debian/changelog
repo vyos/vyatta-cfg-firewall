@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-64) unstable; urgency=low
+
+  * add priority to node.def files.
+
+ -- slioch <slioch@eng-140.vyatta.com>  Tue, 20 Oct 2009 16:22:22 -0700
+
 vyatta-cfg-firewall (0.13.7-63) unstable; urgency=low
 
   * Change syntax exec to syntax pattern.
