@@ -1,3 +1,4 @@
+priority: 215
 help: Configure firewall
 
 delete: # set conntrack table size to standard 16384 entries if firewall disabled
