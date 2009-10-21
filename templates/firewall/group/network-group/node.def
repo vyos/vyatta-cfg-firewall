@@ -1,5 +1,5 @@
-priority: 200
 tag:
+priority: 200
 type: txt
 help: Set a firewall network-group
 
