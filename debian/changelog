@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-66) unstable; urgency=low
+
+  * dependencyupdate
+
+ -- Michael Larson <slioch@slioch.vyatta.com>  Fri, 13 Nov 2009 14:16:15 -0800
+
 vyatta-cfg-firewall (0.13.7-65) unstable; urgency=low
 
   * move priority after tag nodes.
