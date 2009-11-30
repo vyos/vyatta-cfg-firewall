@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-67) unstable; urgency=low
+
+  * added required keyword to help text.
+
+ -- Michael Larson <slioch@slioch.vyatta.com>  Mon, 30 Nov 2009 15:31:39 -0800
+
 vyatta-cfg-firewall (0.13.7-66) unstable; urgency=low
 
   * dependencyupdate
