@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-47+jenner15) unstable; urgency=low
+
+  * Fix Bug 5173 Firewall becomes out of sync with iptables when logging
+    is enabled
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Wed, 23 Dec 2009 00:12:43 -0800
+
 vyatta-cfg-firewall (0.13.7-47+jenner14) unstable; urgency=low
 
   * UNRELEASED
