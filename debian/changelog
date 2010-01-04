@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.13.7-69) unstable; urgency=low
+
+  * Add VIF for wireless templates
+  * Don't allow spaces or other shell-confusing characters in firewall
+    name
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Mon, 04 Jan 2010 15:26:19 -0800
+
 vyatta-cfg-firewall (0.13.7-68) unstable; urgency=low
 
   * Fix Bug 5173 Firewall becomes out of sync with iptables when logging
