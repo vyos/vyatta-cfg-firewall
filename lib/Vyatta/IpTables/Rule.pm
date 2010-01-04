@@ -309,6 +309,7 @@ sub get_num_ipt_rules {
   if (("$self->{_log}" eq "enable") && (("$self->{_action}" eq "drop")
                                         || ("$self->{_action}" eq "accept")
                                         || ("$self->{_action}" eq "reject")
+                                        || ("$self->{_action}" eq "inspect")
                                         || ("$self->{_action}" eq "modify"))) {
     $ipt_rules += 1;
     $ipt_rules++ if $protocol_tcpudp == 1;
