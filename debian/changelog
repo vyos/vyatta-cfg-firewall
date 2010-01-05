@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-70) unstable; urgency=low
+
+  * Add same restrictions to ipv6-firewall name
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Mon, 04 Jan 2010 16:08:14 -0800
+
 vyatta-cfg-firewall (0.13.7-69) unstable; urgency=low
 
   * Add VIF for wireless templates
