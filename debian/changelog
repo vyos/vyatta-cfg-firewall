@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-71) unstable; urgency=low
+
+  * Fix 5248: Firewall config and show commands hang when showing and
+    committing address groups.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 22 Jan 2010 15:01:46 -0800
+
 vyatta-cfg-firewall (0.13.7-70) unstable; urgency=low
 
   * Add same restrictions to ipv6-firewall name
