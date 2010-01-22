@@ -96,7 +96,7 @@ sub exists {
 
     return 1 if   defined $self->{_exists};
     return 0 if ! defined $self->{_name};
-    my $cmd = "ipset -L $self->{_name} > /dev/null &>2";
+    my $cmd = "ipset -n -L $self->{_name} > /dev/null &>2";
     my $rc = $self->run_cmd($cmd);
     if ($rc eq 0) {
 	$self->{_exists} = 1;
@@ -110,7 +110,7 @@ sub get_type {
 
     return $self->{_type} if defined $self->{_type};
     return if ! $self->exists();
-    my @lines = `ipset -L $self->{_name}`;
+    my @lines = `ipset -n -L $self->{_name}`;
     my $type;
     foreach my $line (@lines) {
 	if ($line =~ /^Type:\s+(\w+)$/) {
@@ -161,7 +161,7 @@ sub get_members {
     my @members = ();
     return @members if ! $self->exists();
 
-    my @lines = `ipset -L $self->{_name} -n -s`;
+    my @lines = `ipset -n -L $self->{_name} -s`;
     foreach my $line (@lines) {
 	push @members, $line if $line =~ /^\d/;
     }
@@ -195,7 +195,7 @@ sub references {
     my ($self) = @_;
 
     return 0 if ! $self->exists();
-    my @lines = `ipset -L $self->{_name}`;
+    my @lines = `ipset -n -L $self->{_name}`;
     foreach my $line (@lines) {
 	if ($line =~ /^References:\s+(\d+)$/) {
 	    return $1;
