@@ -13,7 +13,7 @@
 # General Public License for more details.
 # 
 # This code was originally developed by Vyatta, Inc.
-# Portions created by Vyatta are Copyright (C) 2009 Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2009-2010 Vyatta, Inc.
 # All Rights Reserved.
 # 
 # Author: Stig Thormodsrud
@@ -310,7 +310,8 @@ sub add_member_range {
     } elsif ($self->{_type} eq 'address') {
 	# $start_ip++ won't work if it doesn't know the 
 	# prefix, so we'll make a big range.
-	my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
+        my $wrap_mask = $addr_range_mask - 1;
+	my $start_ip = new NetAddr::IP("$start/$wrap_mask");
 	my $stop_ip  = new NetAddr::IP($stop);
 	for (; $start_ip <= $stop_ip; $start_ip++) {
 	    my $rc = $self->add_member($start_ip->addr());
