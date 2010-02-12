@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.7-72) unstable; urgency=low
+
+  [ Stephen Hemminger ]
+  * Remove old Xorp template
+
+  [ Stig Thormodsrud ]
+  * Fix 5326: firewall group address range wraps at 255.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 12 Feb 2010 13:12:03 -0800
+
 vyatta-cfg-firewall (0.13.7-71) unstable; urgency=low
 
   * Fix 5248: Firewall config and show commands hang when showing and
