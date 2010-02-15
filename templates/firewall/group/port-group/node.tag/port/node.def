@@ -8,9 +8,35 @@ syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --set-type=port                \
                            --member=\"$VAR(@)\"; "
 
-create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
-          --set-name=$VAR(../@)                                   \
-          --member="$VAR(@)"
+create: tmpgrp=$VAR(../@)-$PPID
+        tmpfile="/tmp/$VAR(../@)-$PPID";
+
+        if [ "$COMMIT_SIBLING_POSITION" = "FIRST" ] || [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+           sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-set-empty \
+             --set-name=$VAR(../@) 
+           if [ $? != 0 ]; then
+              touch $tmpfile;
+           fi;
+           sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=copy-set \
+             --set-name=$VAR(../@) --set-type=port --set-copy=$tmpgrp
+        fi;
+
+        sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
+          --set-name="$tmpgrp" --member="$VAR(@)" --alias=$VAR(../@)
+        if [ $? != 0 ]; then
+                sudo ipset --destroy $tmpgrp;
+                if [ -e $tmpfile ]; then
+                   sudo ipset --destroy $VAR(../@);
+                   rm $tmpfile;
+                fi;
+                exit 1;
+        fi;
+
+        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+           sudo ipset --swap $tmpgrp "$VAR(../@)";
+           sudo ipset --destroy $tmpgrp;
+           rm -f $tmpfile;
+        fi;
 
 delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \

@@ -42,7 +42,6 @@ sub ipset_create {
     my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
 
     return $group->create();
-
 }
 
 sub ipset_delete {
@@ -62,11 +61,11 @@ sub ipset_check_member {
 }
 
 sub ipset_add_member {
-    my ($set_name, $member) = @_;
+    my ($set_name, $member, $alias) = @_;
     
     die "Error: undefined member" if ! defined $member; 
     my $group = new Vyatta::IpTables::IpSet($set_name);
-    return $group->add_member($member);
+    return $group->add_member($member, $alias);
 }
 
 sub ipset_delete_member {
@@ -118,6 +117,17 @@ sub ipset_show_members {
     return;
 }
 
+sub ipset_is_set_empty {
+    my ($set_name) = @_;
+    
+    die "Error: undefined set_name\n" if ! defined $set_name; 
+    my $group = new Vyatta::IpTables::IpSet($set_name);
+    return "Group [$set_name] has not been defined\n" if ! $group->exists();
+    my @members = $group->get_members();
+    exit 0 if scalar(@members) > 0;
+    exit 1;
+}
+
 sub ipset_show_sets {
     my @lines = `ipset -L -n`;
     foreach my $line (@lines) {
@@ -129,15 +139,52 @@ sub ipset_show_sets {
     return;
 }
 
+sub ipset_copy_set {
+    my ($set_name, $set_type, $set_copy) = @_;
+
+    die "Error: undefined set_name\n" if ! defined $set_name; 
+    die "Error: undefined set_type\n" if ! defined $set_type; 
+    die "Error: undefined set_copy\n" if ! defined $set_copy; 
+
+    my $group = new Vyatta::IpTables::IpSet($set_name);
+    my $copy  = new Vyatta::IpTables::IpSet($set_copy, $set_type);
+
+    if ($copy->exists()) {
+        return "Error: copy already exists [$set_copy]\n";
+    }
+
+    if ($group->exists()) {
+        my $type = $group->get_type();
+        if ($type ne $set_type) {
+            return "Error: type mismatch [$type] [$set_type]\n";
+        }
+        # copy members to new group
+        my $tmpfile = "/tmp/set.$$";
+        system("ipset -S $set_name > $tmpfile");
+        system("sed -i s/$set_name/$set_copy/g $tmpfile");
+        system("ipset -R < $tmpfile");
+        unlink $tmpfile;
+        my $copy  = new Vyatta::IpTables::IpSet($set_copy, $set_type);
+        return if $copy->exists();
+        return "Error: problem copying group\n";
+    } else {
+        my $rc = $group->create();
+        return $rc;
+    }
+}
+
+
 #
 # main
 #
-my ($action, $set_name, $set_type, $member);
+my ($action, $set_name, $set_type, $member, $set_copy, $alias);
 
 GetOptions("action=s"   => \$action,
            "set-name=s" => \$set_name,
            "set-type=s" => \$set_type,
            "member=s"   => \$member,
+           "alias=s"    => \$alias,
+           "set-copy=s" => \$set_copy,
 );
 
 die "undefined action" if ! defined $action;
@@ -150,7 +197,7 @@ $rc = ipset_delete($set_name) if $action eq 'delete-set';
 $rc = ipset_check_member($set_name, $set_type, $member) 
     if $action eq 'check-member';
 
-$rc = ipset_add_member($set_name, $member) if $action eq 'add-member';
+$rc = ipset_add_member($set_name, $member, $alias) if $action eq 'add-member';
 
 $rc = ipset_delete_member($set_name, $member) if $action eq 'delete-member';
 
@@ -159,6 +206,10 @@ $rc = ipset_check_set_type($set_name, $set_type) if $action eq 'check-set-type';
 $rc = ipset_show_members($set_name) if $action eq 'show-set-members';
 
 $rc = ipset_show_sets() if $action eq 'show-sets';
+
+$rc = ipset_is_set_empty($set_name) if $action eq 'is-set-empty'; 
+
+$rc = ipset_copy_set($set_name, $set_type, $set_copy) if $action eq 'copy-set';
 
 if (defined $rc) {
     print $rc;
