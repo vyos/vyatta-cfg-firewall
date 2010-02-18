@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-74) unstable; urgency=low
+
+  * UNRELEASED
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Wed, 17 Feb 2010 16:13:01 -0800
+
 vyatta-cfg-firewall (0.13.7-73) unstable; urgency=low
 
   * Fix 5227: firewall group config can get out of sync with ipset
