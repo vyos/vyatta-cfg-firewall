@@ -179,13 +179,15 @@ if (defined $teardown) {
 
   # remove the conntrack setup.
   my $num;
-  $num = find_chain_rule($iptables_cmd, 'raw', 'PREROUTING', 'FW_CONNTRACK');
-  if (defined $num and ! is_tree_in_use($other_tree{$teardown})) {
-    run_cmd("$iptables_cmd -t raw -D PREROUTING $num", 1, 1);
-    run_cmd("$iptables_cmd -t raw -D OUTPUT $num", 1, 1);
-    run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
-    run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
+  foreach my $label ('PREROUTING', 'OUTPUT') {
+    $num = find_chain_rule($iptables_cmd, 'raw', $label, 'FW_CONNTRACK');
+    if (defined $num and ! is_tree_in_use($other_tree{$teardown})) {
+      run_cmd("$iptables_cmd -t raw -D $label $num", 1, 1);
+    }
   }
+  run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
+  run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
+
   exit 0;
 }
 
