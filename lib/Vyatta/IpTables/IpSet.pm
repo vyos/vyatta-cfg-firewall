@@ -352,10 +352,11 @@ sub delete_member_range {
 	}
     } elsif ($self->{_type} eq 'address') {
 	my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
-	my $stop_ip  = new NetAddr::IP($stop);
+	my $stop_ip  = new NetAddr::IP("$stop/$addr_range_mask");
 	for (; $start_ip <= $stop_ip; $start_ip++) {
 	    my $rc = $self->delete_member($start_ip->addr());
 	    return $rc if defined $rc;
+            last if $start_ip->cidr() eq $start_ip->broadcast();
 	}
     }
     return;
