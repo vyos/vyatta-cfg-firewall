@@ -73,10 +73,7 @@ sub ipset_delete_member {
 
     die "Error: undefined member" if ! defined $member; 
     my $group = new Vyatta::IpTables::IpSet($set_name);
-    if ($group->exists($set_name) && $group->check_member($member)) {
-	return $group->delete_member($member);
-    }
-    return;
+    return $group->delete_member($member);
 }
 
 sub ipset_check_set_type {
