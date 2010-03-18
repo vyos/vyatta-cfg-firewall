@@ -1,3 +1,12 @@
+vyatta-cfg-firewall (0.13.7-73+kenwood3) unstable; urgency=low
+
+  * Fix 5453: can't delete "address" under "firewall group <> address-
+    group <>"
+  * Fix 5453: can't delete "address" under "firewall group <> address-
+    group <> "
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 17 Mar 2010 17:43:34 -0700
+
 vyatta-cfg-firewall (0.13.7-73+kenwood2) unstable; urgency=low
 
   * Fix firewall conntrack teardown.
