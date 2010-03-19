@@ -15,7 +15,18 @@ create: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=add-member \
           --set-name=$VAR(../@)                                   \
           --member="$VAR(@)"
 
-delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
+delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-deleted \
+               --set-name=$VAR(../@) --set-type=network;
+        if [ $? == 0 ] ; then
+           sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-used \
+               --set-name=$VAR(../@) --set-type=network
+           if [ $? == 0 ] ; then
+             echo "Error: group [$VAR(../@)] still in use."
+             exit 1;
+           fi
+        fi
+
+        sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
           --member="$VAR(@)"
 

@@ -11,7 +11,8 @@ syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
 create: tmpgrp=$VAR(../@)-$PPID
         tmpfile="/tmp/$VAR(../@)-$PPID";
 
-        if [ "$COMMIT_SIBLING_POSITION" = "FIRST" ] || [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+        if [ "$COMMIT_SIBLING_POSITION" = "FIRST" ] || \
+           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
            sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-set-empty \
              --set-name=$VAR(../@) 
            if [ $? != 0 ]; then
@@ -32,13 +33,25 @@ create: tmpgrp=$VAR(../@)-$PPID
                 exit 1;
         fi;
 
-        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
+           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
            sudo ipset --swap $tmpgrp "$VAR(../@)";
            sudo ipset --destroy $tmpgrp;
            rm -f $tmpfile;
         fi;
 
-delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
+delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-deleted \
+                --set-name=$VAR(../@) --set-type=address;
+        if [ $? == 0 ] ; then
+           sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-used \
+             --set-name=$VAR(../@) --set-type=address
+           if [ $? == 0 ] ; then
+              echo "Error: group [$VAR(../@)] still in use."
+              exit 1;
+           fi
+        fi
+
+        sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
           --member="$VAR(@)"
 
