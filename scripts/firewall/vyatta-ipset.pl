@@ -170,6 +170,35 @@ sub ipset_copy_set {
     }
 }
 
+sub ipset_is_group_deleted {
+    my ($set_name, $set_type) = @_;
+
+    die "Error: undefined set_name\n" if ! defined $set_name; 
+    die "Error: undefined set_type\n" if ! defined $set_type; 
+
+    my $config = new Vyatta::Config;
+    $config->setLevel("firewall group $set_type-group");
+    my %nodes = $config->listNodeStatus();
+
+    if ($nodes{$set_name} eq 'deleted') {
+        exit 0;
+    } else {
+        exit 1;
+    }
+}
+
+sub ipset_is_group_used {
+    my ($set_name, $set_type) = @_;
+
+    die "Error: undefined set_name\n" if ! defined $set_name; 
+    die "Error: undefined set_type\n" if ! defined $set_type; 
+
+    my $group = new Vyatta::IpTables::IpSet($set_name);
+    my $refs = $group->references();
+    exit 0 if $refs > 0;
+    exit 1;
+}
+
 
 #
 # main
@@ -207,6 +236,11 @@ $rc = ipset_show_sets() if $action eq 'show-sets';
 $rc = ipset_is_set_empty($set_name) if $action eq 'is-set-empty'; 
 
 $rc = ipset_copy_set($set_name, $set_type, $set_copy) if $action eq 'copy-set';
+
+$rc = ipset_is_group_deleted($set_name, $set_type) 
+    if $action eq 'is-group-deleted';
+
+$rc = ipset_is_group_used($set_name, $set_type) if $action eq 'is-group-used';
 
 if (defined $rc) {
     print $rc;
