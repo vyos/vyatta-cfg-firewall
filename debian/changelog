@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-78) unstable; urgency=low
+
+  * Fix firewall group parent delete while still referenced.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 18 Mar 2010 19:45:24 -0700
+
 vyatta-cfg-firewall (0.13.7-77) unstable; urgency=low
 
   * Fix 5453: can't delete "address" under "firewall group <> address-
