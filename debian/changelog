@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-79) unstable; urgency=low
+
+  * Fix 5203: negation in firewall rule causes deprecation message
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 24 Mar 2010 17:12:32 -0700
+
 vyatta-cfg-firewall (0.13.7-78) unstable; urgency=low
 
   * Fix firewall group parent delete while still referenced.
