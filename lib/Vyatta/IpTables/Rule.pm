@@ -332,14 +332,18 @@ sub rule {
 
   # set the protocol
   if (defined($self->{_protocol})) {
-    my $str = $self->{_protocol};
-    $str =~ s/^\!(.*)$/! $1/;
-      if ($str eq 'tcp_udp') {
-        $tcp_and_udp = 1;
-        $rule .= " -p tcp "; # we'll add the '-p udp' to 2nd rule later
-      } else {
-        $rule .= " -p $str ";
-      }
+    my $str    = $self->{_protocol};
+    my $negate = '';
+    if ($str =~ /^\!(.*)$/) {
+      $str    = $1;
+      $negate = '! ';
+    }
+    if ($str eq 'tcp_udp') {
+      $tcp_and_udp = 1;
+      $rule .= " $negate -p tcp "; # we'll add the '-p udp' to 2nd rule later
+    } else {
+      $rule .= " $negate -p $str ";
+    }
   }
 
   my $state_str = uc (get_state_str($self));

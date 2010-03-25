@@ -181,8 +181,12 @@ sub rule {
   if (($self->{_srcdst} eq "source") && (defined($self->{_src_mac}))) {
     # handle src mac
     my $str = $self->{_src_mac};
-    $str =~ s/^\!(.*)$/! $1/;
-    $rule .= "-m mac --mac-source $str ";
+    my $negate = '';
+    if ($str =~ /^\!(.*)$/) {
+      $str    = $1;
+      $negate = '! ';
+    }
+    $rule .= "-m mac $negate --mac-source $str ";
   }
 
   my %group_ok;
@@ -194,15 +198,23 @@ sub rule {
     my $str = $self->{_network};
     return (undef, "\"$str\" is not a valid $ip_term $prefix_term")
       if (!Vyatta::TypeChecker::validateType($prefix_checker, $str, 1));
-    $str =~ s/^\!(.*)$/! $1/;
-    $rule .= "--$self->{_srcdst} $str ";
+    my $negate = '';
+    if ($str =~ /^\!(.*)$/) {
+      $str    = $1;
+      $negate = '! ';
+    }
+    $rule .= "$negate --$self->{_srcdst} $str ";
     $group_ok{network} = 0;
   } elsif (defined($self->{_address})) {
     my $str = $self->{_address};
     return (undef, "\"$str\" is not a valid $ip_term address")
       if (!Vyatta::TypeChecker::validateType($addr_checker, $str, 1));
-    $str =~ s/^\!(.*)$/! $1/;
-    $rule .= "--$self->{_srcdst} $str ";
+    my $negate = '';
+    if ($str =~ /^\!(.*)$/) {
+      $str    = $1;
+      $negate = '! ';
+    }
+    $rule .= "$negate --$self->{_srcdst} $str ";
     $group_ok{address} = 0;
   } elsif ((defined $self->{_range_start}) && (defined $self->{_range_stop})) {
     my $start = $self->{_range_start};
@@ -212,14 +224,14 @@ sub rule {
           || !Vyatta::TypeChecker::validateType($pure_addr_checker, $stop, 1));
     my $negate = '';
     if ($self->{_range_start} =~ /^!(.*)$/) {
-      $start = $1;
-      $negate = '! '
+      $start  = $1;
+      $negate = '! ';
     }
     if ("$self->{_srcdst}" eq "source") { 
-      $rule .= ("-m iprange $negate--src-range $start-$self->{_range_stop} ");
+      $rule .= ("-m iprange $negate --src-range $start-$self->{_range_stop} ");
     }
     elsif ("$self->{_srcdst}" eq "destination") { 
-      $rule .= ("-m iprange $negate--dst-range $start-$self->{_range_stop} ");
+      $rule .= ("-m iprange $negate --dst-range $start-$self->{_range_stop} ");
     }
     $group_ok{address} = 0;
     $group_ok{network} = 0;
