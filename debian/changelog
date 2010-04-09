@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-80) unstable; urgency=low
+
+  * Add VYATTA_PRE_DNAT_HOOK in nat PREROUTING table.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 09 Apr 2010 14:54:20 -0700
+
 vyatta-cfg-firewall (0.13.7-79) unstable; urgency=low
 
   * Fix 5203: negation in firewall rule causes deprecation message
