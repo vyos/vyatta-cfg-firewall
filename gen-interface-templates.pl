@@ -53,10 +53,9 @@ my %interface_hash = (
     'wireless/node.tag' => '$VAR(../../../@)',
     'wireless/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
 
+    'input/node.tag'  => '$VAR(../../../@)',
     'tunnel/node.tag' => '$VAR(../../../@)',
-
     'bridge/node.tag' => '$VAR(../../../@)',
-
     'openvpn/node.tag' => '$VAR(../../../@)',
 
     'multilink/node.tag/vif/node.tag' => '$VAR(../../../../@)',
