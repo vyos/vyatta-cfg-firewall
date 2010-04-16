@@ -74,6 +74,11 @@ start () {
     iptables -A INPUT -j VYATTA_POST_FW_HOOK
     iptables -A FORWARD -j VYATTA_POST_FW_HOOK
 
+    # set up pre-DNAT hook
+    iptables -t nat -N VYATTA_PRE_DNAT_HOOK
+    iptables -t nat -A VYATTA_PRE_DNAT_HOOK -j RETURN
+    iptables -t nat -A PREROUTING -j VYATTA_PRE_DNAT_HOOK
+
     # set up pre-SNAT hook
     iptables -t nat -N VYATTA_PRE_SNAT_HOOK
     iptables -t nat -A VYATTA_PRE_SNAT_HOOK -j RETURN
