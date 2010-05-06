@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-81) unstable; urgency=low
+
+  * add input interface templates
+  * Make sure perl packages load successfully
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Thu, 06 May 2010 16:19:09 -0700
+
 vyatta-cfg-firewall (0.13.7-80) unstable; urgency=low
 
   * Add VYATTA_PRE_DNAT_HOOK in nat PREROUTING table.
