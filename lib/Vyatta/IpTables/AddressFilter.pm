@@ -296,6 +296,8 @@ sub outputXml {
   outputXmlElem("${prefix}_port", $self->{_port}, $fh);
 }
 
+1;
+
 # Local Variables:
 # mode: perl
 # indent-tabs-mode: nil
