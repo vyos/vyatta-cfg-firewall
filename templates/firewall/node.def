@@ -1,6 +1,18 @@
 priority: 215
 help: Configure firewall
 
-delete: # set conntrack table size to standard 16384 entries if firewall disabled
+delete: # set conntrack table size to standard 16384 entries if fw disabled
         sudo sh -c "echo 16384 > /proc/sys/net/nf_conntrack_max"
 
+        # set conntrack expect table size to standard 2048 entries if fw disabled
+        sudo sh -c "echo 2048 > /proc/sys/net/netfilter/nf_conntrack_expect_max"
+
+	# set conntrack hash size to standard 4096
+        if ! grep -q "nf_conntrack hashsize=4096$" /etc/modprobe.d/vyatta_nf_conntrack
+        then
+          sudo sh -c "sed -i -e '/options nf_conntrack hashsize/d' \
+                /etc/modprobe.d/vyatta_nf_conntrack"
+          sudo sh -c "echo options nf_conntrack hashsize=4096 >> \
+                /etc/modprobe.d/vyatta_nf_conntrack"
+          echo "Conntrack hash size set to default 4096. This change will take affect when the system is rebooted."
+        fi
