@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-83) unstable; urgency=low
+
+  * need to restart conntrackd when conntrack table size changes
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 20 May 2010 19:28:57 -0700
+
 vyatta-cfg-firewall (0.13.7-82) unstable; urgency=low
 
   * Fix Bug 5588 Add ability to modify conntrack expectation table size
