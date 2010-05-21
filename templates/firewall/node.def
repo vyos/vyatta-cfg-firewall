@@ -16,3 +16,8 @@ delete: # set conntrack table size to standard 16384 entries if fw disabled
                 /etc/modprobe.d/vyatta_nf_conntrack"
           echo "Conntrack hash size set to default 4096. This change will take affect when the system is rebooted."
         fi
+
+        # need to restart conntrackd with updated conntrack table size
+        if [ -d $VYATTA_ACTIVE_CONFIGURATION_DIR/service/conntrack-sync ] ; then
+          sudo /opt/vyatta/sbin/vyatta-conntrack-sync.pl --action=enable
+        fi
