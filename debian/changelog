@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-84) unstable; urgency=low
+
+  * Bugfix 5632: Add ability to configure SIP UDP port numbers.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Mon, 31 May 2010 00:36:47 -0700
+
 vyatta-cfg-firewall (0.13.7-83) unstable; urgency=low
 
   * need to restart conntrackd when conntrack table size changes
