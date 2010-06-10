@@ -51,13 +51,25 @@ start () {
 
     # set up notrack chains/rules for IPv4
     # by default, nothing is tracked.
+    iptables -t raw -N VYATTA_PRE_CT_PREROUTING_HOOK
+    iptables -t raw -A VYATTA_PRE_CT_PREROUTING_HOOK -j RETURN
+    iptables -t raw -A PREROUTING -j VYATTA_PRE_CT_PREROUTING_HOOK
     iptables -t raw -A PREROUTING -j NOTRACK
+    iptables -t raw -N VYATTA_PRE_CT_OUTPUT_HOOK
+    iptables -t raw -A VYATTA_PRE_CT_OUTPUT_HOOK -j RETURN
+    iptables -t raw -A OUTPUT -j VYATTA_PRE_CT_OUTPUT_HOOK
     iptables -t raw -A OUTPUT -j NOTRACK
 
     if [ -d /proc/sys/net/ipv6 ] ; then
 	# set up notrack chains/rules for IPv6
-	ip6tables -t raw -A PREROUTING -j NOTRACK
-	ip6tables -t raw -A OUTPUT -j NOTRACK
+        ip6tables -t raw -N VYATTA_PRE_CT_PREROUTING_HOOK
+        ip6tables -t raw -A VYATTA_PRE_CT_PREROUTING_HOOK -j RETURN
+        ip6tables -t raw -A PREROUTING -j VYATTA_PRE_CT_PREROUTING_HOOK
+        ip6tables -t raw -A PREROUTING -j NOTRACK
+        ip6tables -t raw -N VYATTA_PRE_CT_OUTPUT_HOOK
+        ip6tables -t raw -A VYATTA_PRE_CT_OUTPUT_HOOK -j RETURN
+        ip6tables -t raw -A OUTPUT -j VYATTA_PRE_CT_OUTPUT_HOOK
+        ip6tables -t raw -A OUTPUT -j NOTRACK
 
 	# set up post-firewall hook for IPv6
 	ip6tables -N VYATTA_POST_FW_HOOK

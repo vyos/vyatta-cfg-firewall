@@ -7,8 +7,10 @@ use strict;
 use Vyatta::Config;
 use Vyatta::IpTables::Rule;
 use Vyatta::IpTables::AddressFilter;
+use Vyatta::IpTables::Mgr;
 use Getopt::Long;
 use Vyatta::Zone;
+
 
 # Send output of shell commands to syslog for debugging and so that
 # the user is not confused by it.  Log at debug level, which is supressed
@@ -178,15 +180,7 @@ if (defined $teardown) {
   teardown_iptables($table, $iptables_cmd);
 
   # remove the conntrack setup.
-  my $num;
-  foreach my $label ('PREROUTING', 'OUTPUT') {
-    $num = find_chain_rule($iptables_cmd, 'raw', $label, 'FW_CONNTRACK');
-    if (defined $num and ! is_tree_in_use($other_tree{$teardown})) {
-      run_cmd("$iptables_cmd -t raw -D $label $num", 1, 1);
-    }
-  }
-  run_cmd("$iptables_cmd -t raw -F FW_CONNTRACK", 1, 1);
-  run_cmd("$iptables_cmd -t raw -X FW_CONNTRACK", 1, 1);
+  ipt_disable_conntrack($iptables_cmd, 'FW_CONNTRACK');
 
   exit 0;
 }
@@ -691,15 +685,9 @@ sub setup_iptables {
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
-  my $cnt = count_iptables_rules('raw', 'FW_CONNTRACK', $iptables_cmd);
-  if ($cnt == 0) {
-    run_cmd("$iptables_cmd -t raw -N FW_CONNTRACK", 1 , 1);
-    run_cmd("$iptables_cmd -t raw -A FW_CONNTRACK -j RETURN", 1, 1);
-    run_cmd("$iptables_cmd -t raw -I PREROUTING 1 -j FW_CONNTRACK", 1, 1);
-    run_cmd("$iptables_cmd -t raw -I OUTPUT 1 -j FW_CONNTRACK", 1, 1);
-  } else {
-    log_msg "FW_CONNTRACK exists $cnt\n";
-  }
+  ipt_enable_conntrack($iptables_cmd, 'FW_CONNTRACK');
+  disable_fw_conntrack($iptables_cmd);
+
   return 0;
 }
 
