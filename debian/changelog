@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-85) unstable; urgency=low
+
+  * Infrastruction needed for bug 5583.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 10 Jun 2010 15:02:08 -0700
+
 vyatta-cfg-firewall (0.13.7-84) unstable; urgency=low
 
   * Bugfix 5632: Add ability to configure SIP UDP port numbers.
