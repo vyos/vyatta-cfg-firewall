@@ -80,6 +80,7 @@ sub ipt_enable_conntrack {
             system("$iptables_cmd -t raw -I $label $index -j $chain");
         }
     }
+    return 0;
 }
 
 sub ipt_disable_conntrack {
@@ -90,12 +91,18 @@ sub ipt_disable_conntrack {
         my $index;
         my $conntrack_hook = $conntrack_hook_hash{$label};
         $index = ipt_find_chain_rule($iptables_cmd, 'raw',
-                                     $label, $conntrack_hook);
+                                     $label, $chain);
+        if (! defined($index)) {
+            print "Error: ipt_disable_conntrack failed to find "
+                  . "[$label][$chain]\n";
+            return 1;
+        }
         system("$iptables_cmd -t raw -D $label $index");
     }
     
     system("$iptables_cmd -t raw -F $chain >& /dev/null");
     system("$iptables_cmd -t raw -X $chain >& /dev/null");
+    return 0;
 }
 
 1;
