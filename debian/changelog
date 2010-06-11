@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-86) unstable; urgency=low
+
+  * Fix ipt_disable_conntrack() to delete correct chain.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 11 Jun 2010 10:21:10 -0700
+
 vyatta-cfg-firewall (0.13.7-85) unstable; urgency=low
 
   * Infrastruction needed for bug 5583.
