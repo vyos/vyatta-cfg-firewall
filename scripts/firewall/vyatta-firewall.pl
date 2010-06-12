@@ -695,8 +695,13 @@ sub setup_iptables {
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
-  ipt_enable_conntrack($iptables_cmd, 'FW_CONNTRACK');
-  disable_fw_conntrack($iptables_cmd);
+  my $cnt = count_iptables_rules('raw', 'FW_CONNTRACK', $iptables_cmd);
+  if ($cnt == 0) {
+    ipt_enable_conntrack($iptables_cmd, 'FW_CONNTRACK');
+    disable_fw_conntrack($iptables_cmd);
+  } else {
+    log_msg "FW_CONNTRACK exists $cnt\n";
+  }
 
   return 0;
 }
