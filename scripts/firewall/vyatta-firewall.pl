@@ -322,7 +322,12 @@ sub update_rules {
   my $policy = $config->returnValue('default-action');
   $policy = 'drop' if ! defined $policy;
   my $old_policy = $config->returnOrigValue('default-action');
-  log_msg "update_rules: [$name] = [$nodes{$name}], policy [$policy]\n";
+  my $policy_log = $config->exists('enable-default-log');
+  $policy_log = 0 if ! defined $policy_log;
+  my $old_policy_log = $config->existsOrig('enable-default-log');
+  $old_policy_log = 0 if ! defined $old_policy_log;
+  my $policy_set = 0;
+  log_msg "update_rules: [$name] = [$nodes{$name}], policy [$policy] log [$policy_log]\n";
 
   if ($nodes{$name} eq 'static') {
     # not changed. check if stateful.
@@ -347,8 +352,9 @@ sub update_rules {
           . "Rule set name \"$name\" already used in \"$ctree\"\n";
       exit 1;
     }
-    setup_chain($table, "$name", $iptables_cmd, $policy);
+    setup_chain($table, "$name", $iptables_cmd, $policy, $policy_log);
     add_refcnt($fw_tree_file, "$tree $name");
+    $policy_set = 1;
     # handle the rules below.
   } elsif ($nodes{$name} eq 'deleted') {
 
@@ -380,7 +386,7 @@ sub update_rules {
     # note that this clears the counters on the default DROP rule.
     # we could delete rule one by one if those are important.
     run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
-    set_default_policy($table, $name, $iptables_cmd, $policy);
+    set_default_policy($table, $name, $iptables_cmd, $policy, $policy_log);
   }
   
   my $iptablesrule = 1;
@@ -478,8 +484,12 @@ sub update_rules {
     }
   } # foreach rule
     
-  if (defined $old_policy and $policy ne $old_policy) {
-    change_default_policy($table, $name, $iptables_cmd, $policy);
+  goto end_of_rules if $policy_set;
+
+  if ((defined $old_policy and $policy ne $old_policy) or 
+      ($old_policy_log ne $policy_log)) {
+    change_default_policy($table, $name, $iptables_cmd, $policy, 
+                          $old_policy_log,$policy_log);
   }
 
 end_of_rules:
@@ -692,12 +702,17 @@ sub setup_iptables {
 }
 
 sub set_default_policy {
-  my ($table, $chain, $iptables_cmd, $policy) = @_;
+  my ($table, $chain, $iptables_cmd, $policy, $log) = @_;
 
   $policy = 'drop' if ! defined $policy;
-  log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy)\n");
+  log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy, $log)\n");
   my $target = $policy_hash{$policy};
   my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
+  if ($log) {
+    my $action_char = uc(substr($policy, 0, 1));
+    my $ltarget = "LOG --log-prefix \"[$chain-default-$action_char]\" ";
+    run_cmd("$iptables_cmd -t $table -A $chain $comment -j $ltarget", 1, 1);
+  }
   run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
 }
 
@@ -713,19 +728,33 @@ sub count_iptables_rules {
 }
 
 sub change_default_policy {
-  my ($table, $chain, $iptables_cmd, $policy) = @_;
-  
+  my ($table, $chain, $iptables_cmd, $policy, $old_log, $log) = @_;
+
   $policy = 'drop' if ! defined $policy;
-  log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)\n");
-  my $target = $policy_hash{$policy};
-  my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
+  log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)\n");  
+
+  # count the number of rules before adding the new policy
   my $default_rule = count_iptables_rules($table, $chain, $iptables_cmd);
-  run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
+
+  # add new policy after existing policy
+  set_default_policy($table, $chain, $iptables_cmd, $policy, $log);
+
+  # remove old policy
+  if (defined $old_log and $old_log == 1) {
+    if ($default_rule < 2) {
+      log_msg "unexpected rule number [$default_rule]\n";
+    } {
+      # we counted all the rules, but need to removed the last
+      # two.  decrement the index and delete that index twice.
+      $default_rule--;
+      run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);    
+    }
+  }
   run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);
 }
 
 sub setup_chain {
-  my ($table, $chain, $iptables_cmd, $policy) = @_;
+  my ($table, $chain, $iptables_cmd, $policy, $log) = @_;
 
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
@@ -733,7 +762,7 @@ sub setup_chain {
   if (!/^Chain $chain/) {
     run_cmd("$iptables_cmd -t $table --new-chain $chain", 0, 0);
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
-    set_default_policy($table, $chain, $iptables_cmd, $policy);
+    set_default_policy($table, $chain, $iptables_cmd, $policy, $log);
   } else {
       printf STDERR 'Firewall config error: '
 . "Chain \"$chain\" being used in system. Cannot use it as a ruleset name\n";
