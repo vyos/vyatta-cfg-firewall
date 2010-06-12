@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-87) unstable; urgency=low
+
+  * Add support for firewall enable-default-log.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 11 Jun 2010 18:10:17 -0700
+
 vyatta-cfg-firewall (0.13.7-86) unstable; urgency=low
 
   * Fix ipt_disable_conntrack() to delete correct chain.
