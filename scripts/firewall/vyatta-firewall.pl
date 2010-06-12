@@ -180,7 +180,9 @@ if (defined $teardown) {
   teardown_iptables($table, $iptables_cmd);
 
   # remove the conntrack setup.
-  ipt_disable_conntrack($iptables_cmd, 'FW_CONNTRACK');
+  if (! is_tree_in_use($other_tree{$teardown})) {
+    ipt_disable_conntrack($iptables_cmd, 'FW_CONNTRACK');
+  }
 
   exit 0;
 }
