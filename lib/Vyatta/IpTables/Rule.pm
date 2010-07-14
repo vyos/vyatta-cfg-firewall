@@ -110,6 +110,8 @@ my %dummy_rule = (
   _comment     => undef
 );
 
+my $DEBUG = 'false';
+
 sub new {
   my $that = shift;
   my $class = ref ($that) || $that;
@@ -515,14 +517,36 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
   # all options in $rule are copied to $recent_rule below
   my $recent_rule = undef;
   if (defined($self->{_recent_time}) || defined($self->{_recent_cnt})) {
-    $recent_rule = $rule;
-    $rule .= ' -m recent --update ';
-    $recent_rule .= ' -m recent --set ';
+    my $recent_rule1 = undef;
+    my $recent_rule2 = undef;
+    $recent_rule1 .= ' -m recent --update ';
+    $recent_rule2 .= ' -m recent --set ';
     if (defined($self->{_recent_time})) {
-      $rule .= " --seconds $self->{_recent_time} ";
+      $recent_rule1 .= " --seconds $self->{_recent_time} ";
     }
     if (defined($self->{_recent_cnt})) {
-      $rule .= " --hitcount $self->{_recent_cnt} ";
+      $recent_rule1 .= " --hitcount $self->{_recent_cnt} ";
+    }
+    
+    $recent_rule = $rule;
+    
+    if ($rule =~ m/\-m\s+set\s+\-\-match\-set/) {
+      # firewall group being used in this rule. iptables complains if recent
+      # match condition is placed after group match conditions [see bug 5744]
+      # so instead of appending recent match place it before group match
+      my @split_rules = ();
+      
+      @split_rules = split(/(\-m\s+set\s+\-\-match\-set)/, $rule, 2);
+      $rule =   $split_rules[0] . $recent_rule1 . 
+                $split_rules[1] . $split_rules[2];
+                
+      @split_rules = split(/(\-m\s+set\s+\-\-match\-set)/, $recent_rule, 2);
+      $recent_rule =    $split_rules[0] . $recent_rule2 . 
+                        $split_rules[1] . $split_rules[2];
+    } else {
+      # append recent match conditions to the two rules needed for recent match
+      $rule .= $recent_rule1;
+      $recent_rule .= $recent_rule2;
     }
   }
 
@@ -590,7 +614,18 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
       $each_udprule =~ s/ \-p tcp / -p udp / if defined $each_udprule;
     }
   }
-   
+  
+  if ($DEBUG eq 'true') {
+    # print all potential iptables rules that could be formed for 
+    # a single CLI rule. see get_num_ipt_rules to see exact count
+    print "rule :\n$rule\n" if defined $rule;
+    print "rule2 :\n$rule2\n" if defined $rule2;
+    print "recent rule :\n$recent_rule\n" if defined $recent_rule;
+    print "udp rule :\n$udp_rule\n" if defined $udp_rule;
+    print "udp rule2 :\n$udp_rule2\n" if defined $udp_rule2;
+    print "udp recent rule :\n$udp_recent_rule\n" if defined $udp_recent_rule;
+  }
+  
   return (undef, $rule, $rule2, $recent_rule, $udp_rule, $udp_rule2, $udp_recent_rule);
 }
 

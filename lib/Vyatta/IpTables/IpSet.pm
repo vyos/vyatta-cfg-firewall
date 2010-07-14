@@ -439,7 +439,7 @@ sub rule {
     return (undef, "Invalid direction [$direction]") if ! defined $srcdst;
     my $opt = '';
     $opt = '!' if $self->{_negate};
-    return (" -m set $opt --set $grp $srcdst ", );
+    return (" -m set $opt --match-set $grp $srcdst ", );
 }
 
 1;
