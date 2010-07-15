@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-91) unstable; urgency=low
+
+  * Fix bug 4629 configuration limit of recent count firewall rule is 20
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Thu, 15 Jul 2010 10:55:42 -0700
+
 vyatta-cfg-firewall (0.13.7-90) unstable; urgency=low
 
   * Fix Bug 5744 unable to use firewall group with recent match
