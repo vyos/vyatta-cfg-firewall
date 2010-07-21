@@ -1,6 +1,6 @@
 multi: 
 type: ipv4net
-help: Set a network-group member
+help: Network-group member
 
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \

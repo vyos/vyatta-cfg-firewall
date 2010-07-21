@@ -1,3 +1,3 @@
 type: u32
-help: Set to N to only match source addresses seen more than N times
+help: Source addresses seen more than N times
 syntax:expression: $VAR(@) >=1 && $VAR(@) <= 255; "recent count value must be between 1 and 255"

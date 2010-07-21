@@ -1,4 +1,4 @@
 type: u32
-help: Set packet Differentiated Services Codepoint (DSCP)
+help: Packet Differentiated Services Codepoint (DSCP)
 syntax:expression: $VAR(@) >= 0 && $VAR(@) < 64;
                    "DSCP must be between 0 and 63"

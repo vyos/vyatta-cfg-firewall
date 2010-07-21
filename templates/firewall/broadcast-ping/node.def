@@ -5,7 +5,7 @@
 
 type: txt
 
-help: Set handling of broadcast IPv4 ICMP echo and timestamp requests
+help: Policy for handling broadcast IPv4 ICMP echo and timestamp requests
 
 comp_help:Possible completions:
   disable\tDisable processing of broadcast IPv4 ICMP echo/timestamp requests

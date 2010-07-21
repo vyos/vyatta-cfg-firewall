@@ -1,2 +1,2 @@
 type: u32
-help: Set to N to only match source addresses seen in the last N seconds
+help: Source addresses seen in the last N seconds

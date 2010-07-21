@@ -6,7 +6,7 @@
 
 type: txt
 
-help: Set policy for logging IPv4 packets with invalid addresses
+help: Policy for logging IPv4 packets with invalid addresses
 
 comp_help:Possible completions:
   enable\tEnable logging of IPv4 packets with invalid addresses

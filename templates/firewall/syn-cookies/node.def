@@ -5,7 +5,7 @@
 
 type: txt
 
-help: Set policy for using TCP SYN cookies with IPv4
+help: Policy for using TCP SYN cookies with IPv4
 
 comp_help:Possible completions:
   enable\tEnable use of TCP SYN cookies with IPv4

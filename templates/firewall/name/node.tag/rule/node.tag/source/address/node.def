@@ -1,5 +1,5 @@
 type: txt
-help: Set source IP address, subnet, or range
+help: Source IP address, subnet, or range
 comp_help: Possible completions:
   <x.x.x.x>                  IP address to match
   <x.x.x.x/x>                Subnet to match

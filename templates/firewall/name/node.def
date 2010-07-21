@@ -27,4 +27,4 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules name "$VAR(@)" ;
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables name
 
-help: Set IPv4 firewall rule set name
+help: IPv4 firewall rule-set name

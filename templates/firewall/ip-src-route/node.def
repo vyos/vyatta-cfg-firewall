@@ -6,7 +6,7 @@
 
 type: txt
 
-help: Set policy for handling IPv4 packets with source route option
+help: Policy for handling IPv4 packets with source route option
 
 comp_help:Possible completions:
   enable\tEnable processing of IPv4 packets with source route option

@@ -1,5 +1,5 @@
 type: txt
-help: Set group of addresses
+help: Group of addresses
 
 commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-set-type        \

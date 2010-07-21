@@ -2,6 +2,6 @@ tag:
 
 type: u32
 
-help: Set firewall rule number (1-9999)
+help: Rule number (1-9999)
 
 syntax:expression: $VAR(@) > 0 && $VAR(@) <= 9999; "firewall rule number must be between 1 and 9999"

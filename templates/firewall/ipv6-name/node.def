@@ -27,4 +27,4 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules ipv6-name "$VAR(
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables ipv6-name
 
-help: Set IPv6 firewall rule set name
+help: IPv6 firewall rule-set name

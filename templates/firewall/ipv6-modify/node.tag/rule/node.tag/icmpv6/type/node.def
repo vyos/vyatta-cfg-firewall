@@ -1,6 +1,6 @@
 type: txt
 
-help: Set ICMPv6 type/code
+help: ICMPv6 type/code
 
 comp_help: Possible completions:
   destination-unreachable       ICMPv6 type/code name

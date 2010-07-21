@@ -1,6 +1,6 @@
 type: txt
 
-help: Set destination IP address, subnet, or range
+help: Destination IP address, subnet, or range
 
 comp_help: Possible completions:
   <x.x.x.x>                 IPv4 address to match

@@ -1,5 +1,5 @@
 type: txt
-help: Set group of ports
+help: Group of ports
 
 commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-set-type        \

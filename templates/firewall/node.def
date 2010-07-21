@@ -1,5 +1,5 @@
 priority: 215
-help: Configure firewall
+help: Firewall
 
 delete: # set conntrack table size to standard 16384 entries if fw disabled
         sudo sh -c "echo 16384 > /proc/sys/net/nf_conntrack_max"

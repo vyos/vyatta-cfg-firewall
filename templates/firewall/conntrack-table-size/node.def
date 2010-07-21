@@ -17,7 +17,7 @@
 
 type: u32
 
-help: Set size of netfilter connection tracking table
+help: Size of connection tracking table
 
 default: 32768
 

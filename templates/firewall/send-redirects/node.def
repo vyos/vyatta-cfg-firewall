@@ -6,7 +6,7 @@
 
 type: txt
 
-help: Set policy for sending IPv4 ICMP redirect messages
+help: Policy for sending IPv4 ICMP redirect messages
 
 comp_help:Possible completions:
   enable\tEnable sending IPv4 ICMP redirect messages

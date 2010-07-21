@@ -14,7 +14,7 @@
 
 type: txt
 
-help: Set tracking of previously established connections
+help: Policy to track previously established connections
 
 comp_help:Possible completions:
   enable\tAllow tracking of previously established connections

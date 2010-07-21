@@ -1,5 +1,5 @@
 type: txt
-help: Set protocol to match (protocol name in /etc/protocols or protocol number or "all")
+help: Protocol to match (protocol name in /etc/protocols or protocol number or "all")
 
 comp_help:Possible completions:
   <text>        An IP protocol name from /etc/protocols (e.g. "tcp" or "udp")

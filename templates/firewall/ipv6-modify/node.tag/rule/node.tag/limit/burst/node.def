@@ -1,4 +1,4 @@
 type: u32
 default: 1
-help: Set maximum number of packets to allow in excess of rate
+help: Maximum number of packets to allow in excess of rate
 syntax:expression: ($VAR(@) >0) ; "Burst should be a value greater then zero"

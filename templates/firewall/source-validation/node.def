@@ -6,7 +6,7 @@
 
 type: txt
 
-help: Set policy for source validation by reversed path, as specified in RFC3704
+help: Policy for source validation by reversed path, as specified in RFC3704
 
 comp_help:Possible completions:
   strict\tEnable Strict Reverse Path Forwarding as defined in RFC3704

@@ -4,7 +4,7 @@
 
 type: txt
 
-help: Set handling of all IPv4 ICMP echo requests
+help: Policy for handling of all IPv4 ICMP echo requests
 
 comp_help:Possible completions:
   disable\tDisable processing of all IPv4 ICMP echo requests

@@ -4,7 +4,7 @@
 
 type: txt
 
-help: Set policy for handling received ICMPv6 redirect messages
+help: Policy for handling received ICMPv6 redirect messages
 
 comp_help:Possible completions:
   enable\tEnable processing of received ICMPv6 redirect messages

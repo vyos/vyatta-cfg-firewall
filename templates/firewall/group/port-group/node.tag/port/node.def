@@ -1,6 +1,6 @@
 multi: 
 type: txt
-help: Set a port-group member
+help: Port-group member
 
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \

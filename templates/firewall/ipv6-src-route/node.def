@@ -9,7 +9,7 @@
 
 type: txt
 
-help: Set policy for handling IPv6 packets with routing extension header
+help: Policy for handling IPv6 packets with routing extension header
 
 comp_help:Possible completions:
   enable\tEnable processing of IPv6 packets with routing header type 2

@@ -1,5 +1,5 @@
 type: txt
-help: Set monthdays on which to apply rule
+help: Monthdays to match rule on
 syntax:expression: pattern $VAR(@) "^!?([[:digit:]]\{1,2\}\,)*[[:digit:]]\{1,2\}$" ; \
 "Incorrect value for monthdays. Monthdays should be specified as 2,12,21
 For negation, add ! in front eg. !2,12,21"

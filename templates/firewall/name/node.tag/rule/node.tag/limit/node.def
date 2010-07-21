@@ -1,1 +1,1 @@
-help: Set to match rule at a limited rate using a token bucket filter
+help: Rate limit using a token bucket filter

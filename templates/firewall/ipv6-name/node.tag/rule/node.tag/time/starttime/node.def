@@ -1,5 +1,5 @@
 type: txt
-help: Set to apply rule starting from specified time
+help: Time of day to start matching rule
 syntax:expression: pattern $VAR(@) "^[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\}$" ; \
                    "Incorrect value for starttime. Time should be entered using 24 hour notation - hh:mm:ss"
 

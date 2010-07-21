@@ -1,6 +1,6 @@
 type:  txt
 
-help: Set firewall rule action
+help: Rule action
 
 syntax:expression: $VAR(@) in "drop", "accept", "modify";
                    "action must be one of drop, accept, or modify"

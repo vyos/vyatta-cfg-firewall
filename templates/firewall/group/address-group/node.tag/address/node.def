@@ -1,6 +1,6 @@
 multi: 
 type: txt
-help: Set a address-group member
+help: Address-group member
 
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \

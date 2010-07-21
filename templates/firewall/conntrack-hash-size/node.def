@@ -1,4 +1,4 @@
-help: Set hash size for connection tracking table
+help: Hash size for connection tracking table
 type: u32
 
 default: 4096

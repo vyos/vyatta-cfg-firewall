@@ -1,7 +1,7 @@
 tag:
 priority: 200
 type: txt
-help: Set a firewall address-group
+help: Firewall address-group
 
 syntax:expression: exec "			        \
         if [ `echo $VAR(@) | wc -c` -gt 31 ]; then      \

@@ -1,6 +1,6 @@
 multi:
 
-help: Set port number that SIP traffic is carried on
+help: Port number that SIP traffic is carried on
 
 comp_help: Possible completions:
  1 - 65535\tSIP port number

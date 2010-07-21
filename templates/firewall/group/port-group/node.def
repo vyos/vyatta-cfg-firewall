@@ -1,7 +1,7 @@
 tag:
 priority: 200
 type: txt
-help: Set a firewall port-group
+help: Firewall port-group
 
 syntax:expression: exec "			        \
         if [ `echo $VAR(@) | wc -c` -gt 31 ]; then      \

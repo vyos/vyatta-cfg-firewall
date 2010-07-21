@@ -14,7 +14,7 @@
 
 type: txt
 
-help: Set policy for handling received IPv4 ICMP redirect messages
+help: Policy for handling received IPv4 ICMP redirect messages
 
 comp_help:Possible completions:
   enable\tEnable processing of received IPv4 ICMP redirect messages

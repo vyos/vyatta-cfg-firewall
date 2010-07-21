@@ -1,5 +1,5 @@
 type: txt
-help: Set maximum average matching rate
+help: Maximum average matching rate
 syntax:expression: pattern $VAR(@) "^[[:digit:]]+/(second|minute|hour|day)$" ; \
 "Invalid value for rate. Rate should be specified as an integer followed by
 a forward slash '/' and either of these time units - second, minute, hour or day

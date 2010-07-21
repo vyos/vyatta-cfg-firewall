@@ -1,6 +1,6 @@
 type: txt
 
-help: Set IPv6 protocol to match (protocol name, number, or "all")
+help: IPv6 protocol to match (protocol name, number, or "all")
 
 syntax:expression: exec "
 	param=$VAR(@)
