@@ -7,7 +7,6 @@ syntax:expression: $VAR(@) in "drop", "accept", "modify";
 
 allowed: echo "drop accept modify"
 
-comp_help: Possible completions:
-  drop     Set rule action to drop
-  accept   Set rule action to accept
-  modify   Set rule action to modify
+val_help: drop; Rule action to drop
+val_help: accept;   Rule action to accept
+val_help: modify;   Rule action to modify
