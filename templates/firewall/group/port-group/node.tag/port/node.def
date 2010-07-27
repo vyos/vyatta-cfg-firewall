@@ -13,7 +13,11 @@ syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --member=\"$VAR(@)\"; "
 
 create: tmpgrp=$VAR(../@)-$PPID
-        tmpfile="/tmp/$VAR(../@)-$PPID";
+        len=${#tmpgrp}
+        if [ "$len" -gt 31 ]; then
+           tmpgrp=${tmpgrp: -31};
+        fi
+        tmpfile="/tmp/$tmpgrp";
 
         if [ "$COMMIT_SIBLING_POSITION" = "FIRST" ] || \
            [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
