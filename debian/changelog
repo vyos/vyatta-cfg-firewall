@@ -1,3 +1,14 @@
+vyatta-cfg-firewall (0.13.7-94) unstable; urgency=low
+
+  [ Stephen Hemminger ]
+  * Convert firewall rules to val_help:
+
+  [ Stig Thormodsrud ]
+  * Fix 5917: FW: Max characters exceeded for ipset rule when using "set
+    firewall group address-group" command
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 27 Jul 2010 15:58:57 -0700
+
 vyatta-cfg-firewall (0.13.7-93) unstable; urgency=low
 
   * UNRELEASED
