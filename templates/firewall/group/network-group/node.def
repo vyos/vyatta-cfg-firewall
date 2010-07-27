@@ -24,6 +24,3 @@ create: sudo /opt/vyatta/sbin/vyatta-ipset.pl \
 delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl \
           --action=delete-set                 \
           --set-name="$VAR(@)"
-
-comp_help: possible completions:
-  <txt>    Set the name of the firewall network-group

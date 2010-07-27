@@ -1,6 +1,7 @@
 multi: 
 type: ipv4net
 help: Network-group member
+val_help: ipv4net; IPv4 Subnet to match
 
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \
@@ -29,6 +30,3 @@ delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-deleted \
         sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
           --member="$VAR(@)"
-
-comp_help: possible completions:
-  <x.x.x.x/x>               IPv4 Subnet to match

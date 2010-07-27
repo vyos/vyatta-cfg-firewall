@@ -7,9 +7,8 @@ type: txt
 
 help: Policy for handling broadcast IPv4 ICMP echo and timestamp requests
 
-comp_help:Possible completions:
-  disable\tDisable processing of broadcast IPv4 ICMP echo/timestamp requests
-  enable\tEnable processing of broadcast IPv4 ICMP echo/timestamp requests
+val_help: disable; Disable processing of broadcast IPv4 ICMP echo/timestamp requests
+val_help: enable; Enable processing of broadcast IPv4 ICMP echo/timestamp requests
 
 default: "disable"
 

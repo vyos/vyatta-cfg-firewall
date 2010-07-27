@@ -7,8 +7,7 @@ syntax:expression: $VAR(@) in "drop", "reject", "accept", "inspect";
 
 allowed: echo "drop reject accept inspect"
 
-comp_help: Possible completions:
-  drop     Set rule action to drop
-  reject   Set rule action to reject
-  accept   Set rule action to accept
-  inspect  Set rule action to inspect
+val_help: drop     ; Rule action to drop
+val_help: reject   ; Rule action to reject
+val_help: accept   ; Rule action to accept
+val_help: inspect  ; Rule action to inspect

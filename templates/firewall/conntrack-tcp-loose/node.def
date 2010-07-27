@@ -16,9 +16,8 @@ type: txt
 
 help: Policy to track previously established connections
 
-comp_help:Possible completions:
-  enable\tAllow tracking of previously established connections
-  disable\tDo not allow tracking of previously established connections
+val_help: enable; Allow tracking of previously established connections
+val_help: disable; Do not allow tracking of previously established connections
 
 default: "enable"
 

@@ -3,8 +3,7 @@ type: u32
 
 default: 4096
 
-comp_help:Possible completions:
-  <1 - 50000000>\tSize of hash to use for connection tracking table
+val_help: u32:1-50000000; Size of hash to use for connection tracking table
 
 syntax:expression: ($VAR(@) >= 1 && $VAR(@) <= 50000000) ; "Value must be between 1 and 50,000,000"
 

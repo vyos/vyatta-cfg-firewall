@@ -21,8 +21,7 @@ help: Size of connection tracking table
 
 default: 32768
 
-comp_help:Possible completions:
-  <1 - 50000000>\tNumber of entries allowed in connection tracking table
+val_help: u32:1-50000000; Number of entries allowed in connection tracking table
 
 syntax:expression: ($VAR(@) >= 1 && $VAR(@) <= 50000000) ; "Value must be between 1 and 50,000,000"
 

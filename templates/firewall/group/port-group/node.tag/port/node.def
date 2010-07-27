@@ -2,6 +2,10 @@ multi:
 type: txt
 help: Port-group member
 
+val_help: <name>; Named port (any name in /etc/services, e.g., http)
+val_help: u32:1-65535; Numbered port
+val_help: <start>-<end>; Numbered port range (e.g. 1001-1050)
+
 syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-member          \
                            --set-name=$VAR(../@)          \
@@ -54,8 +58,3 @@ delete: sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-deleted \
         sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=delete-member \
           --set-name=$VAR(../@) \
           --member="$VAR(@)"
-
-comp_help: possible completions:
-  <port name>       Named port (any name in /etc/services, e.g., http)
-  <1-65535>         Numbered port
-  <start>-<end>     Numbered port range (e.g. 1001-1050)

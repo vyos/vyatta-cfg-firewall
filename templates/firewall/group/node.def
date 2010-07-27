@@ -1,4 +1,1 @@
 help: Firewall group
-
-comp_help: possible completions:
- <txt>     Set the name of the firewall group
