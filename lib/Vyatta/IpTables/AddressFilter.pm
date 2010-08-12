@@ -1,6 +1,4 @@
-#!/usr/bin/perl
-
-# Author: An-Cheng Huang <ancheng@vyatta.com>
+# Author: Vyatta <eng@vyatta.com>
 # Date: 2007
 # Description: IP tables address filter
 

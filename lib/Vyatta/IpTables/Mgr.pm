@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 #
 # Module: Vyatta::IpTables::Mgr.pm
 # 
