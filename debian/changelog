@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.8) unstable; urgency=low
+
+  * remove CLI backend env variables usage
+  * get rid of lintian warnings
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Wed, 11 Aug 2010 18:46:50 -0700
+
 vyatta-cfg-firewall (0.13.7-94) unstable; urgency=low
 
   [ Stephen Hemminger ]
