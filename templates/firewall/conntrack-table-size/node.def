@@ -29,7 +29,7 @@ update:
 	sudo sh -c "echo $VAR(@) > \
     	 		/proc/sys/net/nf_conntrack_max"
   # need to restart conntrackd with updated conntrack table size
-  if [ -d $VYATTA_ACTIVE_CONFIGURATION_DIR/service/conntrack-sync ] ; then
+  if cli-shell-api existsActive service conntrack-sync; then
     sudo /opt/vyatta/sbin/vyatta-conntrack-sync.pl --action=enable
   fi
 

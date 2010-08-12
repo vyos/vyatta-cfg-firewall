@@ -18,6 +18,6 @@ delete: # set conntrack table size to standard 16384 entries if fw disabled
         fi
 
         # need to restart conntrackd with updated conntrack table size
-        if [ -d $VYATTA_ACTIVE_CONFIGURATION_DIR/service/conntrack-sync ] ; then
+        if cli-shell-api existsActive service conntrack-sync; then
           sudo /opt/vyatta/sbin/vyatta-conntrack-sync.pl --action=enable
         fi
