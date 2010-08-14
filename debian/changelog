@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.7-92+larkspur4) unstable; urgency=low
+
+  * fix bug 6055 firewall rule help strings are confusing
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Sat, 14 Aug 2010 16:26:41 -0700
+
 vyatta-cfg-firewall (0.13.7-92+larkspur3) unstable; urgency=low
 
   * fix range in help strings for count parameter under recent
