@@ -1,4 +1,5 @@
 type: u32
 help: Source addresses seen more than N times
 syntax:expression: $VAR(@) >=1 && $VAR(@) <= 255; "recent count value must be between 1 and 255"
+val_help: u32:1-255; Source addresses seen more than N times
 
