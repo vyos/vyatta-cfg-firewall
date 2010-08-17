@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.7-92+larkspur5) unstable; urgency=low
+
+  * Fix 5917: FW: Max characters exceeded for ipset rule when using "set
+    firewall
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 17 Aug 2010 10:53:03 -0700
+
 vyatta-cfg-firewall (0.13.7-92+larkspur4) unstable; urgency=low
 
   * fix bug 6055 firewall rule help strings are confusing
