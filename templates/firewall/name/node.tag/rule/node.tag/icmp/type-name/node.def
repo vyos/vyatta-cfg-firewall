@@ -37,41 +37,40 @@ done
 echo Invalid ICMP type-name [$VAR(@)]
 exit 1 "
 
-comp_help: Possible completions:
-any
-echo-reply (pong)
-destination-unreachable
-   network-unreachable
-   host-unreachable
-   protocol-unreachable
-   port-unreachable
-   fragmentation-needed
-   source-route-failed
-   network-unknown
-   host-unknown
-   network-prohibited
-   host-prohibited
-   TOS-network-unreachable
-   TOS-host-unreachable
-   communication-prohibited
-   host-precedence-violation
-   precedence-cutoff
-source-quench
-redirect
-   network-redirect
-   host-redirect
-   TOS-network-redirect
-   TOS-host-redirect
-echo-request (ping)
-router-advertisement
-router-solicitation
-time-exceeded (ttl-exceeded)
-   ttl-zero-during-transit
-   ttl-zero-during-reassembly
-parameter-problem
-   ip-header-bad
-   required-option-missing
-timestamp-request
-timestamp-reply
-address-mask-request
-address-mask-reply
+val_help: any; Any ICMP type/code
+val_help: echo-reply (pong); ICMP type/code name
+val_help: destination-unreachable; ICMP type/code name
+val_help: _ network-unreachable; ICMP type/code name
+val_help: _ host-unreachable; ICMP type/code name
+val_help: _ protocol-unreachable; ICMP type/code name
+val_help: _ port-unreachable; ICMP type/code name
+val_help: _ fragmentation-needed; ICMP type/code name
+val_help: _ source-route-failed; ICMP type/code name
+val_help: _ network-unknown; ICMP type/code name
+val_help: _ host-unknown; ICMP type/code name
+val_help: _ network-prohibited; ICMP type/code name
+val_help: _ host-prohibited; ICMP type/code name
+val_help: _ TOS-network-unreachable; ICMP type/code name
+val_help: _ TOS-host-unreachable; ICMP type/code name
+val_help: _ communication-prohibited; ICMP type/code name
+val_help: _ host-precedence-violation; ICMP type/code name
+val_help: _ precedence-cutoff; ICMP type/code name
+val_help: source-quench; ICMP type/code name
+val_help: redirect; ICMP type/code name
+val_help: _ network-redirect; ICMP type/code name
+val_help: _ host-redirect; ICMP type/code name
+val_help: _ TOS-network-redirect; ICMP type/code name
+val_help: _ TOS-host-redirect; ICMP type/code name
+val_help: echo-request (ping); ICMP type/code name
+val_help: router-advertisement; ICMP type/code name
+val_help: router-solicitation; ICMP type/code name
+val_help: time-exceeded (ttl-exceeded); ICMP type/code name
+val_help: _ ttl-zero-during-transit; ICMP type/code name
+val_help: _ ttl-zero-during-reassembly; ICMP type/code name
+val_help: parameter-problem; ICMP type/code name
+val_help: _ ip-header-bad; ICMP type/code name
+val_help: _ required-option-missing; ICMP type/code name
+val_help: timestamp-request; ICMP type/code name
+val_help: timestamp-reply; ICMP type/code name
+val_help: address-mask-request; ICMP type/code name
+val_help: address-mask-reply; ICMP type/code name

@@ -16,9 +16,8 @@ type: txt
 
 help: Policy for handling received IPv4 ICMP redirect messages
 
-comp_help:Possible completions:
-  enable\tEnable processing of received IPv4 ICMP redirect messages
-  disable\tDisable processing of received IPv4 ICMP redirect messages
+val_help: enable; Enable processing of received IPv4 ICMP redirect messages
+val_help: disable; Disable processing of received IPv4 ICMP redirect messages
 
 default: "disable"
 

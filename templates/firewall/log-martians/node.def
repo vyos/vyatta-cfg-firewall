@@ -8,9 +8,8 @@ type: txt
 
 help: Policy for logging IPv4 packets with invalid addresses
 
-comp_help:Possible completions:
-  enable\tEnable logging of IPv4 packets with invalid addresses
-  disable\tDisable logging of Ipv4 packets with invalid addresses
+val_help: enable; Enable logging of IPv4 packets with invalid addresses
+val_help: disable; Disable logging of Ipv4 packets with invalid addresses
 
 default: "enable"
 

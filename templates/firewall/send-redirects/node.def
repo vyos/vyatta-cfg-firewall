@@ -8,9 +8,8 @@ type: txt
 
 help: Policy for sending IPv4 ICMP redirect messages
 
-comp_help:Possible completions:
-  enable\tEnable sending IPv4 ICMP redirect messages
-  disable\tDisable sending IPv4 ICMP redirect messages
+val_help: enable; Enable sending IPv4 ICMP redirect messages
+val_help: disable; Disable sending IPv4 ICMP redirect messages
 
 default: "enable"
 

@@ -3,12 +3,11 @@ type: txt
 
 help: Source IPv6 address, prefix or range
 
-comp_help: Possible completions:
-  <x:x:x:x:x:x:x:x>             IPv6 address to match
-  <x:x:x:x:x:x:x:x>/<n>         IPv6 prefix to match
-  <x:x:x:x:x:x>-<x:x:x:x:x:x>   Range of IPv6 addresses
-  !<x:x:x:x:x:x:x:x>            Everything except IPv6 address
-  !<x:x:x:x:x:x:x:x>/<n>        Everything except IPv6 prefix
-  !<x:x:x:x:x:x>-<x:x:x:x:x:x>  Everything except range
+val_help: ipv6; IPv6 address to match
+val_help: ipv6net; IPv6 prefix to match
+val_help: ipv6range; IPv6 range to match
+val_help: !ipv6; Match everything except the specified address
+val_help: !ipv6net; Match everything except the specified prefix
+val_help: !ipv6range; Match everything except the specified range
 
 syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv6_addr_param $VAR(@)"

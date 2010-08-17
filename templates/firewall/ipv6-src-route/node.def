@@ -11,9 +11,8 @@ type: txt
 
 help: Policy for handling IPv6 packets with routing extension header
 
-comp_help:Possible completions:
-  enable\tEnable processing of IPv6 packets with routing header type 2
-  disable\tDisable processing of IPv6 packets with routing header
+val_help: enable; Enable processing of IPv6 packets with routing header type 2
+val_help: disable; Disable processing of IPv6 packets with routing header
 
 default: "disable"
 

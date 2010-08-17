@@ -7,9 +7,8 @@ type: txt
 
 help: Policy for using TCP SYN cookies with IPv4
 
-comp_help:Possible completions:
-  enable\tEnable use of TCP SYN cookies with IPv4
-  disable\tDisable use of TCP SYN cookies with IPv4
+val_help: enable; Enable use of TCP SYN cookies with IPv4
+val_help: disable; Disable use of TCP SYN cookies with IPv4
 
 default: "enable"
 

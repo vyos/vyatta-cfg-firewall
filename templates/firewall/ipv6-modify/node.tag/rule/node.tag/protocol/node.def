@@ -21,10 +21,8 @@ allowed:
 	protos="all icmpv6 $protos tcp_udp"
 	echo -n $protos
 
-comp_help:Possible completions:
-  <text>        An IPv6 protocol name (e.g. "tcp" or "udp")
-  <1-255>       An IPv6 protocol number
-  tcp_udp       Both TCP and UDP
-  all           All IPv6 protocols
-  !<text>       All IPv6 protocols except for the specified name
-  !<1-255>      All IPv6 protocols except for the specified number
+val_help: txt; IPv6 protocol name from /etc/protocols (e.g. "tcp" or "udp")
+val_help: u32:0-255; IPv6 protocol number
+val_help: tcp_udp; Both TCP and UDP
+val_help: all; All IPv6 protocols
+val_help: !<protocol>; All IPv6 protocols except for the specified name or number

@@ -6,9 +6,8 @@ type: txt
 
 help: Policy for handling received ICMPv6 redirect messages
 
-comp_help:Possible completions:
-  enable\tEnable processing of received ICMPv6 redirect messages
-  disable\tDisable processing of received ICMPv6 redirect messages
+val_help: enable; Enable processing of received ICMPv6 redirect messages
+val_help: disable; Disable processing of received ICMPv6 redirect messages
 
 default: "disable"
 

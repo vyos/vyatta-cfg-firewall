@@ -1,9 +1,8 @@
 type: txt
-help: Source IP address, subnet, or range\
-comp_help: Possible completions:
-  <x.x.x.x>                  IP address to match
-  <x.x.x.x/x>                Subnet to match
-  <x.x.x.x>-<x.x.x.x>        IP range to match
-  !<x.x.x.x>                 Match everything except the specified address
-  !<x.x.x.x/x>               Match everything except the specified subnet
-  !<x.x.x.x>-<x.x.x.x>       Match everything except the specified range
+help: Source IP address, subnet, or range
+val_help: ipv4; IP address to match
+val_help: ipv4net; Subnet to match
+val_help: ipv4range; IP range to match
+val_help: !ipv4; Match everything except the specified address
+val_help: !ipv4net; Match everything except the specified subnet
+val_help: !ipv4range; Match everything except the specified range

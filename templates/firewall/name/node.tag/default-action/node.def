@@ -7,7 +7,6 @@ default: "drop"
 syntax:expression: $VAR(@) in "drop", "accept", "reject";
                    "default-action must be drop, reject or accept"
 
-comp_help: possible completions:
-  drop            Drop if no prior rules are hit (default)
-  reject          Drop and notify source if no prior rules are hit
-  accept          Accept if no prior rules are hit
+val_help: drop; Drop if no prior rules are hit (default)
+val_help: reject; Drop and notify source if no prior rules are hit
+val_help: accept; Accept if no prior rules are hit
