@@ -6,6 +6,4 @@ commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --set-name=$VAR(@)             \
                            --set-type=address;"
 
-allowed: local -a array
-         array=( /opt/vyatta/config/active/firewall/group/address-group/* )
-         echo -n ${array[@]##*/}
+allowed: cli-shell-api listActiveNodes firewall group address-group

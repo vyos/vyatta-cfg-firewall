@@ -5,6 +5,4 @@ commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-set-type        \
                            --set-name=$VAR(@)             \
                            --set-type=network;"
-allowed: local -a array
-         array=( /opt/vyatta/config/active/firewall/group/network-group/* )
-         echo -n ${array[@]##*/}
+allowed: cli-shell-api listActiveNodes firewall group network-group
