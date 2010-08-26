@@ -32,3 +32,9 @@ Suggests: util-linux (>= 2.13-5),
  ntpdate
 Description: Vyatta firewall configuration templates/scripts
  Vyatta firewall configuration templates and scripts.
+
+Package: vyatta-cfg-firewall-serial
+Architecture: all
+Depends:  vyatta-cfg-firewall
+Description: vyatta-cfg-firewall serial templates
+ Vyatta firewall configuration templates for serial devices

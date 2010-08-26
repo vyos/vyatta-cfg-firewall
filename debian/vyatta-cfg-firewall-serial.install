@@ -1,0 +1,3 @@
+opt/vyatta/share/vyatta-cfg/templates/interfaces/adsl
+opt/vyatta/share/vyatta-cfg/templates/interfaces/multilink
+opt/vyatta/share/vyatta-cfg/templates/interfaces/serial

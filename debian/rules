@@ -9,15 +9,11 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-PACKAGE=vyatta-cfg-firewall
-PKGDIR=$(CURDIR)/debian/$(PACKAGE)
-
-CFLAGS = -Wall -g
+PKGDIR=$(CURDIR)/debian/tmp
 
 configure	 = ./configure
 configure	+= --host=$(DEB_HOST_GNU_TYPE)
@@ -25,14 +21,6 @@ configure	+= --build=$(DEB_BUILD_GNU_TYPE)
 configure	+= --prefix=/opt/vyatta
 configure	+= --mandir=\$${prefix}/share/man
 configure	+= --infodir=\$${prefix}/share/info
-configure	+= CFLAGS="$(CFLAGS)"
-configure	+= LDFLAGS="-Wl,-z,defs"
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
 
 configure: configure.ac Makefile.am
 	chmod +x debian/autogen.sh
@@ -72,7 +60,10 @@ install: build
 
 	$(MAKE) DESTDIR=$(PKGDIR) install
 
-	install -D --mode=0644 debian/lintian $(PKGDIR)/usr/share/lintian/overrides/$(PACKAGE)
+	for p in vyatta-cfg-firewall vyatta-cfg-firewall-serial; do \
+	  install -D --mode=0644 debian/$$p.lintian-overrides \
+		debian/$$p/usr/share/lintian/overrides/$$p; \
+	done
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -81,7 +72,7 @@ binary-indep: build install
 	dh_testroot
 	dh_installchangelogs ChangeLog
 	dh_installdocs
-	dh_install
+	dh_install --sourcedir=debian/tmp
 	dh_installdebconf	
 	dh_link
 	dh_strip
