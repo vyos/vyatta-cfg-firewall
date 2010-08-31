@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.13) unstable; urgency=low
+
+  * Fix 6125: iptables errors on boot up of mendocino
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 31 Aug 2010 16:09:26 -0700
+
 vyatta-cfg-firewall (0.13.12) unstable; urgency=low
 
   * remove low-level config dir usage
