@@ -52,8 +52,8 @@ sub ipt_find_chain_rule {
 }
 
 my %conntrack_hook_hash = 
-   ('PREROUTING' => 'VYATTA_PRE_CT_PREROUTING_HOOK',
-    'OUTPUT'     => 'VYATTA_PRE_CT_OUTPUT_HOOK',
+   ('PREROUTING' => 'VYATTA_CT_PREROUTING_HOOK',
+    'OUTPUT'     => 'VYATTA_CT_OUTPUT_HOOK',
    );
 
 sub ipt_enable_conntrack {
