@@ -26,6 +26,7 @@ my %fields = (
   _icmpv6_type => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
+  _mod_tcpmss  => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
   _frag        => undef,
@@ -77,6 +78,7 @@ my %dummy_rule = (
   _icmpv6_type => undef,
   _mod_mark    => undef,
   _mod_dscp    => undef,
+  _mod_tcpmss  => undef,
   _ipsec       => undef,
   _non_ipsec   => undef,
   _frag        => undef,
@@ -166,6 +168,7 @@ sub setup_base {
   $self->{_icmpv6_type} = $config->$val_func("icmpv6 type");
   $self->{_mod_mark}    = $config->$val_func("modify mark");
   $self->{_mod_dscp}    = $config->$val_func("modify dscp");
+  $self->{_mod_tcpmss}  = $config->$val_func("modify tcp-mss");
   $self->{_ipsec}       = $config->$exists_func("ipsec match-ipsec");
   $self->{_non_ipsec}   = $config->$exists_func("ipsec match-none");
   $self->{_frag}        = $config->$exists_func("fragment match-frag");
@@ -242,6 +245,7 @@ sub print {
                                            if defined $self->{_icmpv6_type};
   print "mod mark: $self->{_mod_mark}\n"   if defined $self->{_mod_mark};
   print "mod dscp: $self->{_mod_dscp}\n"   if defined $self->{_mod_dscp};
+  print "mod tcp-mss: $self->{_mod_tcpmss}\n" if defined $self->{_mod_tcpmss};
 
   $src->print();
   $dst->print();
@@ -578,6 +582,21 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     if (defined($self->{_mod_dscp})) {
       # DSCP
       $rule .= "-j DSCP --set-dscp $self->{_mod_dscp} ";
+      $count++;
+    }
+    if (defined($self->{_mod_tcpmss})) {
+      # TCP-MSS
+      # check for SYN flag
+      if (!defined $self->{_tcp_flags} ||
+	  !(($self->{_tcp_flags} =~ m/SYN/) && !($self->{_tcp_flags} =~ m/!SYN/))) {
+        return ('need to set TCP SYN flag to modify TCP MSS', );
+      }
+
+      if ($self->{_mod_tcpmss} =~ m/\d/) {
+        $rule .= "-j TCPMSS --set-mss $self->{_mod_tcpmss} ";
+      } else {
+        $rule .= "-j TCPMSS --clamp-mss-to-pmtu ";
+      }
       $count++;
     }
     

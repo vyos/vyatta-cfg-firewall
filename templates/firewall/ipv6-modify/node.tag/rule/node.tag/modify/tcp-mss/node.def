@@ -1,0 +1,21 @@
+type: txt
+help: TCP Maximum Segment Size
+
+syntax:expression:
+exec "
+if [[ $VAR(@) =~ ^[[:alpha:]]*$ ]]; then                        \
+        if [ $VAR(@) == \"pmtu\" ]; then                        \
+                exit 0;                                         \
+        fi;                                                     \
+else                                                            \
+        if [[   ( $VAR(@) =~ ^[[:digit:]]*$ ) &&                \
+                ( $VAR(@) -ge \"500\" ) &&                      \
+                ( $VAR(@) -le \"1460\" ) ]]; then               \
+                exit 0;                                         \
+        fi;                                                     \
+fi;                                                             \
+echo Value must be \\'pmtu\\' or a number between 500 and 1460; \
+exit 1"
+
+val_help: pmtu; Automatically set to Path Maximum Transfer Unit minus 60 bytes
+val_help: 500-1460; Explicitly set TCP MSS value
