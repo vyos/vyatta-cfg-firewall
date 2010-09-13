@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.20) unstable; urgency=low
+
+  * rename existing file no matter what; don't need the -n flag
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 13 Sep 2010 15:34:09 -0700
+
 vyatta-cfg-firewall (0.13.19) unstable; urgency=low
 
   * Fix bug 6149 Warning on boot because of modprobe config file names
