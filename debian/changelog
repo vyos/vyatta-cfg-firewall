@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.19) unstable; urgency=low
+
+  * Fix bug 6149 Warning on boot because of modprobe config file names
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 13 Sep 2010 15:03:33 -0700
+
 vyatta-cfg-firewall (0.13.18) unstable; urgency=low
 
   * Fix Bug 6149 Warning on boot because of modprobe config file names
