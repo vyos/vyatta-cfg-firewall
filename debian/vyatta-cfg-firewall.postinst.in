@@ -8,3 +8,13 @@ sbindir=@sbindir@
 
 # add symlinks for sudo
 ln -sf /opt/vyatta/sbin/vyatta-ipset.pl ${bindir}/sudo-users/vyatta-ipset.pl
+
+
+# comply with Squeeze version of modprobe
+# remove old versions of files during upgrade
+for modprobe in vyatta_nf_conntrack vyatta_xt_recent
+do
+  if [ -f /etc/modprobe.d/${modprobe} ]; then
+      rm -f /etc/modprobe.d/${modprobe}
+  fi
+done

@@ -3,8 +3,8 @@ share_perl5dir = /opt/vyatta/share/perl5/Vyatta/IpTables
 curverdir = $(sysconfdir)/config-migrate/current
 modprobedir = /etc/modprobe.d
 
-modprobe_DATA  = etc/modprobe.d/vyatta_nf_conntrack
-modprobe_DATA += etc/modprobe.d/vyatta_xt_recent
+modprobe_DATA  = etc/modprobe.d/vyatta_nf_conntrack.conf
+modprobe_DATA += etc/modprobe.d/vyatta_xt_recent.conf
 
 sbin_SCRIPTS =
 share_perl5_DATA =
