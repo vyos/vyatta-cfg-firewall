@@ -71,20 +71,30 @@ start () {
         ip6tables -t raw -A OUTPUT -j VYATTA_CT_OUTPUT_HOOK
         ip6tables -t raw -A OUTPUT -j NOTRACK
 
-	# set up post-firewall hook for IPv6
-	ip6tables -N VYATTA_POST_FW_HOOK
-	ip6tables -A VYATTA_POST_FW_HOOK -j ACCEPT
-	ip6tables -A INPUT -j VYATTA_POST_FW_HOOK
-	ip6tables -A FORWARD -j VYATTA_POST_FW_HOOK
+	# set up post-firewall hooks for IPv6
+	ip6tables -N VYATTA_POST_FW_IN_HOOK
+	ip6tables -N VYATTA_POST_FW_FWD_HOOK
+	ip6tables -N VYATTA_POST_FW_OUT_HOOK
+	ip6tables -A VYATTA_POST_FW_IN_HOOK -j ACCEPT
+	ip6tables -A VYATTA_POST_FW_FWD_HOOK -j ACCEPT
+	ip6tables -A VYATTA_POST_FW_OUT_HOOK -j ACCEPT
+	ip6tables -A INPUT -j VYATTA_POST_FW_IN_HOOK
+	ip6tables -A FORWARD -j VYATTA_POST_FW_FWD_HOOK
+	ip6tables -A OUTPUT -j VYATTA_POST_FW_OUT_HOOK
     else
 	logger -t "Vyatta firewall init" -p warning "Kernel IPv6 support disabled.  Not initializing IPv6 firewall"
     fi
     
-    # set up post-firewall hook for IPv4
-    iptables -N VYATTA_POST_FW_HOOK
-    iptables -A VYATTA_POST_FW_HOOK -j ACCEPT
-    iptables -A INPUT -j VYATTA_POST_FW_HOOK
-    iptables -A FORWARD -j VYATTA_POST_FW_HOOK
+    # set up post-firewall hooks for IPv4
+    iptables -N VYATTA_POST_FW_IN_HOOK
+    iptables -N VYATTA_POST_FW_FWD_HOOK
+    iptables -N VYATTA_POST_FW_OUT_HOOK
+    iptables -A VYATTA_POST_FW_IN_HOOK -j ACCEPT
+    iptables -A VYATTA_POST_FW_FWD_HOOK -j ACCEPT
+    iptables -A VYATTA_POST_FW_OUT_HOOK -j ACCEPT
+    iptables -A INPUT -j VYATTA_POST_FW_IN_HOOK
+    iptables -A FORWARD -j VYATTA_POST_FW_FWD_HOOK
+    iptables -A OUTPUT -j VYATTA_POST_FW_OUT_HOOK
 
     # set up pre-DNAT hook
     iptables -t nat -N VYATTA_PRE_DNAT_HOOK
