@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.22) unstable; urgency=low
+
+  * * move count_iptables_rule to Iptables::Mgr and update it's usage
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 21 Sep 2010 21:16:45 -0700
+
 vyatta-cfg-firewall (0.13.21) unstable; urgency=low
 
   * * separate out post fw hooks for IN, FWD, OUT. Use
