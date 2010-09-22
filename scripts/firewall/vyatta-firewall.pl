@@ -10,7 +10,6 @@ use Vyatta::IpTables::AddressFilter;
 use Vyatta::IpTables::Mgr;
 use Getopt::Long;
 use Vyatta::Zone;
-use Vyatta::Misc;
 
 
 # Send output of shell commands to syslog for debugging and so that
@@ -698,7 +697,7 @@ sub setup_iptables {
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
-  my $cnt = Vyatta::Misc::count_iptables_rules($iptables_cmd, 'raw', 'FW_CONNTRACK');
+  my $cnt = Vyatta::IpTables::Mgr::count_iptables_rules($iptables_cmd, 'raw', 'FW_CONNTRACK');
   if ($cnt == 0) {
     ipt_enable_conntrack($iptables_cmd, 'FW_CONNTRACK');
     disable_fw_conntrack($iptables_cmd);
@@ -731,7 +730,7 @@ sub change_default_policy {
   log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)\n");  
 
   # count the number of rules before adding the new policy
-  my $default_rule = Vyatta::Misc::count_iptables_rules($iptables_cmd, $table, $chain);
+  my $default_rule = Vyatta::IpTables::Mgr::count_iptables_rules($iptables_cmd, $table, $chain);
 
   # add new policy after existing policy
   set_default_policy($table, $chain, $iptables_cmd, $policy, $log);
