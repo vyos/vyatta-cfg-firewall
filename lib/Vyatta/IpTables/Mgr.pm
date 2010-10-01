@@ -29,7 +29,8 @@ use warnings;
 
 use base 'Exporter';
 our @EXPORT = qw(ipt_find_chain_rule ipt_enable_conntrack
-                 ipt_disable_conntrack count_iptables_rules);
+                 ipt_disable_conntrack count_iptables_rules
+                 chain_referenced);
 
 
 sub ipt_find_chain_rule {
@@ -112,6 +113,21 @@ sub count_iptables_rules {
       $cnt++ if $line =~ /^\d/;
     }
     return $cnt;
+}
+
+sub chain_referenced {
+  my ( $table, $chain, $iptables_cmd ) = @_;
+
+  my $cmd  = "$iptables_cmd -t $table -n -L $chain";
+  my $line = `$cmd 2>/dev/null |head -n1`;
+  chomp $line;
+  my $found = 0;
+  if ( $line =~ m/^Chain $chain \((\d+) references\)$/ ) {
+    if ( $1 > 0 ) {
+      $found = 1;
+    }
+  }
+  return $found;
 }
 
 1;

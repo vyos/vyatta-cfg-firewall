@@ -363,7 +363,7 @@ sub update_rules {
     log_msg "$tree $name = deleted\n";
 
     # delete the chain
-    if (chain_referenced($table, $name, $iptables_cmd)) {
+    if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
       # disallow deleting a chain if it's still referenced
       print STDERR 'Firewall config error: '
           . "Cannot delete rule set \"$name\" (still in use)\n";
@@ -766,22 +766,6 @@ sub setup_chain {
   }
 }
 
-sub chain_referenced {
-  my ($table, $chain, $iptables_cmd) = @_;
-
-  my $cmd = "$iptables_cmd -t $table -n -L $chain";
-  my $line = `$cmd 2>/dev/null |head -n1`;
-  chomp $line;
-  my $found = 0;
-  if ($line =~ m/^Chain $chain \((\d+) references\)$/) {
-    if ($1 > 0) {
-      $found = 1;
-    }
-  }
-  log_msg "chain_referenced [$cmd] = $found\n";
-  return $found;
-}
-
 sub chain_referenced_count {
   my ($table, $chain, $iptables_cmd) = @_;
 
@@ -804,7 +788,7 @@ sub delete_chain {
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
-    if (!chain_referenced($table, $chain, $iptables_cmd)) {
+    if (!Vyatta::IpTables::Mgr::chain_referenced($table, $chain, $iptables_cmd)) {
       run_cmd("$iptables_cmd -t $table --flush $chain", 0, 0);
       die "$iptables_cmd error: $table $chain --flush: $!" if ($? >> 8);
       run_cmd("$iptables_cmd -t $table --delete-chain $chain", 0, 0);
