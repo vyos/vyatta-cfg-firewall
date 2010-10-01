@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.23) unstable; urgency=low
+
+  * move chain_referenced function to Mgr.pm module
+
+ -- Mohit Mehta <mohit@vyatta.com>  Fri, 01 Oct 2010 11:32:43 -0700
+
 vyatta-cfg-firewall (0.13.22) unstable; urgency=low
 
   * * move count_iptables_rule to Iptables::Mgr and update it's usage
