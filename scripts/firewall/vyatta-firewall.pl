@@ -10,12 +10,7 @@ use Vyatta::IpTables::AddressFilter;
 use Vyatta::IpTables::Mgr;
 use Getopt::Long;
 use Vyatta::Zone;
-
-
-# Send output of shell commands to syslog for debugging and so that
-# the user is not confused by it.  Log at debug level, which is supressed
-# by default, so that we don't unnecessarily fill up the syslog file.
-my $logger = 'logger -t firewall-cfg -p local0.debug --';
+use Sys::Syslog qw(:standard :macros);
 
 # Enable printing debug output to stdout.
 my $debug_flag = 0;
@@ -31,7 +26,7 @@ my $max_rule = 10000;
 my (@setup, @updateints, @updaterules);
 my ($teardown, $teardown_ok);
 
-GetOptions("setup=s{2}"        => \@setup, 
+GetOptions("setup=s{2}"        => \@setup,
            "teardown=s"        => \$teardown,
            "teardown-ok=s"     => \$teardown_ok,
  	   "update-rules=s{2}" => \@updaterules,
@@ -47,7 +42,7 @@ my %table_hash = ( 'name'        => 'filter',
                    'ipv6-modify' => 'mangle' );
 
 # mapping from config node to iptables command.  Note that this table
-# has the same keys as %table hash, so a loop iterating through the 
+# has the same keys as %table hash, so a loop iterating through the
 # keys of %table_hash can use the same keys to find the value associated
 # with the key in this table.
 my %cmd_hash = ( 'name'        => 'iptables',
@@ -79,11 +74,19 @@ my %other_tree = (  'name'        => 'modify',
                     'ipv6-name'   => 'ipv6-modify',
                     'ipv6-modify' => 'ipv6-name');
 
+
+# Send output of shell commands to syslog for debugging and so that
+# the user is not confused by it.  Log at debug level, which is supressed
+# by default, so that we don't unnecessarily fill up the syslog file.
+#
+# Call openlog but actual open is defered until first message.
+openlog("firewall-cfg", "pid", "local0");
+
 sub log_msg {
   my $message = shift;
 
-  print "DEBUG: $message" if $debug_flag;
-  system("$logger DEBUG: \"$message\"") if $syslog_flag;
+  print "DEBUG: $message\n" if $debug_flag;
+  syslog(LOG_DEBUG, "%s", $message) if $syslog_flag;
 }
 
 sub other_table {
@@ -103,8 +106,8 @@ if (scalar(@updaterules) == 2) {
 
 if ($#updateints == 4) {
   my ($action, $int_name, $direction, $chain, $tree) = @updateints;
-  
-  log_msg "updateints [$action][$int_name][$direction][$chain][$tree]\n";
+
+  log_msg "updateints [$action][$int_name][$direction][$chain][$tree]";
   my ($table, $iptables_cmd) = (undef, undef);
 
   my $tree2     = chain_configured(1, $chain, $tree);
@@ -144,12 +147,12 @@ if ($#updateints == 4) {
 
 sub find_chain_rule {
   my ($iptables_cmd, $table, $chain, $search) = @_;
-  
+
   my ($num, $chain2) = (undef, undef);
   my $cmd = "$iptables_cmd -t $table -L $chain -vn --line";
   my @lines = `$cmd 2> /dev/null | egrep ^[0-9]`;
   if (scalar(@lines) < 1) {
-    system("$logger DEBUG: find_chain_rule: @_ = none \n") if $syslog_flag;
+    log_msg("find_chain_rule: @_ = none");
     return;
   }
   foreach my $line (@lines) {
@@ -160,7 +163,7 @@ sub find_chain_rule {
 
   if ($syslog_flag) {
     my $tmp_num = $num ? $num : -1;
-    system("$logger DEBUG: find_chain_rule: @_ = $tmp_num");
+    log_msg("find_chain_rule: @_ = $tmp_num");
   }
 
   return $num if defined $num;
@@ -169,14 +172,14 @@ sub find_chain_rule {
 
 if (defined $teardown_ok) {
   my $rc = is_tree_in_use($teardown_ok);
-  log_msg "teardown_ok($teardown_ok) = [$rc]\n";
+  log_msg "teardown_ok($teardown_ok) = [$rc]";
   exit $rc;
 }
 
 if (defined $teardown) {
   my $table        = $table_hash{$teardown};
   my $iptables_cmd = $cmd_hash{$teardown};
-  log_msg "teardown [$table][$iptables_cmd]\n";
+  log_msg "teardown [$table][$iptables_cmd]";
   teardown_iptables($table, $iptables_cmd);
 
   # remove the conntrack setup.
@@ -200,19 +203,28 @@ sub help {
   print "\n";
 }
 
+# Run command and capture output
+# if command fails, then send output to syslog
 sub run_cmd {
-  my ($cmd_to_run, $redirect_flag, $logger_flag) = @_;
+  my ($cmd_to_run, $redirect) = @_;
 
-  my $cmd_extras = '';
+  log_msg("Running: $cmd_to_run");
+
+  if ($redirect) {
+    open (my $out, '-|',  $cmd_to_run . ' 2>&1')
+        or die "Can't run command \"$cmd_to_run\": $!";
+    my @cmd_out = <$out>;
   
-  print "DEBUG: Running: $cmd_to_run \n" if $debug_flag;
+    # if command suceeds to do nothing.
+    return if (close ($out));
   
-  system("$logger DEBUG: Running: $cmd_to_run") if $syslog_flag;
-  
-  $cmd_extras  = ' 2>&1' if $redirect_flag;
-  $cmd_extras .= " | $logger" if $logger_flag;
-  
-  system("$cmd_to_run $cmd_extras");
+    foreach my $line (@cmd_out) {
+      chomp $line;
+      syslog(LOG_INFO, "%s", $line);
+    }
+  } else {
+    system($cmd_to_run);
+  }
 }
 
 sub read_refcnt_file {
@@ -229,7 +241,7 @@ sub read_refcnt_file {
 }
 
 sub write_refcnt_file {
-    my ($refcnt_file, @lines) = @_;	    
+    my ($refcnt_file, @lines) = @_;
 
     if (scalar(@lines) > 0) {
       open(my $FILE, '>', $refcnt_file) or die "Error: write $!";
@@ -242,21 +254,21 @@ sub write_refcnt_file {
 
 sub add_refcnt {
   my ($file, $value) = @_;
-    
-  log_msg "add_refcnt($file, $value)\n";
+
+  log_msg "add_refcnt($file, $value)";
   my @lines = read_refcnt_file($file);
   foreach my $line (@lines) {
     return if $line eq $value;
   }
   push @lines, $value;
   write_refcnt_file($file, @lines);
-  return @lines; 
+  return @lines;
 }
 
 sub remove_refcnt {
   my ($file, $value) = @_;
 
-  log_msg "remove_refcnt($file, $value)\n";
+  log_msg "remove_refcnt($file, $value)";
   my @lines = read_refcnt_file($file);
   my @new_lines = ();
   foreach my $line (@lines) {
@@ -268,7 +280,7 @@ sub remove_refcnt {
 
 sub is_conntrack_enabled {
   my ($iptables_cmd) = @_;
-  
+
   my @lines = read_refcnt_file($fw_stateful_file);
   return 0 if scalar(@lines) < 1;
 
@@ -299,7 +311,7 @@ sub is_tree_in_use {
   }
   my $rc;
   $rc = $tree_hash{$tree} ? 1 : 0;
-  log_msg "is_tree_in_use($tree) = $rc\n";
+  log_msg "is_tree_in_use($tree) = $rc";
   return $rc;
 }
 
@@ -311,7 +323,7 @@ sub update_rules {
   my $config = new Vyatta::Config;
   my %nodes = ();
 
-  log_msg "update_rules: $tree $name $table $iptables_cmd\n";
+  log_msg "update_rules: $tree $name $table $iptables_cmd";
 
   $config->setLevel("firewall $tree");
 
@@ -329,11 +341,11 @@ sub update_rules {
   my $old_policy_log = $config->existsOrig('enable-default-log');
   $old_policy_log = 0 if ! defined $old_policy_log;
   my $policy_set = 0;
-  log_msg "update_rules: [$name] = [$nodes{$name}], policy [$policy] log [$policy_log]\n";
+  log_msg "update_rules: [$name] = [$nodes{$name}], policy [$policy] log [$policy_log]";
 
   if ($nodes{$name} eq 'static') {
     # not changed. check if stateful.
-    log_msg "$tree $name = static\n";
+    log_msg "$tree $name = static";
     $config->setLevel("firewall $tree $name rule");
     my @rules = $config->listOrigNodes();
     foreach (sort numerically @rules) {
@@ -345,7 +357,7 @@ sub update_rules {
       }
     }
   } elsif ($nodes{$name} eq 'added') {
-    log_msg "$tree $name = added\n";
+    log_msg "$tree $name = added";
     # create the chain
     my $ctree = chain_configured(2, $name, $tree);
     if (defined($ctree)) {
@@ -360,7 +372,7 @@ sub update_rules {
     # handle the rules below.
   } elsif ($nodes{$name} eq 'deleted') {
 
-    log_msg "$tree $name = deleted\n";
+    log_msg "$tree $name = deleted";
 
     # delete the chain
     if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
@@ -373,11 +385,11 @@ sub update_rules {
     remove_refcnt($fw_tree_file, "$tree $name");
     goto end_of_rules;
   } elsif ($nodes{$name} eq 'changed') {
-    log_msg "$tree $name = changed\n";
+    log_msg "$tree $name = changed";
     # handle the rules below.
   }
 
-  # set our config level to rule and get the rule numbers 
+  # set our config level to rule and get the rule numbers
   $config->setLevel("firewall $tree $name rule");
 
   # Let's find the status of the rule nodes
@@ -387,10 +399,10 @@ sub update_rules {
     # no rules. flush the user rules.
     # note that this clears the counters on the default DROP rule.
     # we could delete rule one by one if those are important.
-    run_cmd("$iptables_cmd -t $table -F $name", 1, 1);
+    run_cmd("$iptables_cmd -t $table -F $name", 1);
     set_default_policy($table, $name, $iptables_cmd, $policy, $policy_log);
   }
-  
+
   my $iptablesrule = 1;
   foreach my $rule (sort numerically keys %rulehash) {
     if ("$rulehash{$rule}" eq 'static') {
@@ -410,7 +422,7 @@ sub update_rules {
       if ($node->is_stateful()) {
         $chain_stateful = 1;
       }
-      
+
       my ($err_str, @rule_strs) = $node->rule();
       if (defined($err_str)) {
         if ($nodes{$name} eq 'added') {
@@ -425,9 +437,8 @@ sub update_rules {
         if (!defined) {
           next;
         }
-          
-        run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
-                0, 0);
+
+        run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_");
         if ($? >> 8) {
           if ($nodes{$name} eq 'added') {
             # undo setup_chain work, remove_refcnt
@@ -449,26 +460,24 @@ sub update_rules {
       if ($node->is_stateful()) {
         $chain_stateful = 1;
       }
-      
+
       my ($err_str, @rule_strs) = $node->rule();
       if (defined($err_str)) {
         print STDERR "Firewall config error: $err_str\n";
         exit 1;
       }
-      
+
       my $ipt_rules = $oldnode->get_num_ipt_rules();
       for (1 .. $ipt_rules) {
-        run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule", 0,
-                0);
+        run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule");
         die "$iptables_cmd error: $! - $rule" if ($? >> 8);
       }
-      
+
       foreach (@rule_strs) {
         if (!defined) {
           next;
         }
-        run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_", 
-                0, 0);
+        run_cmd("$iptables_cmd -t $table --insert $name $iptablesrule $_");
         die "$iptables_cmd error: $! - " , join(' ', @rule_strs) if ($? >> 8);
         $iptablesrule++;
       }
@@ -476,21 +485,20 @@ sub update_rules {
       my $node = new Vyatta::IpTables::Rule;
       $node->setupOrig("firewall $tree $name rule $rule");
       $node->set_ip_version($ip_version_hash{$tree});
-      
+
       my $ipt_rules = $node->get_num_ipt_rules();
       for (1 .. $ipt_rules) {
-        run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule", 
-                0, 0);
+        run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule");
         die "$iptables_cmd error: $! - $rule" if ($? >> 8);
       }
     }
   } # foreach rule
-    
+
   goto end_of_rules if $policy_set;
 
-  if ((defined $old_policy and $policy ne $old_policy) or 
+  if ((defined $old_policy and $policy ne $old_policy) or
       ($old_policy_log ne $policy_log)) {
-    change_default_policy($table, $name, $iptables_cmd, $policy, 
+    change_default_policy($table, $name, $iptables_cmd, $policy,
                           $old_policy_log,$policy_log);
   }
 
@@ -500,7 +508,7 @@ end_of_rules:
   # check if conntrack needs to be enabled/disabled
   #
   my $global_stateful = is_conntrack_enabled($iptables_cmd);
-  log_msg "stateful [$tree][$name] = [$global_stateful][$chain_stateful]\n";
+  log_msg "stateful [$tree][$name] = [$global_stateful][$chain_stateful]";
   if ($chain_stateful) {
     add_refcnt($fw_stateful_file, "$tree $name");
     enable_fw_conntrack($iptables_cmd) if ! $global_stateful;
@@ -516,33 +524,33 @@ end_of_rules:
 #       2: check if it is configured in any "other" tree.
 sub chain_configured {
   my ($mode, $chain, $tree) = @_;
-  
+
   my $config = new Vyatta::Config;
   my %chains = ();
-  log_msg "chain_configured($mode, $chain, $tree)\n";
+  log_msg "chain_configured($mode, $chain, $tree)";
   foreach (keys %table_hash) {
     next if ($mode == 1 && $_ ne $tree);
     next if ($mode == 2 && $_ eq $tree);
- 
+
     $config->setLevel("firewall $_");
     %chains = $config->listNodeStatus();
 
     if (grep(/^$chain$/, (keys %chains))) {
       if ($chains{$chain} ne "deleted") {
-        log_msg "found $_\n";
+        log_msg "found $_";
         return $_;
       }
     }
   }
-  log_msg "not found\n";
+  log_msg "not found";
   return; # undef
 }
 
 sub update_ints {
   my ($action, $int_name, $direction, $chain, $tree, $table, $iptables_cmd) = @_;
   my $interface = undef;
- 
-  log_msg "update_ints: @_ \n";
+
+  log_msg "update_ints: @_";
 
   if (! defined $action || ! defined $int_name || ! defined $direction
       || ! defined $chain || ! defined $table || ! defined $iptables_cmd) {
@@ -566,7 +574,7 @@ sub update_ints {
              last CASE;
              };
 
-    /^out/   && do {   
+    /^out/   && do {
              $direction = 'VYATTA_OUT_HOOK';
              $interface = "--out-interface $int_name";
              last CASE;
@@ -605,7 +613,7 @@ sub update_ints {
     }
 
     # Look for a matching rule...
-    if (($dir_str eq 'in' && $in eq $int_name) 
+    if (($dir_str eq 'in' && $in eq $int_name)
         || ($dir_str eq 'out' && $out eq $int_name)
         || ($dir_str eq 'local' && $in eq $int_name)) {
       # found a matching rule
@@ -625,7 +633,7 @@ sub update_ints {
     # no matching rule
     if ($action eq 'update') {
       # add new rule.
-      # there is a post-fw rule at the end. insert at the front.      
+      # there is a post-fw rule at the end. insert at the front.
       $cmd = "--insert $direction 1 $interface --jump $chain";
     } else {
       # delete non-existent rule!
@@ -636,9 +644,9 @@ sub update_ints {
   # no match. do nothing.
   return 0 if (!defined($cmd));
 
-  run_cmd("$iptables_cmd -t $table $cmd", 0, 0);
+  run_cmd("$iptables_cmd -t $table $cmd");
   exit 1 if ($? >> 8);
- 
+
   return 0;
 }
 
@@ -646,20 +654,20 @@ sub enable_fw_conntrack {
   # potentially we can add rules in the FW_CONNTRACK chain to provide
   # finer-grained control over which packets are tracked.
   my $iptables_cmd = shift;
-  log_msg("enable_fw_conntrack($iptables_cmd)\n");
-  run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT", 1, 1);
+  log_msg("enable_fw_conntrack($iptables_cmd)");
+  run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j ACCEPT", 1);
 }
 
 sub disable_fw_conntrack {
   my $iptables_cmd = shift;
-  log_msg("disable_fw_conntrack\($iptables_cmd\)\n");
-  run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN", 1, 1);
+  log_msg("disable_fw_conntrack\($iptables_cmd\)");
+  run_cmd("$iptables_cmd -t raw -R FW_CONNTRACK 1 -j RETURN", 1);
 }
 
 
 sub teardown_iptables {
   my ($table, $iptables_cmd) = @_;
-  log_msg "teardown_iptables executing: $iptables_cmd -L -n -t $table\n";
+  log_msg "teardown_iptables executing: $iptables_cmd -L -n -t $table";
   my @chains = `$iptables_cmd -L -n -t $table`;
   my $chain;
 
@@ -667,33 +675,33 @@ sub teardown_iptables {
   my $ihook = $inhook_hash{$table};
   my $num = find_chain_rule($iptables_cmd, $table, $ihook, 'VYATTA_IN_HOOK');
   if (defined $num) {
-    run_cmd("$iptables_cmd -t $table -D $ihook $num", 1, 1);
-    run_cmd("$iptables_cmd -t $table -F VYATTA_IN_HOOK", 1, 1);
-    run_cmd("$iptables_cmd -t $table -X VYATTA_IN_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -D $ihook $num", 1);
+    run_cmd("$iptables_cmd -t $table -F VYATTA_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -X VYATTA_IN_HOOK", 1);
   }
   my $ohook = $outhook_hash{$table};
   $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
   if (defined $num) {
-    run_cmd("$iptables_cmd -t $table -D $ohook $num", 1, 1);
-    run_cmd("$iptables_cmd -t $table -F VYATTA_OUT_HOOK", 1, 1);
-    run_cmd("$iptables_cmd -t $table -X VYATTA_OUT_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -D $ohook $num", 1);
+    run_cmd("$iptables_cmd -t $table -F VYATTA_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -X VYATTA_OUT_HOOK", 1);
   }
 }
 
 sub setup_iptables {
   my ($iptables_cmd, $tree) = @_;
 
-  log_msg "setup_iptables [$iptables_cmd] [$table_hash{$tree}]\n";
+  log_msg "setup_iptables [$iptables_cmd] [$table_hash{$tree}]";
   my $table = $table_hash{$tree};
   my $ihook = $inhook_hash{$table};
   my $ohook = $outhook_hash{$table};
   # add VYATTA_(IN|OUT)_HOOK
   my $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
   if (! defined $num) {
-    run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1, 1);
-    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1, 1);
-    run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1, 1);
-    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1, 1);
+    run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1);
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
@@ -702,7 +710,7 @@ sub setup_iptables {
     ipt_enable_conntrack($iptables_cmd, 'FW_CONNTRACK');
     disable_fw_conntrack($iptables_cmd);
   } else {
-    log_msg "FW_CONNTRACK exists $cnt\n";
+    log_msg "FW_CONNTRACK exists $cnt";
   }
 
   return 0;
@@ -712,22 +720,22 @@ sub set_default_policy {
   my ($table, $chain, $iptables_cmd, $policy, $log) = @_;
 
   $policy = 'drop' if ! defined $policy;
-  log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy, $log)\n");
+  log_msg("set_default_policy($iptables_cmd, $table, $chain, $policy, $log)");
   my $target = $policy_hash{$policy};
   my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
   if ($log) {
     my $action_char = uc(substr($policy, 0, 1));
     my $ltarget = "LOG --log-prefix \"[$chain-default-$action_char]\" ";
-    run_cmd("$iptables_cmd -t $table -A $chain $comment -j $ltarget", 1, 1);
+    run_cmd("$iptables_cmd -t $table -A $chain $comment -j $ltarget", 1);
   }
-  run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1, 1);
+  run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1);
 }
 
 sub change_default_policy {
   my ($table, $chain, $iptables_cmd, $policy, $old_log, $log) = @_;
 
   $policy = 'drop' if ! defined $policy;
-  log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)\n");  
+  log_msg("change_default_policy($iptables_cmd, $table, $chain, $policy)");
 
   # count the number of rules before adding the new policy
   my $default_rule = Vyatta::IpTables::Mgr::count_iptables_rules($iptables_cmd, $table, $chain);
@@ -738,15 +746,15 @@ sub change_default_policy {
   # remove old policy
   if (defined $old_log and $old_log == 1) {
     if ($default_rule < 2) {
-      log_msg "unexpected rule number [$default_rule]\n";
+      log_msg "unexpected rule number [$default_rule]";
     } {
       # we counted all the rules, but need to removed the last
       # two.  decrement the index and delete that index twice.
       $default_rule--;
-      run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);    
+      run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1);
     }
   }
-  run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1, 1);
+  run_cmd("$iptables_cmd -t $table -D $chain $default_rule", 1);
 }
 
 sub setup_chain {
@@ -756,7 +764,7 @@ sub setup_chain {
 
   $_ = $configured;
   if (!/^Chain $chain/) {
-    run_cmd("$iptables_cmd -t $table --new-chain $chain", 0, 0);
+    run_cmd("$iptables_cmd -t $table --new-chain $chain");
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
     set_default_policy($table, $chain, $iptables_cmd, $policy, $log);
   } else {
@@ -769,7 +777,7 @@ sub setup_chain {
 sub chain_referenced_count {
   my ($table, $chain, $iptables_cmd) = @_;
 
-  log_msg "chain_referenced_count: $iptables_cmd -t $table -n -L $chain\n";
+  log_msg "chain_referenced_count: $iptables_cmd -t $table -n -L $chain";
 
   my $cmd = "$iptables_cmd -t $table -n -L $chain";
   my $line = `$iptables_cmd -t $table -n -L $chain 2>/dev/null |head -n1`;
@@ -782,18 +790,18 @@ sub chain_referenced_count {
 
 sub delete_chain {
   my ($table, $chain, $iptables_cmd) = @_;
-  
-  log_msg "delete_chain: $iptables_cmd -t $table -n -L $chain\n";
+
+  log_msg "delete_chain: $iptables_cmd -t $table -n -L $chain";
 
   my $configured = `$iptables_cmd -t $table -n -L $chain 2>&1 | head -1`;
 
   if ($configured =~ /^Chain $chain/) {
     if (!Vyatta::IpTables::Mgr::chain_referenced($table, $chain, $iptables_cmd)) {
-      run_cmd("$iptables_cmd -t $table --flush $chain", 0, 0);
+      run_cmd("$iptables_cmd -t $table --flush $chain");
       die "$iptables_cmd error: $table $chain --flush: $!" if ($? >> 8);
-      run_cmd("$iptables_cmd -t $table --delete-chain $chain", 0, 0);
+      run_cmd("$iptables_cmd -t $table --delete-chain $chain");
       die "$iptables_cmd error: $table $chain --delete-chain: $!" if ($? >> 8);
-    } 
+    }
   }
 }
 
