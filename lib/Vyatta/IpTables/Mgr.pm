@@ -30,7 +30,7 @@ use warnings;
 use base 'Exporter';
 our @EXPORT = qw(ipt_find_chain_rule ipt_enable_conntrack
                  ipt_disable_conntrack count_iptables_rules
-                 chain_referenced);
+                 chain_referenced ipt_get_queue_target);
 
 
 sub ipt_find_chain_rule {
@@ -103,6 +103,18 @@ sub ipt_disable_conntrack {
     system("$iptables_cmd -t raw -F $chain >& /dev/null");
     system("$iptables_cmd -t raw -X $chain >& /dev/null");
     return 0;
+}
+
+my %queue_target_hash = 
+   ('SNORT'     => 'NFQUEUE --queue-num 0',
+    'VG_HTTPS'  => 'NFQUEUE --queue-num 1',
+   );
+
+sub ipt_get_queue_target {
+    my ($app) = @_;
+    
+    my $target = $queue_target_hash{$app};
+    return $target;
 }
 
 sub count_iptables_rules {

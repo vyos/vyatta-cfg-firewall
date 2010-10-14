@@ -2,6 +2,7 @@ package Vyatta::IpTables::Rule;
 
 use strict;
 use Vyatta::Config;
+use Vyatta::IpTables::Mgr;
 require Vyatta::IpTables::AddressFilter;
 
 my $src = new Vyatta::IpTables::AddressFilter;
@@ -570,7 +571,9 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
   } elsif ("$self->{_action}" eq "reject") {
     $rule .= "-j REJECT ";
   } elsif ("$self->{_action}" eq 'inspect') {
-    $rule .= "-j QUEUE ";
+    my $target = ipt_get_queue_target('SNORT');
+    return ('Undefined target for inspect', ) if ! defined $target;
+    $rule .= "-j $target ";
   } elsif ("$self->{_action}" eq 'modify') {
     # mangle actions
     my $count = 0;
