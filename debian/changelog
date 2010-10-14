@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.13.25) unstable; urgency=low
+
+  [ Stephen Hemminger ]
+  * Use Sys::Syslog to avoid calling logger excessively
+
+  [ Stig Thormodsrud ]
+  * Add Iptables::Mgr route to get queue target.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 14 Oct 2010 14:11:01 -0700
+
 vyatta-cfg-firewall (0.13.24) unstable; urgency=low
 
   * Fix dependency on sysklogd
