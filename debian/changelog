@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.27) unstable; urgency=low
+
+  * missing paren
+
+ -- root <root@debian.vyatta.com>  Fri, 15 Oct 2010 16:09:48 -0700
+
 vyatta-cfg-firewall (0.13.26) unstable; urgency=low
 
   * additional errors w/ location of error.
