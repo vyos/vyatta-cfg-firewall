@@ -118,8 +118,10 @@ sub ipt_get_queue_target {
 }
 
 sub count_iptables_rules {
-    my ($command, $table, $chain) = @_;
-    my @lines = `sudo $command -t $table -L $chain -n --line`;
+    my ($iptables_cmd, $table, $chain) = @_;
+
+    my $cmd = "$iptables_cmd -t $table -L $chain -n --line";
+    my @lines = `sudo $cmd 2> /dev/null`;
     my $cnt = 0;
     foreach my $line (@lines) {
       $cnt++ if $line =~ /^\d/;
