@@ -363,7 +363,7 @@ sub update_rules {
     if (defined($ctree)) {
       # chain name must be unique in both trees
       Vyatta::Config::outputError(["firewall $tree $name"], 'Firewall config error: '
-          . "Rule set name \"$name\" already used in \"$ctree\"\n";
+          . "Rule set name \"$name\" already used in \"$ctree\"\n");
       exit 1;
     }
     setup_chain($table, "$name", $iptables_cmd, $policy, $policy_log);
