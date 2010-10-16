@@ -106,7 +106,7 @@ sub ipt_disable_conntrack {
 }
 
 my %queue_target_hash = 
-   ('SNORT'     => 'NFQUEUE --queue-num 0',
+   ('SNORT'     => 'NFQUEUE',
     'VG_HTTPS'  => 'NFQUEUE --queue-num 1',
    );
 
