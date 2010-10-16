@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.29) unstable; urgency=low
+
+  * Change snort queue target use default queue.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 15 Oct 2010 18:16:38 -0700
+
 vyatta-cfg-firewall (0.13.28) unstable; urgency=low
 
   * Fix 6296: "iptables: No chain..." message when committing the
