@@ -21,6 +21,8 @@ my $syslog_flag = 0;
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
 
+my $FW_IN_HOOK = 'VYATTA_FW_IN_HOOK';
+my $FW_OUT_HOOK = 'VYATTA_FW_OUT_HOOK';
 my $max_rule = 10000;
 
 my (@setup, @updateints, @updaterules);
@@ -570,13 +572,13 @@ sub update_ints {
 
   CASE: {
     /^in/    && do {
-             $direction = 'VYATTA_IN_HOOK';
+             $direction = $FW_IN_HOOK;
              $interface = "--in-interface $int_name";
              last CASE;
              };
 
     /^out/   && do {
-             $direction = 'VYATTA_OUT_HOOK';
+             $direction = $FW_OUT_HOOK;
              $interface = "--out-interface $int_name";
              last CASE;
              };
@@ -674,18 +676,18 @@ sub teardown_iptables {
 
   # remove VYATTA_(IN|OUT)_HOOK
   my $ihook = $inhook_hash{$table};
-  my $num = find_chain_rule($iptables_cmd, $table, $ihook, 'VYATTA_IN_HOOK');
+  my $num = find_chain_rule($iptables_cmd, $table, $ihook, $FW_IN_HOOK);
   if (defined $num) {
     run_cmd("$iptables_cmd -t $table -D $ihook $num", 1);
-    run_cmd("$iptables_cmd -t $table -F VYATTA_IN_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -X VYATTA_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -F $FW_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -X $FW_IN_HOOK", 1);
   }
   my $ohook = $outhook_hash{$table};
-  $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
+  $num = find_chain_rule($iptables_cmd, $table, $ohook, $FW_OUT_HOOK);
   if (defined $num) {
     run_cmd("$iptables_cmd -t $table -D $ohook $num", 1);
-    run_cmd("$iptables_cmd -t $table -F VYATTA_OUT_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -X VYATTA_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -F $FW_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -X $FW_OUT_HOOK", 1);
   }
 }
 
@@ -697,12 +699,12 @@ sub setup_iptables {
   my $ihook = $inhook_hash{$table};
   my $ohook = $outhook_hash{$table};
   # add VYATTA_(IN|OUT)_HOOK
-  my $num = find_chain_rule($iptables_cmd, $table, $ohook, 'VYATTA_OUT_HOOK');
+  my $num = find_chain_rule($iptables_cmd, $table, $ohook, $FW_OUT_HOOK);
   if (! defined $num) {
-    run_cmd("$iptables_cmd -t $table -N VYATTA_OUT_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j VYATTA_OUT_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -N VYATTA_IN_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j VYATTA_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -N $FW_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j $FW_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -N $FW_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j $FW_IN_HOOK", 1);
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
