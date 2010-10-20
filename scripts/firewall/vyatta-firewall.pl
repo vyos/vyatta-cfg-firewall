@@ -23,6 +23,7 @@ my $fw_tree_file     = '/var/run/vyatta_fw_trees';
 
 my $FW_IN_HOOK = 'VYATTA_FW_IN_HOOK';
 my $FW_OUT_HOOK = 'VYATTA_FW_OUT_HOOK';
+my $FW_LOCAL_HOOK = 'VYATTA_FW_LOCAL_HOOK';
 my $max_rule = 10000;
 
 my (@setup, @updateints, @updaterules);
@@ -65,6 +66,9 @@ my %inhook_hash =  ( 'filter' => 'FORWARD',
 # mapping from firewall tree to builtin chain for output
 my %outhook_hash = ( 'filter' => 'FORWARD',
 	   	     'mangle' => 'POSTROUTING' );
+
+# mapping from firewall tree to builtin chain for local
+my %localhook_hash = ( 'filter' => 'INPUT' );
 
 # mapping from vyatta 'default-policy' to iptables jump target
 my %policy_hash = ( 'drop'    => 'DROP',
@@ -585,7 +589,7 @@ sub update_ints {
 
     /^local/ && do {
              # mangle disallowed above
-             $direction = "INPUT";
+             $direction = $FW_LOCAL_HOOK;
              $interface = "--in-interface $int_name";
              last CASE;
              };
@@ -674,7 +678,7 @@ sub teardown_iptables {
   my @chains = `$iptables_cmd -L -n -t $table`;
   my $chain;
 
-  # remove VYATTA_(IN|OUT)_HOOK
+  # remove VYATTA_FW_(IN|OUT)_HOOK
   my $ihook = $inhook_hash{$table};
   my $num = find_chain_rule($iptables_cmd, $table, $ihook, $FW_IN_HOOK);
   if (defined $num) {
@@ -689,6 +693,17 @@ sub teardown_iptables {
     run_cmd("$iptables_cmd -t $table -F $FW_OUT_HOOK", 1);
     run_cmd("$iptables_cmd -t $table -X $FW_OUT_HOOK", 1);
   }
+
+  # remove VYATTA_FW_LOCAL_HOOK present only in filter table
+  if ($table eq 'filter') {
+    my $lhook = $localhook_hash{$table};
+    $num = find_chain_rule($iptables_cmd, $table, $lhook, $FW_LOCAL_HOOK);
+    if (defined $num) {
+      run_cmd("$iptables_cmd -t $table -D $lhook $num", 1);
+      run_cmd("$iptables_cmd -t $table -F $FW_LOCAL_HOOK", 1);
+      run_cmd("$iptables_cmd -t $table -X $FW_LOCAL_HOOK", 1);
+    }
+  }
 }
 
 sub setup_iptables {
@@ -698,13 +713,19 @@ sub setup_iptables {
   my $table = $table_hash{$tree};
   my $ihook = $inhook_hash{$table};
   my $ohook = $outhook_hash{$table};
-  # add VYATTA_(IN|OUT)_HOOK
+  # add VYATTA_FW_(IN|OUT)_HOOK
   my $num = find_chain_rule($iptables_cmd, $table, $ohook, $FW_OUT_HOOK);
   if (! defined $num) {
     run_cmd("$iptables_cmd -t $table -N $FW_OUT_HOOK", 1);
     run_cmd("$iptables_cmd -t $table -I $ohook 1 -j $FW_OUT_HOOK", 1);
     run_cmd("$iptables_cmd -t $table -N $FW_IN_HOOK", 1);
     run_cmd("$iptables_cmd -t $table -I $ihook 1 -j $FW_IN_HOOK", 1);
+    # add VYATTA_FW_LOCAL_HOOK only in filter table
+    if ($table eq 'filter') {
+      my $lhook = $localhook_hash{$table};
+      run_cmd("$iptables_cmd -t $table -N $FW_LOCAL_HOOK", 1);
+      run_cmd("$iptables_cmd -t $table -I $lhook 1 -j $FW_LOCAL_HOOK", 1);
+    }
   }
 
   # by default, nothing is tracked (the last rule in raw/PREROUTING).
