@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.30) unstable; urgency=low
+
+  * use single variable to reference firewall IN and OUT hooks
+  * add local hook setup/tear for filter table similar to in|out hooks
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 19 Oct 2010 18:59:56 -0700
+
 vyatta-cfg-firewall (0.13.29) unstable; urgency=low
 
   * Change snort queue target use default queue.
