@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.31) unstable; urgency=low
+
+  * Fix 5247: Firewall groups CLI becomes out of sync with ipset when
+    sets and deletes are contained within a single commit
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Sat, 30 Oct 2010 13:20:25 -0700
+
 vyatta-cfg-firewall (0.13.30) unstable; urgency=low
 
   * use single variable to reference firewall IN and OUT hooks
