@@ -13,7 +13,7 @@
 # General Public License for more details.
 # 
 # This code was originally developed by Vyatta, Inc.
-# Portions created by Vyatta are Copyright (C) 2009 Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2009-2010 Vyatta, Inc.
 # All Rights Reserved.
 # 
 # Author: Stig Thormodsrud
@@ -158,7 +158,7 @@ sub ipset_copy_set {
         # copy members to new group
         my $tmpfile = "/tmp/set.$$";
         system("ipset -S $set_name > $tmpfile");
-        system("sed -i s/$set_name/$set_copy/g $tmpfile");
+        system("sed -i \'s/ $set_name / $set_copy /g\' $tmpfile");
         system("ipset -R < $tmpfile");
         unlink $tmpfile;
         my $copy  = new Vyatta::IpTables::IpSet($set_copy, $set_type);

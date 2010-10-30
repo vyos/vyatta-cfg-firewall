@@ -95,7 +95,7 @@ sub exists {
 
     return 1 if   defined $self->{_exists};
     return 0 if ! defined $self->{_name};
-    my $cmd = "ipset -n -L $self->{_name} > /dev/null &>2";
+    my $cmd = "ipset -n -L $self->{_name} > /dev/null 2>&1";
     my $rc = $self->run_cmd($cmd);
     if ($rc eq 0) {
 	$self->{_exists} = 1;
