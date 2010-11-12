@@ -38,7 +38,7 @@ sub ipt_find_chain_rule {
   
   my ($num, $chain2) = (undef, undef);
   my $cmd = "$iptables_cmd -t $table -L $chain -vn --line";
-  my @lines = `$cmd 2> /dev/null | egrep ^[0-9]`;
+  my @lines = `sudo $cmd 2> /dev/null | egrep ^[0-9]`;
   if (scalar(@lines) < 1) {
     return;
   }
@@ -60,12 +60,12 @@ my %conntrack_hook_hash =
 sub ipt_enable_conntrack {
     my ($iptables_cmd, $chain) = @_;
 
-    system("$iptables_cmd -t raw -L $chain -n >& /dev/null");
+    system("sudo $iptables_cmd -t raw -L $chain -n >& /dev/null");
     
     if ($? >> 8) {
 	# chain does not exist yet. set up conntrack.
-	system("$iptables_cmd -t raw -N $chain");
-	system("$iptables_cmd -t raw -A $chain -j ACCEPT");
+	system("sudo $iptables_cmd -t raw -N $chain");
+	system("sudo $iptables_cmd -t raw -A $chain -j ACCEPT");
         
         foreach my $label ('PREROUTING', 'OUTPUT') {
             my $index;
@@ -77,7 +77,7 @@ sub ipt_enable_conntrack {
                 return 1;
             }
             $index++;
-            system("$iptables_cmd -t raw -I $label $index -j $chain");
+            system("sudo $iptables_cmd -t raw -I $label $index -j $chain");
         }
     }
     return 0;
@@ -97,11 +97,11 @@ sub ipt_disable_conntrack {
                   . "[$label][$chain]\n";
             return 1;
         }
-        system("$iptables_cmd -t raw -D $label $index");
+        system("sudo $iptables_cmd -t raw -D $label $index");
     }
     
-    system("$iptables_cmd -t raw -F $chain >& /dev/null");
-    system("$iptables_cmd -t raw -X $chain >& /dev/null");
+    system("sudo $iptables_cmd -t raw -F $chain >& /dev/null");
+    system("sudo $iptables_cmd -t raw -X $chain >& /dev/null");
     return 0;
 }
 
@@ -133,7 +133,7 @@ sub chain_referenced {
   my ( $table, $chain, $iptables_cmd ) = @_;
 
   my $cmd  = "$iptables_cmd -t $table -n -L $chain";
-  my $line = `$cmd 2>/dev/null |head -n1`;
+  my $line = `sudo $cmd 2>/dev/null |head -n1`;
   chomp $line;
   my $found = 0;
   if ( $line =~ m/^Chain $chain \((\d+) references\)$/ ) {
