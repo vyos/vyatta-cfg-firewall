@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.32) unstable; urgency=low
+
+  * Fix Bug 6421 cannot set content-inspection in the same
+
+ -- Mohit Mehta <mohit@vyatta.com>  Thu, 11 Nov 2010 18:09:13 -0800
+
 vyatta-cfg-firewall (0.13.31) unstable; urgency=low
 
   * Fix 5247: Firewall groups CLI becomes out of sync with ipset when
