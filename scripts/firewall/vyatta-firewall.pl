@@ -368,7 +368,7 @@ sub update_rules {
     my $ctree = chain_configured(2, $name, $tree);
     if (defined($ctree)) {
       # chain name must be unique in both trees
-      Vyatta::Config::outputError(["firewall $tree $name"], 'Firewall config error: '
+      Vyatta::Config::outputError(["firewall",$tree,$name], 'Firewall config error: '
           . "Rule set name \"$name\" already used in \"$ctree\"\n");
       exit 1;
     }
@@ -383,7 +383,7 @@ sub update_rules {
     # delete the chain
     if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
       # disallow deleting a chain if it's still referenced
-      Vyatta::Config::outputError(["firewall $tree $name"],'Firewall config error: '
+      Vyatta::Config::outputError(["firewall",$tree,$name],'Firewall config error: '
           . "Cannot delete rule set \"$name\" (still in use)\n");
       exit 1;
     }
@@ -436,7 +436,7 @@ sub update_rules {
           delete_chain($table, "$name", $iptables_cmd);
           remove_refcnt($fw_tree_file, "$tree $name");
         }
-        Vyatta::Config::outputError(["firewall $tree $name"],"Firewall config error: $err_str\n");
+        Vyatta::Config::outputError(["firewall",$tree,$name],"Firewall config error: $err_str\n");
         exit 1;
       }
       foreach (@rule_strs) {
@@ -469,7 +469,7 @@ sub update_rules {
 
       my ($err_str, @rule_strs) = $node->rule();
       if (defined($err_str)) {
-        Vyatta::Config::outputError(["firewall $tree $name rule $rule"],"Firewall config error: $err_str\n");
+        Vyatta::Config::outputError(["firewall",$tree,$name,"rule",$rule],"Firewall config error: $err_str\n");
         exit 1;
       }
 
