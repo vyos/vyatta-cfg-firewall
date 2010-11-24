@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.34) unstable; urgency=low
+
+  * Use regex to test for name length rather than wc program
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Wed, 24 Nov 2010 09:12:43 -0800
+
 vyatta-cfg-firewall (0.13.33) unstable; urgency=low
 
   * Updated to change in error location api.
