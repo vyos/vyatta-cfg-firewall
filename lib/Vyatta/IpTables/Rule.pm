@@ -139,6 +139,9 @@ sub setupDummy {
   my $policy = $config->returnOrigValue('default-action');
   $policy = 'drop' if ! defined $policy;
   $self->{_action} = $policy;
+  my $log = $config->existsOrig('enable-default-log');
+  $log = 'enable' if defined $log;
+  $self->{_log} = $log;
 }
 
 sub setup_base {
