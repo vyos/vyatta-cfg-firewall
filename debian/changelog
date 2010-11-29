@@ -1,3 +1,21 @@
+vyatta-cfg-firewall (0.13.34) unstable; urgency=low
+
+  * Use regex to test for name length rather than wc program
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Wed, 24 Nov 2010 09:12:43 -0800
+
+vyatta-cfg-firewall (0.13.33) unstable; urgency=low
+
+  * Updated to change in error location api.
+
+ -- Michael Larson <mike@vyatta.com>  Tue, 16 Nov 2010 09:36:48 -0800
+
+vyatta-cfg-firewall (0.13.32) unstable; urgency=low
+
+  * Fix Bug 6421 cannot set content-inspection in the same
+
+ -- Mohit Mehta <mohit@vyatta.com>  Thu, 11 Nov 2010 18:09:13 -0800
+
 vyatta-cfg-firewall (0.13.31) unstable; urgency=low
 
   * Fix 5247: Firewall groups CLI becomes out of sync with ipset when

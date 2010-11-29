@@ -3,17 +3,17 @@ priority: 200
 type: txt
 help: Firewall address-group
 
-syntax:expression: exec "			        \
-        if [ `echo $VAR(@) | wc -c` -gt 31 ]; then      \
-          echo group name must be 31 characters or less;\
-          exit 1 ;                                      \
-        fi ; "
+syntax:expression: pattern $VAR(@) "^[[:graph:]]{1,31}$" ; \
+       "Firewall group name must be 31 characters or less"
 
 syntax:expression: pattern $VAR(@) "^[^-]" ; \
        "Firewall group name cannot start with \"-\""
 
 syntax:expression: pattern $VAR(@) "^[^!]" ; \
        "Firewall group name cannot start with \"!\""
+
+syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
+       "Firewall group name cannot contain shell punctuation"
 
 create: sudo /opt/vyatta/sbin/vyatta-ipset.pl \
           --action=create-set                 \
