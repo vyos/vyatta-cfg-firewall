@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.35) unstable; urgency=low
+
+  * Show if logging is enabled on the default action.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Mon, 29 Nov 2010 15:01:47 -0800
+
 vyatta-cfg-firewall (0.13.34) unstable; urgency=low
 
   * Use regex to test for name length rather than wc program
