@@ -32,6 +32,7 @@ our @EXPORT = qw(ipt_find_chain_rule ipt_enable_conntrack
                  ipt_disable_conntrack count_iptables_rules
                  chain_referenced ipt_get_queue_target);
 
+my $debug = 0;
 
 sub ipt_find_chain_rule {
   my ($iptables_cmd, $table, $chain, $search) = @_;
@@ -93,8 +94,10 @@ sub ipt_disable_conntrack {
         $index = ipt_find_chain_rule($iptables_cmd, 'raw',
                                      $label, $chain);
         if (! defined($index)) {
-            print "Error: ipt_disable_conntrack failed to find "
-                  . "[$label][$chain]\n";
+            if ($debug > 0) {
+                print "Error: ipt_disable_conntrack failed to find "
+                    . "[$label][$chain]\n";
+            }
             return 1;
         }
         system("sudo $iptables_cmd -t raw -D $label $index");
