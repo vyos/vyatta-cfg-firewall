@@ -102,8 +102,7 @@ sub gen_firewall_template {
 
     open my $tp, '>', "$path/$node_file"
       or die "Can't create $path/$node_file: $!";
-    my $date = `date`;
-    print $tp "# Template generated at: $date\nhelp: Set firewall options\n";
+    print $tp "help: Firewall options\n";
     close $tp
       or die "Can't write $path/$node_file: $!";
 }
@@ -131,9 +130,7 @@ sub gen_direction_template {
     open my $tp, '>', "$path/$node_file"
       or die "Can't open $path/$node_file: $!";
 
-    my $date = `date`;
-    print $tp "# Template generated at: $date\n";
-    print $tp "help: Set ruleset for $direction_help_hash{$direction}\n";
+    print $tp "help: Ruleset for $direction_help_hash{$direction}\n";
     close $tp
       or die "Can't write $path/$node_file: $!";
 }
@@ -181,9 +178,7 @@ sub gen_template {
     open my $tp, '>', "${template_dir}/${node_file}"
       or die "Can't open ${template_dir}/${node_file}:$!";
 
-    my $date = `date`;
     print $tp <<EOF;
-# Template generated at: $date
 type: txt
 help: Set $direction_term_hash{$direction} $table_help_hash{$table} ruleset name for interface
 allowed: local -a params
