@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.37) unstable; urgency=low
+
+  * Fix help text in generated templates
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Fri, 03 Dec 2010 13:48:09 -0800
+
 vyatta-cfg-firewall (0.13.36) unstable; urgency=low
 
   * Fix 6442: Request to remove "Error: ipt_disable_conntrack failed to
