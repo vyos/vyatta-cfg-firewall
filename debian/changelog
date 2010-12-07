@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.38) unstable; urgency=low
+
+  * Fix help text for firewall interface rules
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Mon, 06 Dec 2010 17:08:10 -0800
+
 vyatta-cfg-firewall (0.13.37) unstable; urgency=low
 
   * Fix help text in generated templates
