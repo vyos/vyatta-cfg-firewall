@@ -178,9 +178,10 @@ sub gen_template {
     open my $tp, '>', "${template_dir}/${node_file}"
       or die "Can't open ${template_dir}/${node_file}:$!";
 
+    my $action = ucfirst($direction_term_hash{$direction});
     print $tp <<EOF;
 type: txt
-help: Set $direction_term_hash{$direction} $table_help_hash{$table} ruleset name for interface
+help: $action $table_help_hash{$table} ruleset name for interface
 allowed: local -a params
 	eval "params=(\$(cli-shell-api listActiveNodes firewall $table))"
 	echo -n "\${params[@]}"
