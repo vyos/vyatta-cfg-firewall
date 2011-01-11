@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.40) unstable; urgency=low
+
+  * Fix Bug 6292 iptables chain-name must be reduced to 28 characters
+    max
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 10 Jan 2011 17:36:06 -0800
+
 vyatta-cfg-firewall (0.13.39) unstable; urgency=low
 
   * new branch
