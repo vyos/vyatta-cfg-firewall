@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.41) unstable; urgency=low
+
+  * Partial fix for bug 6759 serial packages are incorrectly included in
+    virt ISO
+
+ -- Mohit Mehta <mohit@vyatta.com>  Wed, 02 Feb 2011 12:05:35 -0800
+
 vyatta-cfg-firewall (0.13.40) unstable; urgency=low
 
   * Fix Bug 6292 iptables chain-name must be reduced to 28 characters
