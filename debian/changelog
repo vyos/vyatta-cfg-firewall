@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.42) unstable; urgency=low
+
+  * changes for ipset 6.0
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Fri, 04 Mar 2011 19:14:31 -0800
+
 vyatta-cfg-firewall (0.13.41) unstable; urgency=low
 
   * Partial fix for bug 6759 serial packages are incorrectly included in
