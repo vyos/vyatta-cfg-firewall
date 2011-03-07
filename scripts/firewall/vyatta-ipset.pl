@@ -126,7 +126,7 @@ sub ipset_is_set_empty {
 }
 
 sub ipset_show_sets {
-    my @lines = `ipset -L -n`;
+    my @lines = `ipset -L`;
     foreach my $line (@lines) {
 	if ($line =~ /^Name:\s+(\S+)$/ ) {
 	    ipset_show_members($1);
