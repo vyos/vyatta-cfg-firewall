@@ -40,7 +40,7 @@ my %fields = (
     _debug  => undef,
 );
 
-my %grouptype_hash = (
+our %grouptype_hash = (
     'address' => 'hash:ip',
     'network' => 'hash:net',
     'port'    => 'bitmap:port'
@@ -175,8 +175,8 @@ sub create {
         
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: undefined group type" if ! defined $self->{_type};
-    return "Error: group [$self->{_name}] already exists" if $self->exists();
-	
+    return if $self->exists(); # treat as nop if already exists
+
     my $ipset_param = $grouptype_hash{$self->{_type}};
     return "Error: invalid group type\n" if ! defined $ipset_param;
 
@@ -203,6 +203,14 @@ sub references {
     return 0;
 }
 
+sub flush {
+  my ($self) = @_;
+  my $cmd = "ipset flush $self->{_name}";
+  my $rc = $self->run_cmd($cmd);
+  return "Error: call to ipset failed [$rc]" if $rc;
+  return;
+}
+
 sub delete {
     my ($self) = @_;
 
@@ -210,7 +218,15 @@ sub delete {
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
 
     my $refs = $self->references();
-    return "Error: group [$self->{_name}] still in use.\n" if $refs != 0;
+    if ($refs > 0) {
+      # still in use
+      if (scalar($self->get_firewall_references(1)) > 0) {
+        # still referenced by config
+        return "Error: group [$self->{_name}] still in use.\n";
+      }
+      # not referenced by config => simultaneous deletes. just do flush.
+      return $self->flush();
+    }
 
     my $cmd = "ipset -X $self->{_name}";
     my $rc = $self->run_cmd($cmd);
@@ -391,25 +407,28 @@ sub get_description {
 }
 
 sub get_firewall_references {
-    my ($self) = @_;
-    
+    my ($self, $working) = @_;
+    my ($lfunc, $vfunc) = qw(listOrigNodes returnOrigValue);
+    if ($working) {
+        ($lfunc, $vfunc) = qw(listNodes returnValue);
+    }
     my @fw_refs = ();
     return @fw_refs if ! $self->exists();
     my $config = new Vyatta::Config;
     foreach my $tree ('name', 'modify') {
 	my $path = "firewall $tree ";
 	$config->setLevel($path);
-	my @names = $config->listOrigNodes();
+	my @names = $config->$lfunc();
 	foreach my $name (@names) {
 	    my $name_path = "$path $name rule ";
 	    $config->setLevel($name_path);
-	    my @rules = $config->listOrigNodes();
+	    my @rules = $config->$lfunc();
 	    foreach my $rule (@rules) {
 		foreach my $dir ('source', 'destination') {
 		    my $rule_path = "$name_path $rule $dir group";
 		    $config->setLevel($rule_path);
 		    my $group_type = "$self->{_type}-group";
-		    my $value =  $config->returnOrigValue($group_type);
+		    my $value =  $config->$vfunc($group_type);
 		    $value =~ s/^!(.*)$/$1/ if defined $value;
 		    if (defined $value and $self->{_name} eq $value) {
 			push @fw_refs, "$name-$rule-$dir";

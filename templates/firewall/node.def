@@ -1,4 +1,4 @@
-priority: 215
+priority: 199
 help: Firewall
 
 delete: # set conntrack table size to standard 16384 entries if fw disabled
