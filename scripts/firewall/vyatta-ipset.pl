@@ -31,6 +31,7 @@ use Vyatta::Config;
 use Vyatta::TypeChecker;
 use Vyatta::Misc;
 use Vyatta::IpTables::IpSet;
+use Sort::Versions;
 
 use warnings;
 use strict;
@@ -82,13 +83,9 @@ sub ipset_check_set_type {
    die "Error: undefined set_name\n" if ! defined $set_name; 
    die "Error: undefined set_type\n" if ! defined $set_type; 
 
-   my $group = new Vyatta::IpTables::IpSet($set_name);
-   return "Group [$set_name] has not been defined\n" if ! $group->exists();
-   my $type = $group->get_type();
-   $type = 'undefined' if ! defined $type;
-   if ($type ne $set_type) {
-       return "Error: group [$set_name] is of type [$type] not [$set_type]\n";
-   }
+   my $cfg = new Vyatta::Config;
+   return "Group [$set_name] has not been defined\n"
+    if (!$cfg->exists("firewall group $set_type-group $set_name"));
    return;
 }
 
@@ -127,11 +124,15 @@ sub ipset_is_set_empty {
 
 sub ipset_show_sets {
     my @lines = `ipset -L`;
+    my @sets = ();
     foreach my $line (@lines) {
 	if ($line =~ /^Name:\s+(\S+)$/ ) {
-	    ipset_show_members($1);
-	    print "\n";
+            push @sets, $1;
 	}
+    }
+    foreach my $set (sort { versioncmp($b, $a) } (@sets)) {
+        ipset_show_members($set);
+        print "\n";
     }
     return;
 }
@@ -199,6 +200,56 @@ sub ipset_is_group_used {
     exit 1;
 }
 
+sub update_set {
+  my ($set_name, $set_type) = @_;
+  my $cfg = new Vyatta::Config;
+  my $rc;
+  my $cpath = "firewall group $set_type-group $set_name";
+  if ($cfg->existsOrig($cpath)) {
+    if (!$cfg->exists($cpath)) {
+      # deleted
+      return $rc if (($rc = ipset_delete($set_name)));
+      return;
+    }
+  } else {
+    if ($cfg->exists($cpath)) {
+      # added
+      return $rc if (($rc = ipset_create($set_name, $set_type)));
+    } else {
+      # doesn't exist! should not happen
+      return "Updating non-existent group [$set_name]";
+    }
+
+  }
+  # added or potentially changed => iterate members
+  my @ovals = $cfg->returnOrigValues("$cpath $set_type");
+  my @nvals = $cfg->returnValues("$cpath $set_type");
+  my %vals = $cfg->compareValueLists(\@ovals, \@nvals);
+  for my $d (@{$vals{deleted}}) {
+    return $rc if (($rc = ipset_delete_member($set_name, $d)));
+  }
+  for my $a (@{$vals{added}}) {
+    return $rc if (($rc = ipset_add_member($set_name, $a)));
+  }
+  exit 0;
+}
+
+sub prune_deleted_sets {
+  my $cfg = new Vyatta::Config;
+  my @set_types = keys(%Vyatta::IpTables::IpSet::grouptype_hash);
+  foreach my $set_type (@set_types) {
+    $cfg->setLevel("firewall group $set_type-group");
+    my %groups = $cfg->listNodeStatus();
+    next if (scalar(keys(%groups)) < 1);
+    foreach my $g (keys(%groups)) {
+      next if ($groups{$g} ne 'deleted');
+      next if ($cfg->isEffective($g)); # don't prune if delete failed
+      my $rc;
+      return $rc if (($rc = ipset_delete($g)));
+    }
+  }
+  exit 0;
+}
 
 #
 # main
@@ -241,6 +292,9 @@ $rc = ipset_is_group_deleted($set_name, $set_type)
     if $action eq 'is-group-deleted';
 
 $rc = ipset_is_group_used($set_name, $set_type) if $action eq 'is-group-used';
+
+$rc = update_set($set_name, $set_type) if $action eq 'update-set';
+$rc = prune_deleted_sets() if $action eq 'prune-deleted-sets';
 
 if (defined $rc) {
     print $rc;

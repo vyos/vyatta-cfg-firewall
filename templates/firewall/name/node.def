@@ -24,6 +24,7 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules name "$VAR(@)" ;
      else
        exit 1;
      fi
+     sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=prune-deleted-sets
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables name
 
