@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.45) unstable; urgency=low
+
+  * modify firewall groups to work with new commit
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Tue, 10 May 2011 09:22:01 +0800
+
 vyatta-cfg-firewall (0.13.44) unstable; urgency=low
 
   * * Fix Bug 6915 conntrack-hash-size reverts to default after upgrade
