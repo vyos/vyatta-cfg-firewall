@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.46) unstable; urgency=low
+
+  * add "two-stage commit" equivalent to previous fix for bug 5227.
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Fri, 20 May 2011 12:17:44 -0700
+
 vyatta-cfg-firewall (0.13.45) unstable; urgency=low
 
   * modify firewall groups to work with new commit
