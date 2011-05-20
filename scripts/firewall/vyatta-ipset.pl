@@ -203,7 +203,7 @@ sub ipset_is_group_used {
 sub update_set {
   my ($set_name, $set_type) = @_;
   my $cfg = new Vyatta::Config;
-  my $rc;
+  my ($rc, $newset);
   my $cpath = "firewall group $set_type-group $set_name";
   if ($cfg->existsOrig($cpath)) {
     if (!$cfg->exists($cpath)) {
@@ -215,6 +215,7 @@ sub update_set {
     if ($cfg->exists($cpath)) {
       # added
       return $rc if (($rc = ipset_create($set_name, $set_type)));
+      $newset = 1;
     } else {
       # doesn't exist! should not happen
       return "Updating non-existent group [$set_name]";
@@ -222,16 +223,43 @@ sub update_set {
 
   }
   # added or potentially changed => iterate members
+  # to ensure that vyatta config and ipset stay in-sync, do the following:
+  # 1. copy orig set to tmp set
+  my $tmpset = "$set_name-$$";
+  if (($rc = ipset_copy_set($set_name, $set_type, $tmpset))) {
+    # copy failed
+    if ($newset) {
+      # destroy newly-created set since we're failing
+      system('ipset', '--destroy', $set_name);
+    }
+    return $rc;
+  }
+
+  # 2. add/delete members to/from tmp set according to changes
   my @ovals = $cfg->returnOrigValues("$cpath $set_type");
   my @nvals = $cfg->returnValues("$cpath $set_type");
   my %vals = $cfg->compareValueLists(\@ovals, \@nvals);
-  for my $d (@{$vals{deleted}}) {
-    return $rc if (($rc = ipset_delete_member($set_name, $d)));
+  while (1) {
+    for my $d (@{$vals{deleted}}) {
+      last if (($rc = ipset_delete_member($tmpset, $d)));
+    }
+    last if ($rc);
+    for my $a (@{$vals{added}}) {
+      last if (($rc = ipset_add_member($tmpset, $a, $set_name)));
+    }
+    last;
   }
-  for my $a (@{$vals{added}}) {
-    return $rc if (($rc = ipset_add_member($set_name, $a)));
+
+  # 3. "commit" changes and/or clean up
+  if (!$rc) {
+    # no error
+    system('ipset', '--swap', $tmpset, $set_name);
+  } elsif ($newset) {
+    # destroy newly-created set since we're failing
+    system('ipset', '--destroy', $set_name);
   }
-  exit 0;
+  system('ipset', '--destroy', $tmpset);
+  return $rc;
 }
 
 sub prune_deleted_sets {
