@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.46+napa1) unstable; urgency=low
+
+  * new branch
+
+ -- Deepti Kulkarni <deepti@vyatta.com>  Thu, 07 Jul 2011 20:47:02 -0700
+
 vyatta-cfg-firewall (0.13.46) unstable; urgency=low
 
   * add "two-stage commit" equivalent to previous fix for bug 5227.
