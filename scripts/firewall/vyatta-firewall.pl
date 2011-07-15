@@ -121,16 +121,19 @@ if ($#updateints == 4) {
   $iptables_cmd = $cmd_hash{$tree};
 
   if ($action eq "update") {
-    # make sure interface is not being used in a zone
-    my @all_zones = Vyatta::Zone::get_all_zones("listNodes");
-    foreach my $zone (@all_zones) {
-      my @zone_interfaces =
-         Vyatta::Zone::get_zone_interfaces("returnValues", $zone);
-      if (scalar(grep(/^$int_name$/, @zone_interfaces)) > 0) {
-        print STDERR 'Firewall config error: ' .
-                   "interface $int_name is defined under zone $zone\n" .
-        "Cannot use per interface firewall for a zone interface\n";
-        exit 1;
+    # when applying 'name|ipv6-name' rule-set, make
+    # sure interface is not being used in a zone
+    if ($tree eq 'name' || $tree eq 'ipv6-name') {
+      my @all_zones = Vyatta::Zone::get_all_zones("listNodes");
+      foreach my $zone (@all_zones) {
+        my @zone_interfaces =
+          Vyatta::Zone::get_zone_interfaces("returnValues", $zone);
+        if (scalar(grep(/^$int_name$/, @zone_interfaces)) > 0) {
+          print STDERR 'Firewall config error: ' .
+          "interface $int_name is defined under zone $zone\n" .
+          "Cannot use per interface firewall for a zone interface\n";
+          exit 1;
+        }
       }
     }
 
