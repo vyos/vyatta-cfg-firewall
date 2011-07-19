@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.49) unstable; urgency=low
+
+  * Fix README
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 18 Jul 2011 19:02:05 -0700
+
 vyatta-cfg-firewall (0.13.48) unstable; urgency=low
 
   * Fix Bug 7340 Unable to apply modify firewall to interface when zone
