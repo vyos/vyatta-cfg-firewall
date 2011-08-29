@@ -1,3 +1,12 @@
+vyatta-cfg-firewall (0.13.50) unstable; urgency=low
+
+  [ Stig ]
+  * Fix Bug 7477 firewall group negation doesn't work in vc6.3
+
+  [ Mohit Mehta ]
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 29 Aug 2011 14:44:37 -0700
+
 vyatta-cfg-firewall (0.13.49) unstable; urgency=low
 
   * Fix README
