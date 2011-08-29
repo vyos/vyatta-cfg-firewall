@@ -83,9 +83,13 @@ sub ipset_check_set_type {
    die "Error: undefined set_name\n" if ! defined $set_name; 
    die "Error: undefined set_type\n" if ! defined $set_type; 
 
-   my $cfg = new Vyatta::Config;
-   return "Group [$set_name] has not been defined\n"
-    if (!$cfg->exists("firewall group $set_type-group $set_name"));
+   my $group = new Vyatta::IpTables::IpSet($set_name);
+   return "Group [$set_name] has not been defined\n" if ! $group->exists();
+   my $type = $group->get_type();
+   $type = 'undefined' if ! defined $type;
+   if ($type ne $set_type) {
+       return "Error: group [$set_name] is of type [$type] not [$set_type]\n";
+   }
    return;
 }
 
