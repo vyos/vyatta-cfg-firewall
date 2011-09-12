@@ -8,7 +8,7 @@ modprobe_DATA += etc/modprobe.d/vyatta_xt_recent.conf
 
 sbin_SCRIPTS =
 share_perl5_DATA =
-curver_DATA = cfg-version/firewall@3
+curver_DATA = cfg-version/firewall@4
 
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
