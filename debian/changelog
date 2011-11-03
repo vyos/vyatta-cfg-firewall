@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.13.51) unstable; urgency=low
+
+  * Add support for vif on pseudo-ethernet
+  * fix duplicate definiton in Makefile
+  * Add dependency on version of vyatta-cfg-system
+
+ -- Stephen Hemminger <shemminger@vyatta.com>  Thu, 03 Nov 2011 14:41:47 -0700
+
 vyatta-cfg-firewall (0.13.50) unstable; urgency=low
 
   [ Stig ]
