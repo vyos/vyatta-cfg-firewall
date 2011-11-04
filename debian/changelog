@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.53) unstable; urgency=low
+
+  * Force release
+
+ -- Daniil Baturin <daniil.baturin@vyatta.com>  Sat, 05 Nov 2011 06:16:01 +0700
+
 vyatta-cfg-firewall (0.13.52) unstable; urgency=low
 
   * Remove conntrack-related templates from firewall
