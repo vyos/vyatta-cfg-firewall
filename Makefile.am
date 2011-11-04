@@ -4,12 +4,11 @@ curverdir = $(sysconfdir)/config-migrate/current
 modprobedir = /etc/modprobe.d
 checkparamsonrebootdir = $(bindir)/sudo-users/check-params-on-reboot.d
 
-modprobe_DATA  = etc/modprobe.d/vyatta_nf_conntrack.conf
-modprobe_DATA += etc/modprobe.d/vyatta_xt_recent.conf
+modprobe_DATA = etc/modprobe.d/vyatta_xt_recent.conf
 
 checkparamsonreboot_SCRIPTS =
 sbin_SCRIPTS =
-curver_DATA = cfg-version/firewall@4
+curver_DATA = cfg-version/firewall@5
 
 checkparamsonreboot_SCRIPTS += scripts/check-params-on-reboot.d/conntrack-hash-size
 
