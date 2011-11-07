@@ -1,3 +1,21 @@
+vyatta-cfg-firewall (0.13.53) unstable; urgency=low
+
+  * Force release
+
+ -- Daniil Baturin <daniil.baturin@vyatta.com>  Sat, 05 Nov 2011 06:16:01 +0700
+
+vyatta-cfg-firewall (0.13.52) unstable; urgency=low
+
+  * Remove conntrack-related templates from firewall
+  * Remove remaining conntrack-related templates.
+  * Remove conntrack modprobe config file (will be in vyatta-conntrack
+    now).
+  * Change firewall version from 4 to 5.
+  * Fix automake rules to reflect version change and removal of
+    conntrack modprobe config.
+
+ -- Daniil Baturin <daniil.baturin@vyatta.com>  Sat, 05 Nov 2011 06:14:59 +0700
+
 vyatta-cfg-firewall (0.13.51) unstable; urgency=low
 
   * Add support for vif on pseudo-ethernet
