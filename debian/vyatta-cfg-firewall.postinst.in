@@ -12,7 +12,7 @@ ln -sf /opt/vyatta/sbin/vyatta-ipset.pl ${bindir}/sudo-users/vyatta-ipset.pl
 
 # comply with Squeeze version of modprobe
 # remove old versions of files during upgrade
-for modprobe in vyatta_nf_conntrack vyatta_xt_recent vyatta_sip_options
+for modprobe in vyatta_xt_recent vyatta_sip_options
 do
   if [ -f /etc/modprobe.d/${modprobe} ]; then
       mv -f /etc/modprobe.d/${modprobe} /etc/modprobe.d/${modprobe}.conf
