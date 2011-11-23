@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.55) unstable; urgency=low
+
+  * Move check-params-on-reboot script for conntrack hash size to
+
+ -- Daniil Baturin <daniil.baturin@vyatta.com>  Thu, 24 Nov 2011 01:05:16 +0700
+
 vyatta-cfg-firewall (0.13.54) unstable; urgency=low
 
   * Remove conntrack-related code from firewall top level template
