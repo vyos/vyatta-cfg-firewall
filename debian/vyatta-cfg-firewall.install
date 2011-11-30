@@ -1,5 +1,4 @@
 etc/modprobe.d
-opt/vyatta/bin/sudo-users/check-params-on-reboot.d
 opt/vyatta/sbin
 opt/vyatta/etc
 opt/vyatta/share/perl5
