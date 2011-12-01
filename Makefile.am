@@ -11,6 +11,7 @@ curver_DATA = cfg-version/firewall@5
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
 sbin_SCRIPTS += scripts/firewall/vyatta-ipset.pl
+sbin_SCRIPTS += scripts/firewall/vyatta-fw-global-state-policy.pl
 
 share_perl5_DATA  = lib/Vyatta/IpTables/Rule.pm
 share_perl5_DATA += lib/Vyatta/IpTables/AddressFilter.pm

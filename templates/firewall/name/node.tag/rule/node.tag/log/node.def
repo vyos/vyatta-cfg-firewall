@@ -1,3 +1,3 @@
-type: txt; "firwall logging must be enable or disable"
+type: txt; "firewall logging must be enable or disable"
 help: Option to log packets matching rule
-syntax:expression: $VAR(@) in "enable", "disable"; "firwall logging must be enable or disable"
+syntax:expression: $VAR(@) in "enable", "disable"; "firewall logging must be enable or disable"

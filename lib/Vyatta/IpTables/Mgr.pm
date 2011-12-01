@@ -30,10 +30,124 @@ use warnings;
 use base 'Exporter';
 our @EXPORT = qw(ipt_find_chain_rule ipt_enable_conntrack
                  ipt_disable_conntrack count_iptables_rules
-                 chain_referenced ipt_get_queue_target);
+                 chain_referenced ipt_get_queue_target
+		 run_ipt_cmd create_ipt_chain delete_ipt_chain
+		 flush_ipt_chain insert_ipt_rule append_ipt_rule
+		 delete_ipt_rule delete_ipt_rulenum ipt_find_comment_rule);
 
-my $debug = 0;
+## TODO - in future, we could use perl's libiptc module instead of
+## running system commands in the following function for iptables.
+## However, that would need integrating the libiptc module into the system
+## and also adding other functionality to it, including IPv6 support.
+sub run_ipt_cmd {
+  my ($cmd) = shift;
+  my $error = system("$cmd");
 
+  my $debug = "false";
+  my $syslog = "false";
+  my $logger = "sudo logger -t Vyatta::IPTables::Mgr -p local0.warn --";
+
+  if ($syslog eq "true") {
+    my $func = (caller(1))[3];
+    system("$logger [$func] [$cmd] = [$error]");
+  }
+  if ($debug eq "true") {
+    my $func = (caller(1))[3];
+    print "\n[$func] [$cmd] = [$error]";
+  }
+  return $error;
+}
+
+sub create_ipt_chain {
+  my ($ipt_cmd, $table, $chain) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -N $chain";
+  $error = run_ipt_cmd($cmd);
+  return "create_ipt_chain [$ipt_cmd -t $table -N $chain]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+sub flush_ipt_chain {
+  my ($ipt_cmd, $table, $chain) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -F $chain";
+  $error = run_ipt_cmd($cmd);
+  return "flush_ipt_chain [$ipt_cmd -t $table -F $chain]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+sub delete_ipt_chain {
+  my ($ipt_cmd, $table, $chain) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -X $chain";
+  $error = run_ipt_cmd($cmd);
+  return "delete_ipt_chain [$ipt_cmd -t $table -X $chain]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+sub insert_ipt_rule {
+  my ($ipt_cmd, $table, $chain, $jump_target, $insert_num, $append_options) = @_;
+  my ($cmd, $error);
+
+  $insert_num = 1 if (!defined $insert_num);
+  $cmd = "sudo $ipt_cmd -t $table -I $chain $insert_num -j $jump_target ";
+  $cmd .= $append_options if defined $append_options;
+  $error = run_ipt_cmd($cmd);
+  return "insert_ipt_rule [$ipt_cmd -t $table -I $chain $insert_num -j $jump_target]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+sub append_ipt_rule {
+  my ($ipt_cmd, $table, $chain, $jump_target, $append_options) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -A $chain -j $jump_target ";
+  $cmd .= $append_options if defined $append_options;
+  $error = run_ipt_cmd($cmd);
+  return "append_ipt_rule [$ipt_cmd -t $table -A $chain -j $jump_target]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+# delete rule based on jump target. should only be used if jump_target is unique in that chain
+sub delete_ipt_rule {
+  my ($ipt_cmd, $table, $chain, $jump_target) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -D $chain -j $jump_target";
+  $error = run_ipt_cmd($cmd);
+  return "delete_ipt_rule [$ipt_cmd -t $table -D $chain -j $jump_target]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+# delete rule based on rule number
+sub delete_ipt_rulenum {
+  my ($ipt_cmd, $table, $chain, $delete_num) = @_;
+  my ($cmd, $error);
+
+  $cmd = "sudo $ipt_cmd -t $table -D $chain $delete_num";
+  $error = run_ipt_cmd($cmd);
+  return "delete_ipt_rulenum [$ipt_cmd -t $table -D $chain $delete_num]
+failed: [error code - $error]" if $error;
+
+  return;
+}
+
+# searches and returns first found rule based on jump target
 sub ipt_find_chain_rule {
   my ($iptables_cmd, $table, $chain, $search) = @_;
   
@@ -53,6 +167,29 @@ sub ipt_find_chain_rule {
   return;
 }
 
+# searches and returns first found rule based on matching text in rule comment
+sub ipt_find_comment_rule {
+  my ($iptables_cmd, $table, $chain, $search) = @_;
+
+  my $cmd = "$iptables_cmd -t $table -L $chain -vn --line";
+  my @lines = `sudo $cmd 2> /dev/null | egrep ^[0-9]`;
+  if (scalar(@lines) < 1) {
+    return;
+  }
+
+  my ($num, $rule_txt, $comment) = (undef, undef);
+  foreach my $line (@lines) {
+    ($rule_txt, $comment) = split /\/\*/, $line;
+    #print "rule_txt : $rule_txt, comment : $comment\n";
+    if (defined $comment && $comment =~ m/$search/) {
+      #print "found $search in $comment \n";
+      ($num) = split /\s+/, $rule_txt if defined $rule_txt;
+      return $num;
+    }
+    ($rule_txt, $comment) = (undef, undef);
+  }
+  return;
+}
 my %conntrack_hook_hash = 
    ('PREROUTING' => 'VYATTA_CT_PREROUTING_HOOK',
     'OUTPUT'     => 'VYATTA_CT_OUTPUT_HOOK',
@@ -87,6 +224,7 @@ sub ipt_enable_conntrack {
 sub ipt_disable_conntrack {
     my ($iptables_cmd, $chain) = @_;
 
+    my $debug = 0;
     my @lines;
     foreach my $label ('PREROUTING', 'OUTPUT') {
         my $index;

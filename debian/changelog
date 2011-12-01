@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.56) unstable; urgency=low
+
+  * Bug 6063 ENH: Provide option(s) to globally allow stateful return
+    traffic
+
+ -- Mohit Mehta <mohit@vyatta.com>  Thu, 01 Dec 2011 05:38:33 -0800
+
 vyatta-cfg-firewall (0.13.55) unstable; urgency=low
 
   * Move check-params-on-reboot script for conntrack hash size to
