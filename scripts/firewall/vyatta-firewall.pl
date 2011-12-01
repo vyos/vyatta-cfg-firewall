@@ -719,15 +719,17 @@ sub setup_iptables {
   # add VYATTA_FW_(IN|OUT)_HOOK
   my $num = find_chain_rule($iptables_cmd, $table, $ohook, $FW_OUT_HOOK);
   if (! defined $num) {
+    my $insert_at = 1;
+    $insert_at = 2 if ($table eq 'filter'); # insert after VYATTA_PRE_FW_*_HOOK
     run_cmd("$iptables_cmd -t $table -N $FW_OUT_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -I $ohook 1 -j $FW_OUT_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ohook $insert_at -j $FW_OUT_HOOK", 1);
     run_cmd("$iptables_cmd -t $table -N $FW_IN_HOOK", 1);
-    run_cmd("$iptables_cmd -t $table -I $ihook 1 -j $FW_IN_HOOK", 1);
+    run_cmd("$iptables_cmd -t $table -I $ihook $insert_at -j $FW_IN_HOOK", 1);
     # add VYATTA_FW_LOCAL_HOOK only in filter table
     if ($table eq 'filter') {
       my $lhook = $localhook_hash{$table};
       run_cmd("$iptables_cmd -t $table -N $FW_LOCAL_HOOK", 1);
-      run_cmd("$iptables_cmd -t $table -I $lhook 1 -j $FW_LOCAL_HOOK", 1);
+      run_cmd("$iptables_cmd -t $table -I $lhook $insert_at -j $FW_LOCAL_HOOK", 1);
     }
   }
 

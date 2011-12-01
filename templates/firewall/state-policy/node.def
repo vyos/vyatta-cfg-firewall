@@ -1,0 +1,30 @@
+priority: 200
+help: Global firewall state-policy
+
+begin:
+        if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
+          --action=state-policy-validity-checks; then           \
+          exit 1
+        fi
+
+create:
+        if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
+          --action=setup-state-policy; then                     \
+          exit 1
+        fi
+
+delete:
+        if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
+          --action=teardown-state-policy; then                  \
+          exit 1
+        fi
+
+end: 
+        if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
+          --action=set-state-actions; then              \
+          exit 1
+        fi
+        if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
+          --action=enable-disable-conntrack; then               \
+          exit 1
+        fi

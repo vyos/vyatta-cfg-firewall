@@ -1,0 +1,12 @@
+type:  txt
+
+help: Action for packets part of an invalid connection
+
+syntax:expression: $VAR(@) in "accept", "drop", "reject";
+                   "action must be one of accept, drop, or reject"
+
+allowed: echo "accept drop reject"
+
+val_help: accept   ; Action to accept
+val_help: drop     ; Action to drop
+val_help: reject   ; Action to reject
