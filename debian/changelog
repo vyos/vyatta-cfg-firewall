@@ -1,3 +1,17 @@
+vyatta-cfg-firewall (0.13.57) unstable; urgency=low
+
+  [ Daniil Baturin ]
+  * Remove conntrack-related templates from firewall
+  * Remove remaining conntrack-related templates.
+  * Remove conntrack modprobe config file (will be in vyatta-conntrack
+    now).
+  * Delete conntrack modprobe config file from automake rules.
+
+  [ John Southworth ]
+  * generate firewall templates for vrrp interfaces
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 01 Dec 2011 16:54:09 -0800
+
 vyatta-cfg-firewall (0.13.56) unstable; urgency=low
 
   * Bug 6063 ENH: Provide option(s) to globally allow stateful return
