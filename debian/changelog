@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.59) unstable; urgency=low
+
+  * Add vrrp interface parameters for bonding vifs
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 02 Dec 2011 11:24:59 -0800
+
 vyatta-cfg-firewall (0.13.58) unstable; urgency=low
 
   * Warn users when stateful rules are set with state-policy configured
