@@ -1,3 +1,9 @@
 type: txt
 help: Established state
 syntax:expression: $VAR(@) in "enable", "disable" ; "state value must be enable or disable"
+
+commit:expression:
+exec "
+if cli-shell-api existsEffective firewall state-policy; then                                    \
+echo Warning: Use of state in rules overridden by \\'firewall state-policy\\' configuration;          \
+fi"

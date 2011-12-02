@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.58) unstable; urgency=low
+
+  * Warn users when stateful rules are set with state-policy configured
+
+ -- Mohit Mehta <mohit@vyatta.com>  Fri, 02 Dec 2011 03:58:22 -0800
+
 vyatta-cfg-firewall (0.13.57) unstable; urgency=low
 
   [ Daniil Baturin ]
