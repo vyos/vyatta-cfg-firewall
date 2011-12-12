@@ -48,6 +48,12 @@ start () {
     for mod in ${modules[@]} ; do 
 	modprobe --syslog $mod
     done
+    # setup vrrp backup transition chain
+    # we need to filter traffic to the vrrp mac addresses
+    # on the vrrp backup router before we do anything else.
+    iptables -t raw -N VYATTA_VRRP_FILTER
+    iptables -t raw -A VYATTA_VRRP_FILTER -j RETURN
+    iptables -t raw -A PREROUTING -j VYATTA_VRRP_FILTER
 
     # set up notrack chains/rules for IPv4
     # by default, nothing is tracked.
