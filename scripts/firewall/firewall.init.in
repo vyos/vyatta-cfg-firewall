@@ -55,6 +55,11 @@ start () {
     iptables -t raw -A VYATTA_VRRP_FILTER -j RETURN
     iptables -t raw -A PREROUTING -j VYATTA_VRRP_FILTER
 
+    iptables -t raw -N VYATTA_VRRP_OUTPUT_FILTER
+    iptables -t raw -A VYATTA_VRRP_OUTPUT_FILTER -j RETURN
+    iptables -t raw -I OUTPUT -j VYATTA_VRRP_OUTPUT_FILTER
+
+
     # set up notrack chains/rules for IPv4
     # by default, nothing is tracked.
     iptables -t raw -N VYATTA_CT_PREROUTING_HOOK
