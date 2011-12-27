@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.61) unstable; urgency=low
+
+  * Create VRRP output filter to filter IGMP from vmac interfaces
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 27 Dec 2011 10:32:23 -0800
+
 vyatta-cfg-firewall (0.13.60) unstable; urgency=low
 
   * Setup filter for VRRP vmac interfaces
