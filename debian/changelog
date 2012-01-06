@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.62) unstable; urgency=low
+
+  * Fix help string of state-policy for related connections
+
+ -- Mohit Mehta <mohit@vyatta.com>  Fri, 06 Jan 2012 11:37:16 -0800
+
 vyatta-cfg-firewall (0.13.61) unstable; urgency=low
 
   * Create VRRP output filter to filter IGMP from vmac interfaces
