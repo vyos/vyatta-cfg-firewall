@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65) unstable; urgency=low
+
+  * 7047:use DEFLT instead of default
+
+ -- Gaurav <gaurav.sinha@vyatta.com>  Wed, 29 Feb 2012 15:59:30 -0800
+
 vyatta-cfg-firewall (0.13.64) unstable; urgency=low
 
   * fixing 7047
