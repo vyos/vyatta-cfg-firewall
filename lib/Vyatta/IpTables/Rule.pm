@@ -300,8 +300,12 @@ sub get_log_prefix {
   # want to include "[$chain-$rule_num-$action] " but that would require
   #                  1   29 1   4     1  1    11 = 39 
   # so truncate the chain name so that it'll all fit.
-  $chain = substr($chain, 0, 19) if length($chain) > 19;
   my $action_char = uc(substr($action, 0, 1));
+  if ( length($chain) > 19 ) { 
+    $chain = substr($chain, 0, 19);
+    printf STDERR 'Firewall config warning: '
+            . "rule $rule_num logging prefix will be truncated to [$chain-$rule_num-$action_char]\n";
+  }
   my $log_prefix  = "[$chain-$rule_num-$action_char] ";
   return $log_prefix;
 }

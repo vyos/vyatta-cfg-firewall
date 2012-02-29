@@ -375,6 +375,13 @@ sub update_rules {
           . "Rule set name \"$name\" already used in \"$ctree\"\n");
       exit 1;
     }
+    #check for prefix length, iptables permits 29 as --log-prefix
+    if (($policy_log) and (length ($name) > 17)) {
+      my $action_char = uc(substr($policy, 0, 1));
+      my $chain_tr = substr($name, 0, 17);
+      printf STDERR 'Firewall config warning: '
+      . "default logging prefix will be truncated to \"[$chain_tr-default-$action_char]\" \n";
+    }
     setup_chain($table, "$name", $iptables_cmd, $policy, $policy_log);
     add_refcnt($fw_tree_file, "$tree $name");
     $policy_set = 1;
@@ -395,6 +402,13 @@ sub update_rules {
     goto end_of_rules;
   } elsif ($nodes{$name} eq 'changed') {
     log_msg "$tree $name = changed";
+    #check for prefix length, iptables permits 29 as --log-prefix
+    if (($policy_log) and (length ($name) > 17)) {
+      my $action_char = uc(substr($policy, 0, 1));
+      my $chain_tr = substr($name, 0, 17);
+      printf STDERR 'Firewall config warning: '
+      . "default logging prefix will be truncated to \"[$chain_tr-default-$action_char]\" \n";
+    }
     # handle the rules below.
   }
 
@@ -754,7 +768,13 @@ sub set_default_policy {
   my $comment = "-m comment --comment \"$chain-$max_rule default-action $policy\"";
   if ($log) {
     my $action_char = uc(substr($policy, 0, 1));
-    my $ltarget = "LOG --log-prefix \"[$chain-default-$action_char]\" ";
+    my $chain_tr = $chain;
+    if (length ("[$chain-default-$action_char]") > 29 ) {
+        # [ -default-a/r/d] 12 chars are always used here; iptables limits log-prefix to 29 chars
+        # truncate $chain and form the ltarget with truncated chain
+        $chain_tr = substr($chain, 0, 17);
+    }
+    my $ltarget = "LOG --log-prefix \"[$chain_tr-default-$action_char]\" ";
     run_cmd("$iptables_cmd -t $table -A $chain $comment -j $ltarget", 1);
   }
   run_cmd("$iptables_cmd -t $table -A $chain $comment -j $target", 1);
