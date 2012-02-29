@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.64) unstable; urgency=low
+
+  * fixing 7047
+
+ -- Gaurav <gaurav.sinha@vyatta.com>  Wed, 29 Feb 2012 13:51:06 -0800
+
 vyatta-cfg-firewall (0.13.63) unstable; urgency=low
 
   * Bug Fix for 7751, 7753, 7757
