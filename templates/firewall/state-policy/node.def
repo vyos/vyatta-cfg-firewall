@@ -1,6 +1,10 @@
 priority: 200
 help: Global firewall state-policy
 
+commit:expression: $VAR(./established) != "" || $VAR(./related) != ""
+        || $VAR(./invalid) != "";
+        "No policy set for either 'established', 'related', or 'invalid' state"
+
 begin:
         if ! /opt/vyatta/sbin/vyatta-fw-global-state-policy.pl  \
           --action=state-policy-validity-checks; then           \
