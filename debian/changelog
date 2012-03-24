@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard3) unstable; urgency=low
+
+  * Creation of CT_TIMEOUT chain in OUTPUT and PREROUTING chains.wq
+
+ -- Gaurav <gaurav.sinha@vyatta.com>  Fri, 23 Mar 2012 17:54:38 -0700
+
 vyatta-cfg-firewall (0.13.65+oxnard2) unstable; urgency=low
 
   * Hide compliant mode vrrp nodes for oxnard since the syntax will
