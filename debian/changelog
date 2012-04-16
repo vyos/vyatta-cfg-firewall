@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.68) unstable; urgency=low
+
+  * fixing 7998
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 16 Apr 2012 11:12:28 -0700
+
 vyatta-cfg-firewall (0.13.67) unstable; urgency=low
 
   * include CT_TIMEOUT chain for conntrack timeouts.
