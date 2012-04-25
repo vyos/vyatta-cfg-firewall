@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.65+oxnard5) unstable; urgency=low
+
+  * Revert "Revert "Hide compliant mode vrrp nodes for oxnard since the
+    syntax will change in the future""
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 25 Apr 2012 15:04:50 -0700
+
 vyatta-cfg-firewall (0.13.65+oxnard4) unstable; urgency=low
 
   * Revert "Hide compliant mode vrrp nodes for oxnard since the syntax
