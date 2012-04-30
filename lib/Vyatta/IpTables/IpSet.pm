@@ -337,12 +337,14 @@ sub add_member_range {
 }
 
 sub add_member {
-    my ($self, $member, $alias) = @_;
+    my ($self, $member, $alias, $hyphenated_port) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
 
-    if ($member =~ /^([^-]+)-([^-]+)$/) {
+    # service name or port name may contain a hyphen, which needs to be escaped
+    # using square brackets in ipset, to avoid confusion with port ranges
+    if (($member =~ /^([^-]+)-([^-]+)$/) and ($hyphenated_port eq 'false')) {
 	return $self->add_member_range($1, $2, $alias);
     }
 
@@ -378,12 +380,14 @@ sub delete_member_range {
 }
 
 sub delete_member {
-    my ($self, $member) = @_;
+    my ($self, $member, $hyphenated_port) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
 
-    if ($member =~ /^([^-]+)-([^-]+)$/) {
+    # service name or port name may contain a hyphen, which needs to be escaped
+    # using square brackets in ipset, to avoid confusion with port ranges
+    if (($member =~ /^([^-]+)-([^-]+)$/) and ($hyphenated_port eq 'false')) {
 	return $self->delete_member_range($1, $2);
     }
 

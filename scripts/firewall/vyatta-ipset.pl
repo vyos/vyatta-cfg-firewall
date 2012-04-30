@@ -62,19 +62,30 @@ sub ipset_check_member {
 }
 
 sub ipset_add_member {
-    my ($set_name, $member, $alias) = @_;
-    
+    my ($set_name, $member, $alias, $set_type) = @_;
+    my $hyphenated_port = 'false'; 
+    if (($set_type eq 'port') and ($member =~ /^\D\w+-\w*/)){
+      $member = "\[$member]";
+      $hyphenated_port = 'true';
+    }
+
     die "Error: undefined member" if ! defined $member; 
     my $group = new Vyatta::IpTables::IpSet($set_name);
-    return $group->add_member($member, $alias);
+    return $group->add_member($member, $alias, $hyphenated_port);
 }
 
 sub ipset_delete_member {
-    my ($set_name, $member) = @_;
+    my ($set_name, $member, $set_type) = @_;
+
+    my $hyphenated_port = 'false'; 
+    if (($set_type eq 'port') and ($member =~ /^\D\w+-\w*/)){
+      $member = "\[$member]";
+      $hyphenated_port = 'true';
+    }
 
     die "Error: undefined member" if ! defined $member; 
     my $group = new Vyatta::IpTables::IpSet($set_name);
-    return $group->delete_member($member);
+    return $group->delete_member($member, $hyphenated_port);
 }
 
 sub ipset_check_set_type {
@@ -245,11 +256,11 @@ sub update_set {
   my %vals = $cfg->compareValueLists(\@ovals, \@nvals);
   while (1) {
     for my $d (@{$vals{deleted}}) {
-      last if (($rc = ipset_delete_member($tmpset, $d)));
+      last if (($rc = ipset_delete_member($tmpset, $d, $set_type)));
     }
     last if ($rc);
     for my $a (@{$vals{added}}) {
-      last if (($rc = ipset_add_member($tmpset, $a, $set_name)));
+      last if (($rc = ipset_add_member($tmpset, $a, $set_name, $set_type)));
     }
     last;
   }
@@ -306,7 +317,7 @@ $rc = ipset_delete($set_name) if $action eq 'delete-set';
 $rc = ipset_check_member($set_name, $set_type, $member) 
     if $action eq 'check-member';
 
-$rc = ipset_add_member($set_name, $member, $alias) if $action eq 'add-member';
+$rc = ipset_add_member($set_name, $member, $alias, $set_type) if $action eq 'add-member';
 
 $rc = ipset_delete_member($set_name, $member) if $action eq 'delete-member';
 
