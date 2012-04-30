@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.69) unstable; urgency=low
+
+  * service names with hyphen need to be escaped using square brackets.
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 30 Apr 2012 16:13:31 -0700
+
 vyatta-cfg-firewall (0.13.68) unstable; urgency=low
 
   * fixing 7998
