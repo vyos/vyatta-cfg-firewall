@@ -58,8 +58,6 @@ start () {
     iptables -t raw -N VYATTA_CT_HELPER
     iptables -t raw -A VYATTA_CT_HELPER -j RETURN
 
-    iptables -t raw -A PREROUTING -j VYATTA_CT_HELPER
-    iptables -t raw -A OUTPUT -j VYATTA_CT_HELPER
     # setup vrrp backup transition chain
     # we need to filter traffic to the vrrp mac addresses
     # on the vrrp backup router before we do anything else.
