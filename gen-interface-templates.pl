@@ -41,18 +41,12 @@ my %interface_hash = (
     'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
 
     'bonding/node.tag'              => '$VAR(../../../@)',
-    'bonding/node.tag/vrrp/vrrp-group/node.tag/interface' => '$VAR(../../../../../../@)v$VAR(../../../../@)',
     'bonding/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
-    'bonding/node.tag/vif/node.tag/vrrp/vrrp-group/node.tag/interface' => 
-        '$VAR(../../../../../../../@).$VAR(../../../../../../@)v$VAR(../../../../@)',
 
     'ethernet/node.tag'                => '$VAR(../../../@)',
     'ethernet/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
-    'ethernet/node.tag/vrrp/vrrp-group/node.tag/interface' => '$VAR(../../../../../../@)v$VAR(../../../../@)',
     'ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
-    'ethernet/node.tag/vif/node.tag/vrrp/vrrp-group/node.tag/interface' => 
-        '$VAR(../../../../../../../@).$VAR(../../../../../../@)v$VAR(../../../../@)',
     'pseudo-ethernet/node.tag'              => '$VAR(../../../@)',
     'pseudo-ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
 
