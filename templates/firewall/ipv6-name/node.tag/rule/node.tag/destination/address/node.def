@@ -9,5 +9,5 @@ val_help: !ipv6; Match everything except the specified address
 val_help: !ipv6net; Match everything except the specified prefix
 val_help: !ipv6range; Match everything except the specified range
 
-syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type.pl ipv6_addr_param $VAR(@)"
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type ipv6_addr_param $VAR(@)"
 

@@ -4,9 +4,5 @@ help: Address-group member
 val_help: ipv4; IPv4 address to match
 val_help: ipv4range; IPv4 range to match (e.g. 10.0.0.1-10.0.0.200)
 
-syntax:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
-                           --action=check-member          \
-                           --set-name=$VAR(../@)          \
-                           --set-type=address             \
-                           --member=\"$VAR(@)\"; "
+syntax:expression: exec "/opt/vyatta/sbin/ipset-check-member address $VAR(@)"
 
