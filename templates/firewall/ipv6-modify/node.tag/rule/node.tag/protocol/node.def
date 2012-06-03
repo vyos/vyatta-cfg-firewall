@@ -10,7 +10,7 @@ syntax:expression: exec "
   if [ \"$param\" = \"tcp_udp\" ]; then
       exit 0
   fi
-	/opt/vyatta/sbin/vyatta-validate-type.pl protocol_negate '$VAR(@)'
+	/opt/vyatta/sbin/vyatta-validate-type protocol_negate '$VAR(@)'
 	" ;
 	"invalid protocol \"$VAR(@)\""
 
