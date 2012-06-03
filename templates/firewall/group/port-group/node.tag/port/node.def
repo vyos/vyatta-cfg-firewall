@@ -6,4 +6,4 @@ val_help: <name>; Named port (any name in /etc/services, e.g., http)
 val_help: u32:1-65535; Numbered port
 val_help: <start>-<end>; Numbered port range (e.g. 1001-1050)
 
-syntax:expression: exec "sudo /opt/vyatta/sbin/ipset-check-member port $VAR(@)"
+syntax:expression: exec "/opt/vyatta/sbin/ipset-check-member port $VAR(@)"
