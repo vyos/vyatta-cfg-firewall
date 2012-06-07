@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.13.73) unstable; urgency=low
+
+  * create CT_HELPER chain in PREROUTING and OUTPUT
+  * don't add CTHELPER chain by default on boot. add when needed.
+  * create nfct helper policies and prepare VYATTA_CT_HELPER chain
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 06 Jun 2012 21:47:45 -0700
+
 vyatta-cfg-firewall (0.13.72) unstable; urgency=low
 
   * Remove sudo from port-group syntax check call
