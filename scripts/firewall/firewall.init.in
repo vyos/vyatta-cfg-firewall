@@ -52,6 +52,11 @@ start () {
     # conection tracking timeout chain
     iptables -t raw -N VYATTA_CT_TIMEOUT 
     iptables -t raw -A VYATTA_CT_TIMEOUT -j RETURN
+   
+    # user space helpers chain, enables helpers using iptables --helper. 
+    # FTP, sip and h323 to use this chain later on.
+    iptables -t raw -N VYATTA_CT_HELPER
+    iptables -t raw -A VYATTA_CT_HELPER -j RETURN
 
     # setup vrrp backup transition chain
     # we need to filter traffic to the vrrp mac addresses
