@@ -197,9 +197,13 @@ my %conntrack_hook_hash =
 
 sub ipt_enable_conntrack {
     my ($iptables_cmd, $chain) = @_;
+    my $hookCtHelper = 'false';
+
+    if (($chain eq 'FW_CONNTRACK') or ($chain eq 'NAT_CONNTRACK')) {
+      $hookCtHelper = 'true';
+    }
 
     system("sudo $iptables_cmd -t raw -L $chain -n >& /dev/null");
-    
     if ($? >> 8) {
 	# chain does not exist yet. set up conntrack.
 	system("sudo $iptables_cmd -t raw -N $chain");
@@ -216,9 +220,58 @@ sub ipt_enable_conntrack {
             }
             $index++;
             system("sudo $iptables_cmd -t raw -I $label $index -j $chain");
+            
+            if ($hookCtHelper eq 'true') {
+              # we want helper hook only for Firewall / NAT. 
+              $conntrack_hook = "VYATTA_CT_HELPER";
+              $index = ipt_find_chain_rule($iptables_cmd, 'raw',
+                                         $label, $conntrack_hook);
+              if (! defined($index)) {
+                # this index does not change now but maybe later we change it, so being defensive. 
+                my $cttimeout_index = ipt_find_chain_rule($iptables_cmd, 'raw', $label, "VYATTA_CT_TIMEOUT");
+                if (defined($cttimeout_index)) {
+                  $cttimeout_index++;
+                  system("sudo $iptables_cmd -t raw -I $label $cttimeout_index -j VYATTA_CT_HELPER");
+                }
+              } 
+           }
         }
     }
     return 0;
+}
+
+sub
+remove_cthelper_hook {
+  my ($iptables_cmd, $label, $chain) =@_;
+  #label is PREROUTING / OUTPUT, chain is FW_CONNTRACK/NAT_CONNTRACK etc. 
+  my $index; 
+
+  # find if we need to remove VYATTA_CT_HELPER
+  my $cthelper_index = ipt_find_chain_rule($iptables_cmd, 'raw',
+		    $label, 'VYATTA_CT_HELPER');
+  if(! defined($cthelper_index)) {
+    # not an error: this hook is only for FW / NAT   
+    return 0;
+  }
+ 
+  # if this chain is FW_CONNTRACK, look if NAT is using it, else remove
+  if ($chain eq 'FW_CONNTRACK') {
+    $index = ipt_find_chain_rule($iptables_cmd, 'raw',
+		    $label, 'NAT_CONNTRACK');
+    if (! defined($index)) {
+      # NAT, only other user of helpers, not enabled, can remove VYATTA_CT_HELPER
+      system("sudo $iptables_cmd -t raw -D $label $cthelper_index");
+      return 0;
+    }
+  } elsif ($chain eq 'NAT_CONNTRACK') {
+      $index = ipt_find_chain_rule($iptables_cmd, 'raw',
+		      $label, 'FW_CONNTRACK');
+      if (! defined($index)) {
+        # Firewall, only other user of helpers, not enabled, can remove VYATTA_CT_HELPER
+	system("sudo $iptables_cmd -t raw -D $label $cthelper_index");
+	return 0;
+      }
+  }
 }
 
 sub ipt_disable_conntrack {
@@ -239,10 +292,13 @@ sub ipt_disable_conntrack {
             return 1;
         }
         system("sudo $iptables_cmd -t raw -D $label $index");
+      
+        remove_cthelper_hook($iptables_cmd, $label, $chain);
     }
     
     system("sudo $iptables_cmd -t raw -F $chain >& /dev/null");
     system("sudo $iptables_cmd -t raw -X $chain >& /dev/null");
+
     return 0;
 }
 
