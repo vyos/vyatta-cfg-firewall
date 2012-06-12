@@ -50,8 +50,13 @@ start () {
     done
 
     # conection tracking timeout chain
-    iptables -t raw -N CT_TIMEOUT 
-    iptables -t raw -A CT_TIMEOUT -j RETURN
+    iptables -t raw -N VYATTA_CT_TIMEOUT 
+    iptables -t raw -A VYATTA_CT_TIMEOUT -j RETURN
+   
+    # user space helpers chain, enables helpers using iptables --helper. 
+    # FTP, sip and h323 to use this chain later on.
+    iptables -t raw -N VYATTA_CT_HELPER
+    iptables -t raw -A VYATTA_CT_HELPER -j RETURN
 
     # setup vrrp backup transition chain
     # we need to filter traffic to the vrrp mac addresses
@@ -145,8 +150,8 @@ start () {
     iptables -t nat -A VYATTA_PRE_SNAT_HOOK -j RETURN
     iptables -t nat -A POSTROUTING -j VYATTA_PRE_SNAT_HOOK
 
-    iptables -t raw -I PREROUTING -j CT_TIMEOUT
-    iptables -t raw -I OUTPUT -j CT_TIMEOUT
+    iptables -t raw -I PREROUTING -j VYATTA_CT_TIMEOUT
+    iptables -t raw -I OUTPUT -j VYATTA_CT_TIMEOUT
     # Loosen the acceptability rules for TCP sequence and ACK numbers in
     # conntrack.  This allows TCP connections through NAT to survive certain
     # cases of packet loss where conntrack can not accurately track the
