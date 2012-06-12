@@ -4,6 +4,7 @@ curverdir = $(sysconfdir)/config-migrate/current
 modprobedir = /etc/modprobe.d
 
 modprobe_DATA = etc/modprobe.d/vyatta_xt_recent.conf
+modprobe_DATA += etc/modprobe.d/vyatta_ipset.conf
 
 sbin_SCRIPTS =
 curver_DATA = cfg-version/firewall@5
