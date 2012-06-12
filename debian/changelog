@@ -1,3 +1,24 @@
+vyatta-cfg-firewall (0.13.65+oxnard8) unstable; urgency=low
+
+  [ Deepti Kulkarni ]
+  * new branch
+  * 0.13.66
+
+  [ Gaurav ]
+  * include CT_TIMEOUT chain for conntrack timeouts.
+  * 0.13.67
+
+  [ Gaurav Sinha ]
+  * fixing 7998
+  * 0.13.68
+  * create CT_HELPER chain in PREROUTING and OUTPUT
+  * don't add CTHELPER chain by default on boot. add when needed.
+  * create nfct helper policies and prepare VYATTA_CT_HELPER chain
+  * Adding functions to conditionally add CT_HELPER chain and remove
+    when not in use, neither by FW nor by NAT.
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 11 Jun 2012 22:57:09 -0700
+
 vyatta-cfg-firewall (0.13.65+oxnard7) unstable; urgency=low
 
   [ John Southworth ]
