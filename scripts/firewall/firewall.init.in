@@ -165,7 +165,7 @@ start () {
     sysctl -q -w net.netfilter.nf_conntrack_tcp_be_liberal=1
     
     # set conntrack table size
-    sysctl -q -w net.nf_conntrack_max=16384
+    sysctl -q -w net.nf_conntrack_max=262144
 
     # set conntrack expect table size
     sysctl -q -w net.netfilter.nf_conntrack_expect_max=2048
