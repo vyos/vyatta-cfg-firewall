@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.76) unstable; urgency=low
+
+  * fix 8112
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 18 Jun 2012 15:13:32 -0700
+
 vyatta-cfg-firewall (0.13.75) unstable; urgency=low
 
   * Bugfix 8042: increase number of firewall groups to a reasonable
