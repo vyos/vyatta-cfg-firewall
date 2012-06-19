@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard9) unstable; urgency=low
+
+  * fix 8112
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 18 Jun 2012 17:04:06 -0700
+
 vyatta-cfg-firewall (0.13.65+oxnard8) unstable; urgency=low
 
   [ Deepti Kulkarni ]
