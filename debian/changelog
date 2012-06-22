@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.77) unstable; urgency=low
+
+  * fixing 8173: moving CT_HELPER chain just before CTTIMEOUT
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 22 Jun 2012 15:21:31 -0700
+
 vyatta-cfg-firewall (0.13.76) unstable; urgency=low
 
   * fix 8112
