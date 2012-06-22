@@ -230,7 +230,9 @@ sub ipt_enable_conntrack {
                 # this index does not change now but maybe later we change it, so being defensive. 
                 my $cttimeout_index = ipt_find_chain_rule($iptables_cmd, 'raw', $label, "VYATTA_CT_TIMEOUT");
                 if (defined($cttimeout_index)) {
-                  $cttimeout_index++;
+                  # $cttimeout_index++; fixing 8173
+                  # currently we have cttimeout at 1 index, it might change in future. 
+                  # helper chain should be before timeout chain 
                   system("sudo $iptables_cmd -t raw -I $label $cttimeout_index -j VYATTA_CT_HELPER");
                 }
               } 
