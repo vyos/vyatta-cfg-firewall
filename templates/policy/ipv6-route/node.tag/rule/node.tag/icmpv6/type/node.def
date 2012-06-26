@@ -1,0 +1,134 @@
+type: txt
+
+help: ICMPv6 type/code
+
+val_help:  destination-unreachable; ICMPv6 type/code name
+val_help:  _ no-route; ICMPv6 type/code name
+val_help:  _ communication-prohibited; ICMPv6 type/code name
+val_help:  _ address-unreachable; ICMPv6 type/code name
+val_help:  _ port-unreachable; ICMPv6 type/code name
+val_help:  packet-too-big; ICMPv6 type/code name
+val_help:  time-exceeded; ICMPv6 type/code name
+val_help:  _ ttl-zero-during-transit; ICMPv6 type/code name
+val_help:  _ ttl-zero-during-reassembly; ICMPv6 type/code name
+val_help:  parameter-problem; ICMPv6 type/code name
+val_help:  _ bad-header; ICMPv6 type/code name
+val_help:  _ unknown-header-type; ICMPv6 type/code name
+val_help:  _ unknown-option; ICMPv6 type/code name
+val_help:  echo-request; ICMPv6 type/code name
+val_help:  ping; ICMPv6 type/code name
+val_help:  echo-reply; ICMPv6 type/code name
+val_help:  pong; ICMPv6 type/code name
+val_help:  router-solicitation; ICMPv6 type/code name
+val_help:  router-advertisement; ICMPv6 type/code name
+val_help:  neighbour-solicitation; ICMPv6 type/code name
+val_help:  neighbor-solicitation; ICMPv6 type/code name
+val_help:  neighbour-advertisement; ICMPv6 type/code name
+val_help:  neighbor-advertisement; ICMPv6 type/code name
+val_help:  u32:0-255; ICMPv6 type number
+val_help:  <0-255>/<0-255>; ICMPv6 type and code numbers
+
+allowed:
+        array=(
+        destination-unreachable
+           no-route
+           communication-prohibited
+           address-unreachable
+           port-unreachable
+        packet-too-big
+        time-exceeded
+           ttl-zero-during-transit
+           ttl-zero-during-reassembly
+        parameter-problem
+           bad-header
+           unknown-header-type
+           unknown-option
+        echo-request
+        ping
+        echo-reply
+        pong
+        router-solicitation
+        router-advertisement
+        neighbour-solicitation
+        neighbor-solicitation
+        neighbour-advertisement
+        neighbor-advertisement )
+	echo -n ${array[@]}
+
+syntax:expression: exec "
+        array=(
+        destination-unreachable
+           no-route
+           communication-prohibited
+           address-unreachable
+           port-unreachable
+        packet-too-big
+        time-exceeded
+           ttl-zero-during-transit
+           ttl-zero-during-reassembly
+        parameter-problem
+           bad-header
+           unknown-header-type
+           unknown-option
+        echo-request
+        ping
+        echo-reply
+        pong
+        router-solicitation
+        router-advertisement
+        neighbour-solicitation
+        neighbor-solicitation
+        neighbour-advertisement
+        neighbor-advertisement )
+        len=${#array[*]}
+        i=0
+        while [ $i -lt $len ]; do
+            if [ \"${array[$i]}\" == \"$VAR(@)\" ] ; then
+                exit 0
+            fi
+            let i++
+        done
+
+	param=$VAR(@)
+	codepart=${param##*/}
+	if [ -z \"$codepart\" -o \"$codepart\" = \"$param\" ]; then
+	    codepart=\"0\"
+	fi
+
+	typepart=${param%%/*}
+	if [ -z \"$typepart\" ]; then
+	    echo \"Must specify ICMPv6 type\"
+	    exit 1
+	fi
+
+	shopt -s extglob
+
+	leftover=${typepart##*([0-9])}
+	if [ -n \"$leftover\" ]; then
+	    echo \"Invalid ICMPv6 type: $typepart\"
+	    exit 1
+	fi
+
+	leftover=${codepart##*([0-9])}
+	if [ -n \"$leftover\" ]; then
+	    echo \"Invalid ICMPv6 code: $codepart\"
+	    exit 1
+	fi
+
+	if [ $typepart -lt 0 -o $typepart -gt 255 ]; then
+	    echo \"ICMPv6 type  must be between 0 and 255\"
+	    exit 1
+	fi
+
+	if [ $codepart -lt 0 -o $codepart -gt 255 ]; then
+	    echo \"ICMPv6 code must be between 0 and 255\"
+	    exit 1
+	fi
+"
+
+
+
+
+
+
+

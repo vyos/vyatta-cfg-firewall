@@ -1,0 +1,10 @@
+type:  txt
+
+help: Rule action
+
+syntax:expression: $VAR(@) in "drop";
+                   "action must be drop"
+
+allowed: echo "drop"
+
+val_help: drop;     Rule action to drop

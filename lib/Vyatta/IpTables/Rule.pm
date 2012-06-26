@@ -26,6 +26,7 @@ my %fields = (
   _icmp_name   => undef,
   _icmpv6_type => undef,
   _mod_mark    => undef,
+  _mod_table   => undef,
   _mod_dscp    => undef,
   _mod_tcpmss  => undef,
   _ipsec       => undef,
@@ -78,6 +79,7 @@ my %dummy_rule = (
   _icmp_name   => undef,
   _icmpv6_type => undef,
   _mod_mark    => undef,
+  _mod_table   => undef,
   _mod_dscp    => undef,
   _mod_tcpmss  => undef,
   _ipsec       => undef,
@@ -170,9 +172,10 @@ sub setup_base {
   $self->{_icmp_type}   = $config->$val_func("icmp type");
   $self->{_icmp_name}   = $config->$val_func("icmp type-name");
   $self->{_icmpv6_type} = $config->$val_func("icmpv6 type");
-  $self->{_mod_mark}    = $config->$val_func("modify mark");
-  $self->{_mod_dscp}    = $config->$val_func("modify dscp");
-  $self->{_mod_tcpmss}  = $config->$val_func("modify tcp-mss");
+  $self->{_mod_mark}    = $config->$val_func("set mark");
+  $self->{_mod_table}   = $config->$val_func("set table");
+  $self->{_mod_dscp}    = $config->$val_func("set dscp");
+  $self->{_mod_tcpmss}  = $config->$val_func("set tcp-mss");
   $self->{_ipsec}       = $config->$exists_func("ipsec match-ipsec");
   $self->{_non_ipsec}   = $config->$exists_func("ipsec match-none");
   $self->{_frag}        = $config->$exists_func("fragment match-frag");
@@ -248,6 +251,7 @@ sub print {
   print "icmpv6 type: $self->{_icmpv6_type}\n"
                                            if defined $self->{_icmpv6_type};
   print "mod mark: $self->{_mod_mark}\n"   if defined $self->{_mod_mark};
+  print "mod table: $self->{_mod_table}\n"   if defined $self->{_mod_table};
   print "mod dscp: $self->{_mod_dscp}\n"   if defined $self->{_mod_dscp};
   print "mod tcp-mss: $self->{_mod_tcpmss}\n" if defined $self->{_mod_tcpmss};
 
@@ -273,6 +277,11 @@ sub is_disabled {
   my $self = shift;
   return 1 if defined $self->{_disable};
   return 0;
+}
+
+sub is_route_table {
+  my $self = shift;
+  return $self->{_mod_table};
 }
 
 sub get_state_str {
@@ -581,12 +590,18 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     my $target = ipt_get_queue_target('SNORT');
     return ('Undefined target for inspect', ) if ! defined $target;
     $rule .= "-j $target ";
-  } elsif ("$self->{_action}" eq 'modify') {
+  } elsif ($self->{_comment} =~ m/^policy/) {
     # mangle actions
     my $count = 0;
     if (defined($self->{_mod_mark})) {
       # MARK
       $rule .= "-j MARK --set-mark $self->{_mod_mark} ";
+      $count++;
+    }
+    if (defined($self->{_mod_table})) {
+      # Route table
+      my $mark = 0x7FFFFFFF + $self->{_mod_table};
+      $rule .= "-j MARK --set-mark $mark ";
       $count++;
     }
     if (defined($self->{_mod_dscp})) {
@@ -613,11 +628,9 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     # others
 
     if ($count == 0) {
-      return ('Action "modify" requires more specific configuration under '
-              . 'the "modify" node', );
+      return ('Policy route requires "action drop" or "set" parameters be defined.');
     } elsif ($count > 1) {
-      return ('Cannot define more than one modification under '
-              . 'the "modify" node', );
+      return ('Cannot define more than "set" parameter per policy route');
     }
   } else {
     return ("\"action\" must be defined", );

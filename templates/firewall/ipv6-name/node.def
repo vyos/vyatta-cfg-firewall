@@ -12,19 +12,19 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
 syntax:expression: ! pattern $VAR(@) "^VZONE" ; \
                    "Firewall rule set name cannot start with 'VZONE'"
 
-end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules ipv6-name "$VAR(@)" ;
+end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall ipv6-name" "$VAR(@)" ;
      then
        if [ ${COMMIT_ACTION} = 'DELETE' ] ; 
        then
-          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok ipv6-name ; 
+          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok "firewall ipv6-name" ;
           then
-             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown ipv6-name
+             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall ipv6-name"
           fi
        fi
      else
        exit 1;
      fi
 
-create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables ipv6-name
+create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables "firewall ipv6-name"
 
 help: IPv6 firewall rule-set name

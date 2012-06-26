@@ -160,8 +160,6 @@ my %direction_term_hash = (
 my %table_help_hash = (
     "name"        => "IPv4 firewall",
     "ipv6-name"   => "IPv6 firewall",
-    "modify"      => "IPv4 modify",
-    "ipv6-modify" => "IPv6 modify",
 );
 
 # Generate the template file at the leaf of the per-interface firewall tree.
@@ -197,16 +195,16 @@ allowed: local -a params
 	echo -n "\${params[@]}"
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) $table
+		update \$ifname $direction \$VAR(@) \"firewall $table\"
 
 update:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) $table
+		update \$ifname $direction \$VAR(@) \"firewall $table\"
 
 
 delete:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		delete \$ifname $direction \$VAR(@) $table
+		delete \$ifname $direction \$VAR(@) \"firewall $table\"
 EOF
 
     close $tp
@@ -214,7 +212,7 @@ EOF
 }
 
 # The firewall ruleset types
-my @ruleset_tables = ( "name", "modify", "ipv6-name", "ipv6-modify" );
+my @ruleset_tables = ( "name", "ipv6-name" );
 
 # The firewall "directions"
 my @ruleset_directions = ( "in", "out", "local" );
@@ -232,11 +230,6 @@ foreach my $if_tree ( keys %interface_hash ) {
     for my $direction (@ruleset_directions) {
         gen_direction_template( $if_tree, $direction );
         foreach my $table (@ruleset_tables) {
-	    if (($direction eq "local") &&
-		(($table eq "modify") || ($table eq "ipv6-modify"))) {
-		# modify type rules are not used for local traffic
-		next;
-	    }
             gen_template( $if_tree, $direction, $table, $if_name );
         }
     }

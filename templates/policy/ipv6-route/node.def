@@ -1,0 +1,30 @@
+tag:
+priority: 210
+
+type: txt
+
+syntax:expression: pattern $VAR(@) "^[[:print:]]{1,28}$" ; \
+                   "Policy ipv6-route rule set name must be 28 characters or less"
+syntax:expression: pattern $VAR(@) "^[^-]" ; \
+                   "Policy ipv6-route rule set name cannot start with \"-\""
+syntax:expression: pattern $VAR(@) "^[^;]*$" ; \
+                   "Policy ipv6-route rule set name cannot contain ';'"
+syntax:expression: ! pattern $VAR(@) "^VZONE" ; \
+                   "Policy ipv6-route rule set name cannot start with 'VZONE'"
+
+end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "policy ipv6-route" "$VAR(@)" ;
+     then
+       if [ ${COMMIT_ACTION} = 'DELETE' ] ;
+       then
+          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok "policy ipv6-route" ;
+          then
+             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "policy ipv6-route"
+          fi
+       fi
+     else
+       exit 1;
+     fi
+
+create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables "policy ipv6-route"
+
+help: IPv6 policy route rule set name

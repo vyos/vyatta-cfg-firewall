@@ -1,0 +1,11 @@
+type: txt
+help: Date to start matching rule
+syntax:expression: pattern $VAR(@) "^[[:digit:]]\{4\}[-][[:digit:]]\{2\}[-][[:digit:]]\{2\}(T[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\})?$" ; \
+"Invalid value for startdate. Date should use yyyy-mm-dd format. To specify time
+of date with startdate, append 'T' to date followed by time in 24 hour notation
+hh:mm:ss. For example startdate value of 2009-01-21T13:30:00 refers to
+21st January 2009 with time 13:30:00"
+
+comp_help: Format for date : yyyy-mm-dd. To specify time of date with startdate, append
+'T' to date followed by time in 24 hour notation hh:mm:ss. For eg startdate
+value of 2009-01-21T13:30:00 refers to 21st Jan 2009 with time 13:30:00

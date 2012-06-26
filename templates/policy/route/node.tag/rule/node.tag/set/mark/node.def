@@ -1,0 +1,3 @@
+type: u32
+help: Packet marking
+syntax:expression: $VAR(@) > 0 && $VAR(@) <= 2147483647; "packet mark must be between 0 and 2,147,483,647"

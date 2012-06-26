@@ -16,10 +16,11 @@ use Sys::Syslog qw(:standard :macros);
 my $debug_flag = 0;
 
 # Enable sending debug output to syslog.
-my $syslog_flag = 0;
+my $syslog_flag = 1;
 
 my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
+my $policy_ref_file  = '/var/run/vyatta_policy_ref';
 
 my $FW_IN_HOOK = 'VYATTA_FW_IN_HOOK';
 my $FW_OUT_HOOK = 'VYATTA_FW_OUT_HOOK';
@@ -32,40 +33,40 @@ my ($teardown, $teardown_ok);
 GetOptions("setup=s{2}"        => \@setup,
            "teardown=s"        => \$teardown,
            "teardown-ok=s"     => \$teardown_ok,
- 	   "update-rules=s{2}" => \@updaterules,
-	   "update-interfaces=s{5}" => \@updateints,
+           "update-rules=s{2}" => \@updaterules,
+           "update-interfaces=s{5}" => \@updateints,
            "debug"             => \$debug_flag,
            "syslog"            => \$syslog_flag
 );
 
 # mapping from config node to iptables/ip6tables table
-my %table_hash = ( 'name'        => 'filter',
-		   'ipv6-name'   => 'filter',
-                   'modify'      => 'mangle',
-                   'ipv6-modify' => 'mangle' );
+my %table_hash = ( 'firewall name'        => 'filter',
+                   'firewall ipv6-name'   => 'filter',
+                   'policy route'         => 'mangle',
+                   'policy ipv6-route'    => 'mangle' );
 
 # mapping from config node to iptables command.  Note that this table
 # has the same keys as %table hash, so a loop iterating through the
 # keys of %table_hash can use the same keys to find the value associated
 # with the key in this table.
-my %cmd_hash = ( 'name'        => 'iptables',
-		 'ipv6-name'   => 'ip6tables',
-		 'modify'      => 'iptables',
-                 'ipv6-modify' => 'ip6tables');
+my %cmd_hash = ( 'firewall name'        => 'iptables',
+                 'firewall ipv6-name'   => 'ip6tables',
+                 'policy route'         => 'iptables',
+                 'policy ipv6-route'    => 'ip6tables');
 
 # mapping from config node to IP version string.
-my %ip_version_hash = ( 'name'        => 'ipv4',
-                        'ipv6-name'   => 'ipv6',
-                        'modify'      => 'ipv4',
-                        'ipv6-modify' => 'ipv6');
+my %ip_version_hash = ( 'firewall name'        => 'ipv4',
+                        'firewall ipv6-name'   => 'ipv6',
+                        'policy route'         => 'ipv4',
+                        'policy ipv6-route'    => 'ipv6');
 
 # mapping from firewall tree to builtin chain for input
 my %inhook_hash =  ( 'filter' => 'FORWARD',
-	   	     'mangle' => 'PREROUTING' );
+                     'mangle' => 'PREROUTING' );
 
 # mapping from firewall tree to builtin chain for output
 my %outhook_hash = ( 'filter' => 'FORWARD',
-	   	     'mangle' => 'POSTROUTING' );
+                     'mangle' => 'POSTROUTING' );
 
 # mapping from firewall tree to builtin chain for local
 my %localhook_hash = ( 'filter' => 'INPUT' );
@@ -75,10 +76,10 @@ my %policy_hash = ( 'drop'    => 'DROP',
                     'reject'  => 'REJECT',
                     'accept'  => 'RETURN' );
 
-my %other_tree = (  'name'        => 'modify',
-                    'modify'      => 'name',
-                    'ipv6-name'   => 'ipv6-modify',
-                    'ipv6-modify' => 'ipv6-name');
+my %other_tree = (  'firewall name'        => 'policy route',
+                    'firewall ipv6-name'   => 'policy ipv6-route',
+                    'policy route'         => 'firewall name',
+                    'policy ipv6-route'    => 'firewall ipv6-name');
 
 
 # Send output of shell commands to syslog for debugging and so that
@@ -294,8 +295,8 @@ sub is_conntrack_enabled {
   return 0 if scalar(@lines) < 1;
 
   foreach my $line (@lines) {
-    if ($line =~ /^([^\s]+)\s([^\s]+)$/) {
-      my ($tree, $chain) = ($1, $2);
+    if ($line =~ /^([^\s]+)\s([^\s]+)\s([^\s]+)$/) {
+      my ($tree, $chain) = ("$1 $2", $3);
       return 1 if $cmd_hash{$tree} eq $iptables_cmd;
     } else {
       die "Error: unexpected format [$line]\n";
@@ -311,8 +312,8 @@ sub is_tree_in_use {
   my @lines = read_refcnt_file($fw_tree_file);
   my %tree_hash;
   foreach my $line (@lines) {
-    if ($line =~ /^([^\s]+)\s([^\s]+)$/) {
-      my ($tmp_tree, $tmp_chain) = ($1, $2);
+    if ($line =~ /^([^\s]+)\s([^\s]+)\s([^\s]+)$/) {
+      my ($tmp_tree, $tmp_chain) = ("$1 $2", $3);
       $tree_hash{$tmp_tree}++;
     } else {
       die "Error: unexpected format [$line]\n";
@@ -324,6 +325,118 @@ sub is_tree_in_use {
   return $rc;
 }
 
+sub add_route_table {
+  my ($table, $rule) = @_;
+  my $rule_found = 0;
+  my $table_count = -1;
+  my @newlines = ();
+  my @lines = read_refcnt_file($policy_ref_file);
+
+  log_msg("add_route_table: $rule, $table");
+  foreach my $line (@lines) {
+    my @tokens = split(/ /, $line);
+    if ($tokens[0] =~ m/$table:(\d+)/) {
+      $table_count = $1;
+      my $ref = $table_count + 1;
+      $tokens[0] =~ s/$table:(\d+)/$table:$ref/g;
+
+      for (my $i = 1; $i <= $#tokens; $i++) {
+        if ($tokens[$i] =~ m/$rule:(\d+)/) {
+          my $ref = $1 + 1;
+          $tokens[$i] =~ s/$rule:(\d+)/$rule:$ref/g;
+          $rule_found = 1;
+        }
+      }
+
+      if (!$rule_found) {
+        push (@tokens, "$rule:1");
+      }
+
+    }
+    push(@newlines, join(" ", @tokens));
+  }
+
+  if ($table_count < 0) {
+    push(@newlines, "$table:1 $rule:1");
+  }
+
+  if ($table_count < 1) {
+    my $mark = 0x7FFFFFFF + $table;
+    system("ip rule add pref $table fwmark $mark table $table");
+  }
+
+  write_refcnt_file($policy_ref_file, @newlines);
+}
+
+sub remove_route_table {
+  my ($table, $rule) = @_;
+  my $remove_rule = 0;
+  my @newlines = ();
+  my @lines = read_refcnt_file($policy_ref_file);
+
+  log_msg("add_route_table: $rule, $table");
+  foreach my $line (@lines) {
+    my @tokens = split(/ /, $line);
+    if ($tokens[0] =~ m/$table:(\d+)/) {
+      my $ref = $1 - 1;
+      $tokens[0] =~ s/$table:(\d+)/$table:$ref/g;
+
+      for (my $i = 1; $i <= $#tokens; $i++) {
+        if ($tokens[$i] =~ m/$rule:(\d+)/) {
+          my $ref = $1 - 1;
+          $tokens[$i] =~ s/$rule:(\d+)/$rule:$ref/g;
+        }
+      }
+
+      if ($ref < 1) {
+        my $mark = 0x7FFFFFFF + $table;
+        system("ip rule del pref $table fwmark $mark table $table");
+      }
+    }
+
+    push(@newlines, join(" ", @tokens));
+  }
+
+  write_refcnt_file($policy_ref_file, @newlines);
+}
+
+sub flush_route_table {
+  my ($rule) = @_;
+  my $remove_rule = 0;
+  my @newlines = ();
+  my @lines = read_refcnt_file($policy_ref_file);
+
+  log_msg("flush_route_table: $rule");
+  foreach my $line (@lines) {
+    my @tokens = split(/ /, $line);
+    my $table = 0;
+    my $tref = 0;
+    my $rref = 0;
+
+    $tokens[0] =~ m/(\d+):(\d+)/;
+    $table = $1;
+    $tref = $2;
+
+    for (my $i = 1; $i <= $#tokens; $i++) {
+      if ($tokens[$i] =~ m/$rule:(\d+)/) {
+        $rref = $1;
+        $tokens[$i] =~ s/$rule:(\d+)/$rule:0/g;
+      }
+    }
+
+    $tref -= $rref;
+    $tokens[0] =~ s/$table:(\d+)/$table:$tref/g;
+
+    if ($tref < 1) {
+      my $mark = 0x7FFFFFFF + $table;
+      system("ip rule del pref $table fwmark $mark table $table");
+    }
+
+    push(@newlines, join(" ", @tokens));
+  }
+
+  write_refcnt_file($policy_ref_file, @newlines);
+}
 
 sub update_rules {
   my ($tree, $name) = @_;	        # name, modify, ipv6-name or ipv6-modify
@@ -334,15 +447,16 @@ sub update_rules {
 
   log_msg "update_rules: $tree $name $table $iptables_cmd";
 
-  $config->setLevel("firewall $tree");
+  $config->setLevel("$tree");
 
   %nodes = $config->listNodeStatus();
 
   # by default, nothing needs to be tracked.
   my $chain_stateful = 0;
 
-  $config->setLevel("firewall $tree $name");
+  $config->setLevel("$tree $name");
   my $policy = $config->returnValue('default-action');
+  $policy = 'accept' if ($table eq "mangle");
   $policy = 'drop' if ! defined $policy;
   my $old_policy = $config->returnOrigValue('default-action');
   my $policy_log = $config->exists('enable-default-log');
@@ -355,11 +469,11 @@ sub update_rules {
   if ($nodes{$name} eq 'static') {
     # not changed. check if stateful.
     log_msg "$tree $name = static";
-    $config->setLevel("firewall $tree $name rule");
+    $config->setLevel("$tree $name rule");
     my @rules = $config->listOrigNodes();
     foreach (sort numerically @rules) {
       my $node = new Vyatta::IpTables::Rule;
-      $node->setupOrig("firewall $tree $name rule $_");
+      $node->setupOrig("$tree $name rule $_");
       $node->set_ip_version($ip_version_hash{$tree});
       if ($node->is_stateful()) {
         $chain_stateful = 1;
@@ -390,6 +504,10 @@ sub update_rules {
 
     log_msg "$tree $name = deleted";
 
+    if ("$tree" eq "policy route") {
+      flush_route_table($name);
+    }
+
     # delete the chain
     if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
       # disallow deleting a chain if it's still referenced
@@ -416,7 +534,7 @@ sub update_rules {
   }
 
   # set our config level to rule and get the rule numbers
-  $config->setLevel("firewall $tree $name rule");
+  $config->setLevel("$tree $name rule");
 
   # Let's find the status of the rule nodes
   my %rulehash = ();
@@ -433,7 +551,7 @@ sub update_rules {
   foreach my $rule (sort numerically keys %rulehash) {
     if ("$rulehash{$rule}" eq 'static') {
       my $node = new Vyatta::IpTables::Rule;
-      $node->setupOrig("firewall $tree $name rule $rule");
+      $node->setupOrig("$tree $name rule $rule");
       $node->set_ip_version($ip_version_hash{$tree});
       if ($node->is_stateful()) {
         $chain_stateful = 1;
@@ -443,10 +561,14 @@ sub update_rules {
     } elsif ("$rulehash{$rule}" eq 'added') {
       # create a new iptables object of the current rule
       my $node = new Vyatta::IpTables::Rule;
-      $node->setup("firewall $tree $name rule $rule");
+      $node->setup("$tree $name rule $rule");
       $node->set_ip_version($ip_version_hash{$tree});
       if ($node->is_stateful()) {
         $chain_stateful = 1;
+      }
+
+      if ($node->is_route_table) {
+        add_route_table($node->is_route_table, $name);
       }
 
       my ($err_str, @rule_strs) = $node->rule();
@@ -478,10 +600,10 @@ sub update_rules {
     } elsif ("$rulehash{$rule}" eq 'changed') {
       # create a new iptables object of the current rule
       my $oldnode = new Vyatta::IpTables::Rule;
-      $oldnode->setupOrig("firewall $tree $name rule $rule");
+      $oldnode->setupOrig("$tree $name rule $rule");
       $oldnode->set_ip_version($ip_version_hash{$tree});
       my $node = new Vyatta::IpTables::Rule;
-      $node->setup("firewall $tree $name rule $rule");
+      $node->setup("$tree $name rule $rule");
       $node->set_ip_version($ip_version_hash{$tree});
       if ($node->is_stateful()) {
         $chain_stateful = 1;
@@ -509,13 +631,17 @@ sub update_rules {
       }
     } elsif ("$rulehash{$rule}" eq 'deleted') {
       my $node = new Vyatta::IpTables::Rule;
-      $node->setupOrig("firewall $tree $name rule $rule");
+      $node->setupOrig("$tree $name rule $rule");
       $node->set_ip_version($ip_version_hash{$tree});
 
       my $ipt_rules = $node->get_num_ipt_rules();
       for (1 .. $ipt_rules) {
         run_cmd("$iptables_cmd -t $table --delete $name $iptablesrule");
         die "$iptables_cmd error: $! - $rule" if ($? >> 8);
+      }
+
+      if ($node->is_route_table) {
+        remove_route_table($node->is_route_table, $name);
       }
     }
   } # foreach rule
@@ -557,8 +683,7 @@ sub chain_configured {
   foreach (keys %table_hash) {
     next if ($mode == 1 && $_ ne $tree);
     next if ($mode == 2 && $_ eq $tree);
-
-    $config->setLevel("firewall $_");
+    $config->setLevel("$_");
     %chains = $config->listNodeStatus();
 
     if (grep(/^$chain$/, (keys %chains))) {
