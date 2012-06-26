@@ -25,6 +25,7 @@ cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
 
 all-local:
 	./gen-interface-templates.pl
+	./gen-interface-policy-templates.pl
 
 clean-local:
 	rm -rf generated-templates

@@ -35,46 +35,46 @@ my $debug = 0;
 #
 my %interface_hash = (
     'adsl/node.tag/pvc/node.tag/bridged-ethernet' =>
-      '$VAR(../../../../../@)',
-    'adsl/node.tag/pvc/node.tag/classical-ipoa' => '$VAR(../../../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoa/node.tag' => 'pppoa$VAR(../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
+      '$VAR(../../../../@)',
+    'adsl/node.tag/pvc/node.tag/classical-ipoa' => '$VAR(../../../../@)',
+    'adsl/node.tag/pvc/node.tag/pppoa/node.tag' => 'pppoa$VAR(../../@)',
+    'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../@)',
 
-    'bonding/node.tag'              => '$VAR(../../../@)',
-    'bonding/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
+    'bonding/node.tag'              => '$VAR(../../@)',
+    'bonding/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
 
-    'ethernet/node.tag'                => '$VAR(../../../@)',
-    'ethernet/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
-    'ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
-    'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
-    'pseudo-ethernet/node.tag'              => '$VAR(../../../@)',
-    'pseudo-ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
+    'ethernet/node.tag'                => '$VAR(../../@)',
+    'ethernet/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../@)',
+    'ethernet/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../@)',
+    'pseudo-ethernet/node.tag'              => '$VAR(../../@)',
+    'pseudo-ethernet/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
 
-    'wireless/node.tag' => '$VAR(../../../@)',
-    'wireless/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
+    'wireless/node.tag' => '$VAR(../../@)',
+    'wireless/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
 
-    'input/node.tag'  => '$VAR(../../../@)',
-    'tunnel/node.tag' => '$VAR(../../../@)',
-    'bridge/node.tag' => '$VAR(../../../@)',
-    'openvpn/node.tag' => '$VAR(../../../@)',
+    'input/node.tag'  => '$VAR(../../@)',
+    'tunnel/node.tag' => '$VAR(../../@)',
+    'bridge/node.tag' => '$VAR(../../@)',
+    'openvpn/node.tag' => '$VAR(../../@)',
 
-    'multilink/node.tag/vif/node.tag' => '$VAR(../../../../@)',
+    'multilink/node.tag/vif/node.tag' => '$VAR(../../../@)',
 
     'serial/node.tag/cisco-hdlc/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
+      '$VAR(../../../../@).$VAR(../../@)',
     'serial/node.tag/frame-relay/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
+      '$VAR(../../../../@).$VAR(../../@)',
     'serial/node.tag/ppp/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
+      '$VAR(../../../../@).$VAR(../../@)',
 
-    'wirelessmodem/node.tag' => '$VAR(../../../@)',
+    'wirelessmodem/node.tag' => '$VAR(../../@)',
 );
 
 # The subdirectory where the generated templates will go
 my $template_subdir = "generated-templates/interfaces";
 
 # The name of the subdir under each interface holding the firewall tree
-my $firewall_subdir = "firewall";
+my $firewall_subdir = "policy";
 
 # The name of the config file we will be writing.
 my $node_file = "node.def";
@@ -102,54 +102,22 @@ sub gen_firewall_template {
 
     open my $tp, '>', "$path/$node_file"
       or die "Can't create $path/$node_file: $!";
-    print $tp "help: Firewall options\n";
+    print $tp "help: Policy route options\n";
     close $tp
       or die "Can't write $path/$node_file: $!";
 }
-
-# Map a firewall "direction" into a sub-string that we will use to compose
-# the help message.
-#
-my %direction_help_hash = (
-    "in"    => "forwarded packets on inbound interface",
-    "out"   => "forwarded packets on outbound interface",
-    "local" => "packets destined for this router",
-);
-
-# Generate the template file located under the "direction" node in the
-# firewall tree under an interface.  This template just provides a help
-# message.
-#
-sub gen_direction_template {
-    my ( $if_tree, $direction ) = @_;
-    my $path = "${template_subdir}/${if_tree}/${firewall_subdir}/${direction}";
-
-    ( -d $path ) or mkdir_p($path)
-      or die "Can't make directory $path: $!";
-
-    open my $tp, '>', "$path/$node_file"
-      or die "Can't open $path/$node_file: $!";
-
-    print $tp "help: Ruleset for $direction_help_hash{$direction}\n";
-    close $tp
-      or die "Can't write $path/$node_file: $!";
-}
-
-# Map a firewall "direction" into the term we will use for it in help
-# messages.
-#
-my %direction_term_hash = (
-    "in"    => "inbound",
-    "out"   => "outbound",
-    "local" => "local",
-);
 
 # Map a firewall ruleset type into the string that we will use to describe
 # it in help messages.
 #
 my %table_help_hash = (
-    "name"        => "IPv4 firewall",
-    "ipv6-name"   => "IPv6 firewall",
+    "route"      => "IPv4 policy route",
+    "ipv6-route" => "IPv6 policy route",
+);
+
+my %config_association_hash = (
+    "route"      => "\"policy route\"",
+    "ipv6-route" => "\"policy ipv6-route\"",
 );
 
 # Generate the template file at the leaf of the per-interface firewall tree.
@@ -157,57 +125,50 @@ my %table_help_hash = (
 # ruleset on an interface for a particular ruleset type and direction.
 #
 sub gen_template {
-    my ( $if_tree, $direction, $table, $if_name ) = @_;
+    my ( $if_tree, $table, $if_name ) = @_;
 
     if ($debug) {
-        print "debug: table=$table direction=$direction\n";
+        print "debug: table=$table\n";
     }
 
     my $template_dir =
-      "${template_subdir}/${if_tree}/${firewall_subdir}/${direction}/${table}";
+      "${template_subdir}/${if_tree}/${firewall_subdir}/${table}";
 
     if ($debug) {
         print "debug: template_dir=$template_dir\n";
     }
 
     ( -d $template_dir) or mkdir_p($template_dir)
-	or die "Can't make directory $template_dir: $!";
+    or die "Can't make directory $template_dir: $!";
 
     open my $tp, '>', "${template_dir}/${node_file}"
       or die "Can't open ${template_dir}/${node_file}:$!";
 
-    my $action = ucfirst($direction_term_hash{$direction});
     print $tp <<EOF;
 type: txt
-help: $action $table_help_hash{$table} ruleset name for interface
+help: $table_help_hash{$table} ruleset for interface
 allowed: local -a params
-	eval "params=(\$(cli-shell-api listActiveNodes firewall $table))"
+	eval "params=(\$(cli-shell-api listActiveNodes policy $table))"
 	echo -n "\${params[@]}"
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) \"firewall $table\"
+		update \$ifname in \$VAR(@) $config_association_hash{$table}
 
 update:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) \"firewall $table\"
+		update \$ifname in \$VAR(@) $config_association_hash{$table}
 
 
 delete:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		delete \$ifname $direction \$VAR(@) \"firewall $table\"
+		delete \$ifname in \$VAR(@) $config_association_hash{$table}
 EOF
 
     close $tp
       or die "Can't write ${template_dir}/${node_file}:$!";
 }
 
-# The firewall ruleset types
-my @ruleset_tables = ( "name", "ipv6-name" );
-
-# The firewall "directions"
-my @ruleset_directions = ( "in", "out", "local" );
-
-print "Generating interface templates...\n";
+print "Generating policy templates...\n";
 
 foreach my $if_tree ( keys %interface_hash ) {
     my $if_name = $interface_hash{$if_tree};
@@ -217,12 +178,8 @@ foreach my $if_tree ( keys %interface_hash ) {
     }
 
     gen_firewall_template($if_tree);
-    for my $direction (@ruleset_directions) {
-        gen_direction_template( $if_tree, $direction );
-        foreach my $table (@ruleset_tables) {
-            gen_template( $if_tree, $direction, $table, $if_name );
-        }
-    }
+    gen_template( $if_tree, "route", $if_name );
+    gen_template( $if_tree, "ipv6-route", $if_name );
 }
 
 print "Done.\n";

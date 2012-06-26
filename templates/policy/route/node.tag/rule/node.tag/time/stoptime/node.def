@@ -1,0 +1,8 @@
+type: txt
+help: Time of day to stop matching rule
+syntax:expression: pattern $VAR(@) "^[[:digit:]]\{2\}[:][[:digit:]]\{2\}[:][[:digit:]]\{2\}$" ; \
+                   "Incorrect value for stoptime. Time should be entered using 24 hour notation - hh:mm:ss"
+
+comp_help: Enter time using using 24 hour notation - hh:mm:ss
+
+

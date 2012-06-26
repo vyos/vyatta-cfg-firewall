@@ -1,0 +1,4 @@
+type: u32
+help: Routing table to forward packet with
+syntax:expression: $VAR(@) >= 1 && $VAR(@) < 250;
+                   "Table must be between 1 and 250"

@@ -12,13 +12,13 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
 syntax:expression: ! pattern $VAR(@) "^VZONE" ; \
                    "Firewall rule set name cannot start with 'VZONE'"
 
-end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules name "$VAR(@)" ;
+end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall name" "$VAR(@)" ;
      then
        if [ ${COMMIT_ACTION} = 'DELETE' ] ; 
        then
-          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok name ; 
+          if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok "firewall name" ;
           then
-             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown name
+             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall name"
           fi
        fi
      else
@@ -26,6 +26,6 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules name "$VAR(@)" ;
      fi
      sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=prune-deleted-sets
 
-create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables name
+create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables "firewall name"
 
 help: IPv4 firewall rule-set name
