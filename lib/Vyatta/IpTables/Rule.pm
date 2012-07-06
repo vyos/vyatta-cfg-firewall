@@ -182,7 +182,7 @@ sub setup_base {
   $self->{_non_frag}    = $config->$exists_func("fragment match-non-frag");
   $self->{_recent_time} = $config->$val_func('recent time');
   $self->{_recent_cnt}  = $config->$val_func('recent count');
-  
+
   $self->{_p2p}->{_all}   = $config->$exists_func("p2p all");
   $self->{_p2p}->{_apple} = $config->$exists_func("p2p applejuice");
   $self->{_p2p}->{_bit}   = $config->$exists_func("p2p bittorrent");
@@ -215,14 +215,14 @@ sub setup_base {
 
 sub setup {
   my ($self, $level) = @_;
-  
+
   $self->setup_base($level, 'returnValue', 'exists', 'setup');
   return 0;
 }
 
 sub setupOrig {
   my ($self, $level) = @_;
-  
+
   $self->setup_base($level, 'returnOrigValue', 'existsOrig', 'setupOrig');
 
   $self->{_ip_version} = "ipv4";
@@ -236,7 +236,7 @@ sub set_ip_version {
   $src->set_ip_version($ip_version);
   $dst->set_ip_version($ip_version);
 }
-  
+
 sub print {
   my ( $self ) = @_;
 
@@ -307,10 +307,10 @@ sub get_log_prefix {
 
   # In iptables it allows a 29 character log_prefix, but we ideally
   # want to include "[$chain-$rule_num-$action] " but that would require
-  #                  1   29 1   4     1  1    11 = 39 
+  #                  1   29 1   4     1  1    11 = 39
   # so truncate the chain name so that it'll all fit.
   my $action_char = uc(substr($action, 0, 1));
-  if ( length($chain) > 19 ) { 
+  if ( length($chain) > 19 ) {
     $chain = substr($chain, 0, 19);
     printf STDERR 'Firewall config warning: '
             . "rule $rule_num logging prefix will be truncated to [$chain-$rule_num-$action_char]\n";
@@ -403,17 +403,17 @@ sub rule {
    } elsif (defined $self->{_icmp_code}) {
       return ("ICMP code can only be defined if ICMP type is defined", );
    }
-  } elsif (defined($self->{_icmp_type}) || defined($self->{_icmp_code}) 
+  } elsif (defined($self->{_icmp_type}) || defined($self->{_icmp_code})
            || defined($self->{_icmp_name})) {
      return ("ICMP type/code or type-name can only be defined if protocol is ICMP", );
   }
 
   # Setup ICMPv6 rule if configured
-  # ICMPv6 parameters are only valid if the rule is matching on the 
+  # ICMPv6 parameters are only valid if the rule is matching on the
   # ICMPv6 protocol ID.
-  # 
-  if (($self->{_protocol} eq "icmpv6") || 
-      ($self->{_protocol} eq "ipv6-icmp") || 
+  #
+  if (($self->{_protocol} eq "icmpv6") ||
+      ($self->{_protocol} eq "ipv6-icmp") ||
       ($self->{_protocol} eq "58")) {
     if (defined($self->{_icmpv6_type})) {
       $rule .= "-m icmpv6 --icmpv6-type $self->{_icmpv6_type}";
@@ -548,21 +548,21 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     if (defined($self->{_recent_cnt})) {
       $recent_rule1 .= " --hitcount $self->{_recent_cnt} ";
     }
-    
+
     $recent_rule = $rule;
-    
+
     if ($rule =~ m/\-m\s+set\s+\-\-match\-set/) {
       # firewall group being used in this rule. iptables complains if recent
       # match condition is placed after group match conditions [see bug 5744]
       # so instead of appending recent match place it before group match
       my @split_rules = ();
-      
+
       @split_rules = split(/(\-m\s+set\s+\-\-match\-set)/, $rule, 2);
-      $rule =   $split_rules[0] . $recent_rule1 . 
+      $rule =   $split_rules[0] . $recent_rule1 .
                 $split_rules[1] . $split_rules[2];
-                
+
       @split_rules = split(/(\-m\s+set\s+\-\-match\-set)/, $recent_rule, 2);
-      $recent_rule =    $split_rules[0] . $recent_rule2 . 
+      $recent_rule =    $split_rules[0] . $recent_rule2 .
                         $split_rules[1] . $split_rules[2];
     } else {
       # append recent match conditions to the two rules needed for recent match
@@ -600,8 +600,7 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     }
     if (defined($self->{_mod_table})) {
       # Route table
-      my $mark = 0x7FFFFFFF + $self->{_mod_table};
-      $rule .= "-j MARK --set-mark $mark ";
+      $rule .= "-j VYATTA_PBR_$self->{_mod_table} ";
       $count++;
     }
     if (defined($self->{_mod_dscp})) {
@@ -624,7 +623,7 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
       }
       $count++;
     }
-    
+
     # others
 
     if ($count == 0) {
@@ -656,9 +655,9 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
       $each_udprule =~ s/ \-p tcp / -p udp / if defined $each_udprule;
     }
   }
-  
+
   if ($DEBUG eq 'true') {
-    # print all potential iptables rules that could be formed for 
+    # print all potential iptables rules that could be formed for
     # a single CLI rule. see get_num_ipt_rules to see exact count
     print "rule :\n$rule\n" if defined $rule;
     print "rule2 :\n$rule2\n" if defined $rule2;
@@ -667,7 +666,7 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     print "udp rule2 :\n$udp_rule2\n" if defined $udp_rule2;
     print "udp recent rule :\n$udp_recent_rule\n" if defined $udp_recent_rule;
   }
-  
+
   return (undef, $rule, $rule2, $recent_rule, $udp_rule, $udp_rule2, $udp_recent_rule);
 }
 
@@ -692,9 +691,9 @@ sub outputXml {
   outputXmlElem("log", $self->{_log}, $fh);
   outputXmlElem("icmp_type", $self->{_icmp_type}, $fh);
   outputXmlElem("icmp_code", $self->{_icmp_code}, $fh);
-  
-  $src->outputXml("src", $fh);  
-  $dst->outputXml("dst", $fh);  
+
+  $src->outputXml("src", $fh);
+  $dst->outputXml("dst", $fh);
 }
 
 sub validate_timevalues {

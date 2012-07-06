@@ -224,10 +224,10 @@ sub run_cmd {
     open (my $out, '-|',  $cmd_to_run . ' 2>&1')
         or die "Can't run command \"$cmd_to_run\": $!";
     my @cmd_out = <$out>;
-  
+
     # if command suceeds to do nothing.
     return if (close ($out));
-  
+
     foreach my $line (@cmd_out) {
       chomp $line;
       syslog(LOG_INFO, "%s", $line);
@@ -521,7 +521,7 @@ sub update_rules {
   } elsif ($nodes{$name} eq 'changed') {
     log_msg "$tree $name = changed";
     #check for prefix length, iptables permits 29 as --log-prefix
-    my $test = $config->exists('enable-default-log'); 
+    my $test = $config->exists('enable-default-log');
     if (!($test)) {
       if (($policy_log) and (length ($name) > 19)) {
         my $action_char = uc(substr($policy, 0, 1));
@@ -712,7 +712,7 @@ sub update_ints {
     print STDERR 'Firewall config error: ' .
                  "\"Modify\" rule set \"$chain\" cannot be used for " .
                  "\"local\"\n";
-    
+
     exit 1;
   }
 
@@ -849,6 +849,17 @@ sub teardown_iptables {
       run_cmd("$iptables_cmd -t $table -X $FW_LOCAL_HOOK", 1);
     }
   }
+
+  # remove policy routing sub rules
+  if ($table eq 'mangle') {
+    for (my $i = 1; $i <= 250; $i++) {
+      run_cmd("$iptables_cmd -t $table -D VYATTA_PBR_$i 2", 1);
+      run_cmd("$iptables_cmd -t $table -D VYATTA_PBR_$i 1", 1);
+      run_cmd("$iptables_cmd -t $table -F VYATTA_PBR_$i", 1);
+      run_cmd("$iptables_cmd -t $table -X VYATTA_PBR_$i", 1);
+    }
+  }
+
 }
 
 sub setup_iptables {
@@ -882,6 +893,16 @@ sub setup_iptables {
     disable_fw_conntrack($iptables_cmd);
   } else {
     log_msg "FW_CONNTRACK exists $cnt";
+  }
+
+  # setup policy routing sub rules
+  if ($table eq 'mangle') {
+    for (my $i = 1; $i <= 250; $i++) {
+      my $mark = $i + 0x7FFFFFFF;
+      run_cmd("$iptables_cmd -t $table -N VYATTA_PBR_$i", 1);
+      run_cmd("$iptables_cmd -t $table -I VYATTA_PBR_$i 1 -j MARK --set-mark $mark", 1);
+      run_cmd("$iptables_cmd -t $table -I VYATTA_PBR_$i 2 -j ACCEPT", 1);
+    }
   }
 
   return 0;

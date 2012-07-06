@@ -1,4 +1,5 @@
 type: u32
+val_help: u32:0-63 ; DSCP number
 help: Packet Differentiated Services Codepoint (DSCP)
 syntax:expression: $VAR(@) >= 0 && $VAR(@) < 64;
                    "DSCP must be between 0 and 63"
