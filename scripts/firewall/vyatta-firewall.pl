@@ -363,6 +363,9 @@ sub add_route_table {
   if ($table_count < 1) {
     my $mark = 0x7FFFFFFF + $table;
     system("ip rule add pref $table fwmark $mark table $table");
+    run_cmd("iptables -t mangle -N VYATTA_PBR_$table", 1);
+    run_cmd("iptables -t mangle -I VYATTA_PBR_$table 1 -j MARK --set-mark $mark", 1);
+    run_cmd("iptables -t mangle -I VYATTA_PBR_$table 2 -j ACCEPT", 1);
   }
 
   write_refcnt_file($policy_ref_file, @newlines);
@@ -374,7 +377,7 @@ sub remove_route_table {
   my @newlines = ();
   my @lines = read_refcnt_file($policy_ref_file);
 
-  log_msg("add_route_table: $rule, $table");
+  log_msg("remove_route_table: $rule, $table");
   foreach my $line (@lines) {
     my @tokens = split(/ /, $line);
     if ($tokens[0] =~ m/$table:(\d+)/) {
@@ -391,6 +394,10 @@ sub remove_route_table {
       if ($ref < 1) {
         my $mark = 0x7FFFFFFF + $table;
         system("ip rule del pref $table fwmark $mark table $table");
+        run_cmd("iptables -t mangle -D VYATTA_PBR_$table 2", 1);
+        run_cmd("iptables -t mangle -D VYATTA_PBR_$table 1", 1);
+        run_cmd("iptables -t mangle -F VYATTA_PBR_$table", 1);
+        run_cmd("iptables -t mangle -X VYATTA_PBR_$table", 1);
       }
     }
 
@@ -430,9 +437,15 @@ sub flush_route_table {
     if ($tref < 1) {
       my $mark = 0x7FFFFFFF + $table;
       system("ip rule del pref $table fwmark $mark table $table");
+      run_cmd("iptables -t mangle -D VYATTA_PBR_$table 2", 1);
+      run_cmd("iptables -t mangle -D VYATTA_PBR_$table 1", 1);
+      run_cmd("iptables -t mangle -F VYATTA_PBR_$table", 1);
+      run_cmd("iptables -t mangle -X VYATTA_PBR_$table", 1);
     }
 
-    push(@newlines, join(" ", @tokens));
+    if ($tref > 0) {
+      push(@newlines, join(" ", @tokens));
+    }
   }
 
   write_refcnt_file($policy_ref_file, @newlines);
@@ -849,17 +862,6 @@ sub teardown_iptables {
       run_cmd("$iptables_cmd -t $table -X $FW_LOCAL_HOOK", 1);
     }
   }
-
-  # remove policy routing sub rules
-  if ($table eq 'mangle') {
-    for (my $i = 1; $i <= 250; $i++) {
-      run_cmd("$iptables_cmd -t $table -D VYATTA_PBR_$i 2", 1);
-      run_cmd("$iptables_cmd -t $table -D VYATTA_PBR_$i 1", 1);
-      run_cmd("$iptables_cmd -t $table -F VYATTA_PBR_$i", 1);
-      run_cmd("$iptables_cmd -t $table -X VYATTA_PBR_$i", 1);
-    }
-  }
-
 }
 
 sub setup_iptables {
@@ -893,16 +895,6 @@ sub setup_iptables {
     disable_fw_conntrack($iptables_cmd);
   } else {
     log_msg "FW_CONNTRACK exists $cnt";
-  }
-
-  # setup policy routing sub rules
-  if ($table eq 'mangle') {
-    for (my $i = 1; $i <= 250; $i++) {
-      my $mark = $i + 0x7FFFFFFF;
-      run_cmd("$iptables_cmd -t $table -N VYATTA_PBR_$i", 1);
-      run_cmd("$iptables_cmd -t $table -I VYATTA_PBR_$i 1 -j MARK --set-mark $mark", 1);
-      run_cmd("$iptables_cmd -t $table -I VYATTA_PBR_$i 2 -j ACCEPT", 1);
-    }
   }
 
   return 0;
