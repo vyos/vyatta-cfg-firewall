@@ -1,3 +1,18 @@
+vyatta-cfg-firewall (0.13.78) unstable; urgency=low
+
+  [ Robert Bays ]
+  * initial checkin for pbr functionality
+  * update script executable permissions
+  * lower priority on policy route node so it is run before interfaces
+  * Add val_help for table numbers
+  * Table should be between 1-250, not 1-249.
+  * changes to policy tables to add accept
+  * populate firewall policy tables based on refcount
+
+  [ Arthur Xiong ]
+
+ -- Arthur Xiong <arthur@vyatta.com>  Sat, 07 Jul 2012 04:47:18 +0000
+
 vyatta-cfg-firewall (0.13.77) unstable; urgency=low
 
   * fixing 8173: moving CT_HELPER chain just before CTTIMEOUT
