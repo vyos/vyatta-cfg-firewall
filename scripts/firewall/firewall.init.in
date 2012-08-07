@@ -48,6 +48,10 @@ start () {
     for mod in ${modules[@]} ; do 
 	modprobe --syslog $mod
     done
+    # raw table ignore connection tracking chain
+    iptables -t raw -N VYATTA_CT_IGNORE
+    iptables -t raw -A VYATTA_CT_IGNORE -j RETURN
+ 
     # conection tracking timeout chain
     iptables -t raw -N VYATTA_CT_TIMEOUT 
     iptables -t raw -A VYATTA_CT_TIMEOUT -j RETURN
