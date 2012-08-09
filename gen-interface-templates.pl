@@ -55,6 +55,7 @@ my %interface_hash = (
 
     'input/node.tag'  => '$VAR(../../../@)',
     'tunnel/node.tag' => '$VAR(../../../@)',
+    'vti/node.tag' => '$VAR(../../../@)',
     'bridge/node.tag' => '$VAR(../../../@)',
     'openvpn/node.tag' => '$VAR(../../../@)',
 
@@ -68,6 +69,12 @@ my %interface_hash = (
       '$VAR(../../../../../@).$VAR(../../../@)',
 
     'wirelessmodem/node.tag' => '$VAR(../../../@)',
+);
+
+# Hash table to check if the priority needs to set @ root
+# of the node.def which is generated.
+my %interface_prio = (
+    'vti/node.tag'                              => '901',
 );
 
 # The subdirectory where the generated templates will go
@@ -102,6 +109,9 @@ sub gen_firewall_template {
 
     open my $tp, '>', "$path/$node_file"
       or die "Can't create $path/$node_file: $!";
+    if (exists $interface_prio{ $if_tree }) {
+        print $tp "priority: $interface_prio{ $if_tree }\n";
+    }
     print $tp "help: Firewall options\n";
     close $tp
       or die "Can't write $path/$node_file: $!";
