@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.13.81) unstable; urgency=low
+
+  * Bugfix 8271: Remove Vestigial VRRP hooks. The implementation changed
+    and these are no longer needed.
+  * 0.13.80
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 09 Aug 2012 16:53:27 -0700
+
 vyatta-cfg-firewall (0.13.80) unstable; urgency=low
 
   * Bugfix 8271: Remove Vestigial VRRP hooks. The implementation changed
