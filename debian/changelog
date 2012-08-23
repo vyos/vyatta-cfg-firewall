@@ -1,3 +1,31 @@
+vyatta-cfg-firewall (0.13.81) unstable; urgency=low
+
+  * Bugfix 8271: Remove Vestigial VRRP hooks. The implementation changed
+    and these are no longer needed.
+  * 0.13.80
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 09 Aug 2012 16:53:27 -0700
+
+vyatta-cfg-firewall (0.13.80) unstable; urgency=low
+
+  * Bugfix 8271: Remove Vestigial VRRP hooks. The implementation changed
+    and these are no longer needed.
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 09 Aug 2012 16:53:20 -0700
+
+vyatta-cfg-firewall (0.13.79) unstable; urgency=low
+
+  * Bugfix 8217: VTI: add firewall cfg commands under interfaces vti
+  * 0.13.78
+
+ -- Saurabh Mohan <saurabh@vyatta.com>  Thu, 09 Aug 2012 14:01:58 -0700
+
+vyatta-cfg-firewall (0.13.78) unstable; urgency=low
+
+  * Bugfix 8217: VTI: add firewall cfg commands under interfaces vti
+
+ -- Saurabh Mohan <saurabh@vyatta.com>  Thu, 09 Aug 2012 13:29:07 -0700
+
 vyatta-cfg-firewall (0.13.77) unstable; urgency=low
 
   * fixing 8173: moving CT_HELPER chain just before CTTIMEOUT
