@@ -162,6 +162,9 @@ start () {
 
     iptables -t raw -I PREROUTING -j VYATTA_CT_TIMEOUT
     iptables -t raw -I OUTPUT -j VYATTA_CT_TIMEOUT
+
+    iptables -t raw -I PREROUTING -j VYATTA_CT_IGNORE
+    iptables -t raw -I OUTPUT -j VYATTA_CT_IGNORE
     # Loosen the acceptability rules for TCP sequence and ACK numbers in
     # conntrack.  This allows TCP connections through NAT to survive certain
     # cases of packet loss where conntrack can not accurately track the
