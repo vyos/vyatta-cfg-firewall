@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.82) unstable; urgency=low
+
+  * add conntrack raw table ignore chain
+  * move CT_IGNORE chain up, first in raw table
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 22 Aug 2012 17:42:02 -0700
+
 vyatta-cfg-firewall (0.13.81) unstable; urgency=low
 
   * Bugfix 8271: Remove Vestigial VRRP hooks. The implementation changed
