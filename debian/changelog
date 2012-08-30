@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.83) unstable; urgency=low
+
+  * fix 8200, don't allow shim6 in allowed list of ipv4 protocols for
+    firewall
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 29 Aug 2012 17:03:52 -0700
+
 vyatta-cfg-firewall (0.13.82) unstable; urgency=low
 
   * add conntrack raw table ignore chain
