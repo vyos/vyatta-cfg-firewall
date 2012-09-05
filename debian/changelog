@@ -1,3 +1,16 @@
+vyatta-cfg-firewall (0.13.84) unstable; urgency=low
+
+  * initial checkin for pbr functionality
+  * update script executable permissions
+  * lower priority on policy route node so it is run before interfaces
+  * Add val_help for table numbers
+  * Table should be between 1-250, not 1-249.
+  * changes to policy tables to add accept
+  * populate firewall policy tables based on refcount
+  * add support for main table
+
+ -- Robert Bays <robert@vyatta.com>  Wed, 05 Sep 2012 14:26:40 -0700
+
 vyatta-cfg-firewall (0.13.83) unstable; urgency=low
 
   * fix 8200, don't allow shim6 in allowed list of ipv4 protocols for
