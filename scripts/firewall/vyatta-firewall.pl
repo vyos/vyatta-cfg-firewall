@@ -130,7 +130,7 @@ if ($#updateints == 4) {
         my @zone_interfaces =
           Vyatta::Zone::get_zone_interfaces("returnValues", $zone);
         if (scalar(grep(/^$int_name$/, @zone_interfaces)) > 0) {
-          print STDERR 'Firewall config error: ' .
+          print STDERR 'Configuration error: ' .
           "interface $int_name is defined under zone $zone\n" .
           "Cannot use per interface firewall for a zone interface\n";
           exit 1;
@@ -141,7 +141,7 @@ if ($#updateints == 4) {
     # make sure chain exists
     if (!defined($tree2)) {
       # require chain to be configured in "firewall" first
-      print STDERR 'Firewall config error: ' .
+      print STDERR 'Configuration error: ' .
                    "Rule set \"$chain\" is not configured\n";
       exit 1;
     }
@@ -331,7 +331,7 @@ sub add_route_table {
   my $table_count = -1;
   my @newlines = ();
   my @lines = read_refcnt_file($policy_ref_file);
-
+  
   log_msg("add_route_table: $rule, $table");
   foreach my $line (@lines) {
     my @tokens = split(/ /, $line);
@@ -498,7 +498,7 @@ sub update_rules {
     my $ctree = chain_configured(2, $name, $tree);
     if (defined($ctree)) {
       # chain name must be unique in both trees
-      Vyatta::Config::outputError(["firewall",$tree,$name], 'Firewall config error: '
+      Vyatta::Config::outputError([$tree,$name], 'Configuration error: '
           . "Rule set name \"$name\" already used in \"$ctree\"\n");
       exit 1;
     }
@@ -506,7 +506,7 @@ sub update_rules {
     if (($policy_log) and (length ($name) > 19)) {
       my $action_char = uc(substr($policy, 0, 1));
       my $chain_tr = substr($name, 0, 19);
-      printf STDERR 'Firewall config warning: '
+      printf STDERR 'Configuration warning: '
       . "default logging prefix will be truncated to \"[$chain_tr-DEFLT-$action_char]\" \n";
     }
     setup_chain($table, "$name", $iptables_cmd, $policy, $policy_log);
@@ -524,7 +524,7 @@ sub update_rules {
     # delete the chain
     if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
       # disallow deleting a chain if it's still referenced
-      Vyatta::Config::outputError(["firewall",$tree,$name],'Firewall config error: '
+      Vyatta::Config::outputError([$tree,$name],'Configuration error: '
           . "Cannot delete rule set \"$name\" (still in use)\n");
       exit 1;
     }
@@ -539,7 +539,7 @@ sub update_rules {
       if (($policy_log) and (length ($name) > 19)) {
         my $action_char = uc(substr($policy, 0, 1));
         my $chain_tr = substr($name, 0, 19);
-        printf STDERR 'Firewall config warning2: '
+        printf STDERR 'Configuration warning2: '
         . "default logging prefix will be truncated to \"[$chain_tr-DEFLT-$action_char]\" \n";
       }
     }
@@ -591,7 +591,7 @@ sub update_rules {
           delete_chain($table, "$name", $iptables_cmd);
           remove_refcnt($fw_tree_file, "$tree $name");
         }
-        Vyatta::Config::outputError(["firewall",$tree,$name],"Firewall config error: $err_str\n");
+        Vyatta::Config::outputError([$tree,$name],"Configuration error: $err_str\n");
         exit 1;
       }
       foreach (@rule_strs) {
@@ -624,7 +624,7 @@ sub update_rules {
 
       my ($err_str, @rule_strs) = $node->rule();
       if (defined($err_str)) {
-        Vyatta::Config::outputError(["firewall",$tree,$name,"rule",$rule],"Firewall config error: $err_str\n");
+        Vyatta::Config::outputError([$tree,$name,"rule",$rule],"Configuration error: $err_str\n");
         exit 1;
       }
 
@@ -722,7 +722,7 @@ sub update_ints {
   }
 
   if ($action ne 'delete' && $table eq 'mangle' && $direction =~ /^local/) {
-    print STDERR 'Firewall config error: ' .
+    print STDERR 'Configuration error: ' .
                  "\"Modify\" rule set \"$chain\" cannot be used for " .
                  "\"local\"\n";
 
@@ -961,7 +961,7 @@ sub setup_chain {
     die "iptables error: $table $chain --new-chain: $!" if ($? >> 8);
     set_default_policy($table, $chain, $iptables_cmd, $policy, $log);
   } else {
-      printf STDERR 'Firewall config error: '
+      printf STDERR 'Configuration error: '
 . "Chain \"$chain\" being used in system. Cannot use it as a ruleset name\n";
       exit 1;
   }

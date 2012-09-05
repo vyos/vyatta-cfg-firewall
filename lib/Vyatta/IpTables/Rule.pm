@@ -174,6 +174,9 @@ sub setup_base {
   $self->{_icmpv6_type} = $config->$val_func("icmpv6 type");
   $self->{_mod_mark}    = $config->$val_func("set mark");
   $self->{_mod_table}   = $config->$val_func("set table");
+  if ($self->{_mod_table} eq 'main') {
+    $self->{_mod_table} = 254;
+  }
   $self->{_mod_dscp}    = $config->$val_func("set dscp");
   $self->{_mod_tcpmss}  = $config->$val_func("set tcp-mss");
   $self->{_ipsec}       = $config->$exists_func("ipsec match-ipsec");
