@@ -1,16 +1,16 @@
 type: txt
 help: Routing table to forward packet with
-val_help: u32:1-250 ; Table number
+val_help: u32:1-200 ; Table number
 val_help: main ; Main table
 syntax:expression: exec "
   if [[ $VAR(@) =~ ^-?[0-9]+$ ]] ; then 
-    if [ $VAR(@) -lt 1 -o $VAR(@) -gt 250 ] ; then
-        echo Table must be between 1-250 or table main
+    if [ $VAR(@) -lt 1 -o $VAR(@) -gt 200 ] ; then
+        echo Table must be between 1-200 or table main
         exit 1
     fi
   else
     if [[ $VAR(@) != 'main' ]] ; then
-      echo Table must be between 1-250 or table main
+      echo Table must be between 1-200 or table main
       exit 1
     fi
   fi"
