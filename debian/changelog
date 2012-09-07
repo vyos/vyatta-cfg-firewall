@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.65+oxnard11) unstable; urgency=low
+
+  * Fixing 3167, mandate multiport values after single port, remove
+    misleading error message
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 07 Sep 2012 14:13:54 -0700
+
 vyatta-cfg-firewall (0.13.65+oxnard10) unstable; urgency=low
 
   * fixing 8173: moving CT_HELPER chain just before CTTIMEOUT
