@@ -416,13 +416,15 @@ sub rule {
   return ($err_str, ) if (!defined($srcrule));
   ($dstrule, $err_str) = $dst->rule();
   return ($err_str, ) if (!defined($dstrule));
-  if ((grep /multiport/, $srcrule) ^ (grep /multiport/, $dstrule)) {
-    if ((grep /sport/, $srcrule) && (grep /dport/, $dstrule)) {
-      return ('Cannot specify multiple ports when both '
-              . 'source and destination ports are specified', );
-    }
+
+  # make sure multiport is always behind single port option 
+  if ((grep /multiport/, $srcrule)) {
+    $rule .= " $dstrule $srcrule ";
+  } elsif ((grep /multiport/, $dstrule)) {
+    $rule .= " $srcrule $dstrule ";
+  } else {
+    $rule .= " $srcrule $dstrule ";
   }
-  $rule .= " $srcrule $dstrule ";
 
   return ('Cannot specify both "match-frag" and "match-non-frag"', )
     if (defined($self->{_frag}) && defined($self->{_non_frag}));
