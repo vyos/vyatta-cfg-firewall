@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.88) unstable; urgency=low
+
+  * Bug 8348: policy route <> rule <> action, 'modify' shouldn't be
+    allowed
+
+ -- Robert Bays <robert@vyatta.com>  Thu, 13 Sep 2012 16:53:57 -0700
+
 vyatta-cfg-firewall (0.13.87) unstable; urgency=low
 
   * 8330: return rule number in error message
