@@ -637,7 +637,7 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
       return ('Cannot define more than "set" parameter per policy route');
     }
   } else {
-    return ("\"action\" must be defined", );
+    return ("\"action\" must be defined in rule $rule_num", );
   }
   if (defined($rule2)) {
     my $tmp = $rule2;
