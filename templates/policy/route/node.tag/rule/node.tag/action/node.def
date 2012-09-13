@@ -5,6 +5,6 @@ help: Rule action
 syntax:expression: $VAR(@) in "drop";
                    "action must be drop"
 
-allowed: echo "drop modify"
+allowed: echo "drop"
 
 val_help: drop     ; Rule action to drop
