@@ -17,6 +17,6 @@ syntax:expression: exec "if [ -n \"`/opt/vyatta/sbin/vyatta-validate-type protoc
 # Provide some help for command completion.  Doesn't return negated
 # values or protocol numbers
 allowed:
-        protos=`cat /etc/protocols | sed -e '/^#.*/d' | awk '{ print $1 }' | grep -v 'v6'`
+        protos=`cat /etc/protocols | sed -e '/^#.*/d' | awk '{ print $1 }' | grep -v '6'`
         protos="all $protos tcp_udp"
         echo -n $protos
