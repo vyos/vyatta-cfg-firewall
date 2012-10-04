@@ -1,3 +1,12 @@
+vyatta-cfg-firewall (0.13.89) unstable; urgency=low
+
+  [ Bharat ]
+  * Bug 8200: Changed gred to not display shim6
+
+  [ bharat ]
+
+ -- bharat <bharat@git.vyatta.com>  Thu, 04 Oct 2012 11:55:24 -0700
+
 vyatta-cfg-firewall (0.13.88) unstable; urgency=low
 
   * Bug 8348: policy route <> rule <> action, 'modify' shouldn't be
