@@ -634,7 +634,7 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
     if ($count == 0) {
       return ('Policy route requires "action drop" or "set" parameters be defined.');
     } elsif ($count > 1) {
-      return ('Cannot define more than "set" parameter per policy route');
+      return ('Can not define more than one "set" parameter per policy route');
     }
   } else {
     return ("\"action\" must be defined in rule $rule_num", );

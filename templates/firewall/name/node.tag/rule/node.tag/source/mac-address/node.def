@@ -1,3 +1,5 @@
 type: txt
 help: Source MAC address
+val_help: <MAC address>; MAC address to match
+val_help: <!MAC address>; Match everything except the specified MAC address
 syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type macaddr_negate '$VAR(@)'" ; "invalid MAC address \"$VAR(@)\""
