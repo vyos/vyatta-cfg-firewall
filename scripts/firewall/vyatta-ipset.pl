@@ -36,15 +36,12 @@ use Sort::Versions;
 use warnings;
 use strict;
 
-sub get_sys_sets {
-    my @sets = ();
-    my @lines = `ipset -L`;
-    foreach my $line (@lines) {
-        if ($line =~ /^Name:\s+(\w+)$/) {
-            push @sets, $1;
-        }
-    }
-    return @sets;
+sub ipset_reset {
+    my ($set_name, $set_type) = @_;
+
+    my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
+
+    return $group->reset_ipset();
 }
 
 sub ipset_create {
@@ -301,19 +298,6 @@ sub prune_deleted_sets {
       return $rc if (($rc = ipset_delete($g)));
     }
   }
-  # fixup system sets
-  my @sys_sets = get_sys_sets();
-  foreach my $set (@sys_sets) {
-    my $group = new Vyatta::IpTables::IpSet($set);
-    # only try groups with no references
-    if ($group->exists() && ($group->references() == 0)) {
-      my $type = $group->get_type();
-      $cfg->setLevel("firewall group $type-group");
-      next if ($cfg->isEffective($set)); # don't prune if still in config
-      my $rc;
-      return $rc if (($rc = ipset_delete($set)));
-    }
-  }
   exit 0;
 }
 
@@ -333,6 +317,8 @@ GetOptions("action=s"   => \$action,
 die "undefined action" if ! defined $action;
 
 my $rc;
+$rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
+
 $rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
 
 $rc = ipset_delete($set_name) if $action eq 'delete-set';

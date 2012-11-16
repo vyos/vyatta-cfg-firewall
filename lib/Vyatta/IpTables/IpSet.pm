@@ -211,6 +211,22 @@ sub flush {
   return;
 }
 
+sub reset_ipset {
+  # main function to do the reset operation
+
+  my ($self) = @_;
+  my $name = $self->{_name};
+    print " ipset type $self->{__type}\n";
+  # reset one rule or all?
+  if ($name eq 'all') {
+    print "reset all ipset rules\n";
+    #reset_ipset_all(); 
+  } else {
+    print "reset ipset rule $name\n";
+    #reset_ipset_named();
+  }
+}
+
 sub delete {
     my ($self) = @_;
 
