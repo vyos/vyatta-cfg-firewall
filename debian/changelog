@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard12) unstable; urgency=low
+
+  * Bugfix 7613: cleanup firewall groups correctly
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 15 Nov 2012 20:36:40 -0800
+
 vyatta-cfg-firewall (0.13.65+oxnard11) unstable; urgency=low
 
   * Fixing 3167, mandate multiport values after single port, remove
