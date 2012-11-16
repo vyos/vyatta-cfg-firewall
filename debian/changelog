@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.90+pacifica3) unstable; urgency=low
+
+  * Bugfix 7613: cleanup firewall groups correctly
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 15 Nov 2012 20:46:55 -0800
+
 vyatta-cfg-firewall (0.13.90+pacifica2) unstable; urgency=low
 
   * new branch
