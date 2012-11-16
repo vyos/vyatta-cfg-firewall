@@ -36,6 +36,16 @@ use Sort::Versions;
 use warnings;
 use strict;
 
+sub get_sys_sets {
+    my @sets = ();
+    my @lines = `ipset -L`;
+    foreach my $line (@lines) {
+        if ($line =~ /^Name:\s+(\w+)$/) {
+            push @sets, $1;
+        }
+    }
+    return @sets;
+}
 
 sub ipset_create {
     my ($set_name, $set_type) = @_;
@@ -289,6 +299,19 @@ sub prune_deleted_sets {
       next if ($cfg->isEffective($g)); # don't prune if delete failed
       my $rc;
       return $rc if (($rc = ipset_delete($g)));
+    }
+  }
+  # fixup system sets
+  my @sys_sets = get_sys_sets();
+  foreach my $set (@sys_sets) {
+    my $group = new Vyatta::IpTables::IpSet($set);
+    # only try groups with no references
+    if ($group->exists() && ($group->references() == 0)) {
+      my $type = $group->get_type();
+      $cfg->setLevel("firewall group $type-group");
+      next if ($cfg->isEffective($set)); # don't prune if still in config
+      my $rc;
+      return $rc if (($rc = ipset_delete($set)));
     }
   }
   exit 0;
