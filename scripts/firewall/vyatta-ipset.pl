@@ -302,6 +302,30 @@ sub prune_deleted_sets {
   exit 0;
 }
 
+sub show_network_groups {
+  my $config = new Vyatta::Config;
+  my @port_groups = $config->listOrigNodes("firewall group network-group");
+  my $group;
+  foreach $group (@port_groups) {
+    print "$group\n";
+  }
+}
+sub show_address_groups {
+  my $config = new Vyatta::Config;
+  my @port_groups = $config->listOrigNodes("firewall group address-group");
+  my $group;
+  foreach $group (@port_groups) {
+    print "$group\n";
+  }
+}
+sub show_port_groups {
+  my $config = new Vyatta::Config;
+  my @port_groups = $config->listOrigNodes("firewall group port-group");
+  my $group;
+  foreach $group (@port_groups) {
+    print "$group\n";
+  }
+}
 #
 # main
 #
@@ -318,6 +342,10 @@ GetOptions("action=s"   => \$action,
 die "undefined action" if ! defined $action;
 
 my $rc;
+show_port_groups() if $action eq 'show-port-groups';
+show_address_groups() if $action eq 'show-address-groups';
+show_network_groups() if $action eq 'show-network-groups';
+
 $rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
 
 $rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
