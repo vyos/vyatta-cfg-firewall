@@ -32,13 +32,25 @@ use Vyatta::TypeChecker;
 use Vyatta::Misc;
 use Vyatta::IpTables::IpSet;
 use Sort::Versions;
+use IO::Prompt;
 
 use warnings;
 use strict;
 
+
+sub warn_before_reset {
+  if (prompt("This can be temporarily disruptive: Proceed with reset? (Yes/No) [No] ", -ynd=>"n")) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 sub ipset_reset {
     my ($set_name, $set_type) = @_;
-
+    if (!warn_before_reset()) {
+      die "Cancelling reset\n";
+    }
     my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
 
     return $group->reset_ipset();
