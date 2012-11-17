@@ -214,13 +214,11 @@ sub flush {
 
 sub rebuild_ipset() {
   my ($self) = @_;
-  print "rebuilding ipset\n";
   my $name = $self->{_name};
   my $type = $self->{_type};
   my $config = new Vyatta::Config;
   
   my @members = $config->returnOrigValues("firewall group $type-group $name $type");
-  print "firewall group $type-group $name @members\n";
   # go through the firewall group config with this name, 
   my $member;
   foreach $member (@members) {
@@ -231,7 +229,6 @@ sub rebuild_ipset() {
 sub reset_ipset_named {
   my ($self) = @_;
   my $name = $self->{_name};
-  print "reset ipset group $name\n";
   # flush the ipset group first, then re-build the group from configuration
   $self->flush();   
   
@@ -239,14 +236,30 @@ sub reset_ipset_named {
 }
 
 sub reset_ipset_all {
-    print "reset all ipset rules\n";
+    my $config = new Vyatta::Config;
+    my @pgroups = $config->listOrigNodes("firewall group port-group");
+    my @adgroups = $config->listOrigNodes("firewall group address-group");
+    my @nwgroups = $config->listOrigNodes("firewall group network-group");
+    my $group; 
+
+    foreach $group (@pgroups) {
+      my $grp = new Vyatta::IpTables::IpSet($group, "port"); 
+      $grp->reset_ipset_named();
+    }
+    foreach $group (@adgroups) {
+      my $grp = new Vyatta::IpTables::IpSet($group, "address"); 
+      $grp->reset_ipset_named();
+    }
+    foreach $group (@nwgroups) {
+      my $grp = new Vyatta::IpTables::IpSet($group, "network"); 
+      $grp->reset_ipset_named();
+    }
 }
 
 sub reset_ipset {
   # main function to do the reset operation
   my ($self) = @_;
   my $name = $self->{_name};
-  print "type reset_ipset: $self->{_type}\n";
 
   my $lockcmd = "touch $lockfile";
   my $unlockcmd = "rm -f $lockfile";
