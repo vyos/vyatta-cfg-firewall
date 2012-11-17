@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard14) unstable; urgency=low
+
+  * Add show functions for allowed scripts for firewall groups
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Sat, 17 Nov 2012 01:34:35 -0800
+
 vyatta-cfg-firewall (0.13.65+oxnard13) unstable; urgency=low
 
   [ root ]
