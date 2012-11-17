@@ -55,6 +55,15 @@ my $logger = 'logger -t IpSet.pm -p local0.warn --';
 my $addr_range_mask = 24;
 my $lockfile = "/opt/vyatta/config/.lock";
 
+# remove lock file to avoid commit blockade on interrupt
+# like CTRL+C.
+sub INT_handler {
+    my $rc = system("sudo rm -f $lockfile >>/dev/null");
+    exit(0);
+}
+
+$SIG{'INT'} = 'INT_handler';
+
 sub new {
     my ($that, $name, $type) = @_;
 
