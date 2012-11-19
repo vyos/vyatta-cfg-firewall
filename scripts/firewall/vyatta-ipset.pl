@@ -36,6 +36,13 @@ use Sort::Versions;
 use warnings;
 use strict;
 
+sub ipset_reset {
+    my ($set_name, $set_type) = @_;
+
+    my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
+
+    return $group->reset_ipset();
+}
 
 sub ipset_create {
     my ($set_name, $set_type) = @_;
@@ -310,6 +317,8 @@ GetOptions("action=s"   => \$action,
 die "undefined action" if ! defined $action;
 
 my $rc;
+$rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
+
 $rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
 
 $rc = ipset_delete($set_name) if $action eq 'delete-set';
