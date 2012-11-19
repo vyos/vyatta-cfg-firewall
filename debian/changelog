@@ -1,3 +1,18 @@
+vyatta-cfg-firewall (0.13.90+pacifica4) unstable; urgency=low
+
+  [ root ]
+  * initial script for reset firewall group command
+
+  [ Gaurav Sinha ]
+  * reset functions for named ipset rule implementation with commit lock
+  * added reset all groups functions
+  * Add warning prompt before doing reset
+  * Add signal handler to handle CTRL+C to avoid commit blockade on lock
+    file
+  * Add show functions for allowed scripts for firewall groups
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 19 Nov 2012 10:54:20 -0800
+
 vyatta-cfg-firewall (0.13.90+pacifica3) unstable; urgency=low
 
   * Bugfix 7613: cleanup firewall groups correctly
