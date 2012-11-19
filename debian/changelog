@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard15) unstable; urgency=low
+
+  * Bugfix 7613: cleanup firewall groups correctly
+
+ -- John Southworth <john.southworth@vyatta.com>  Mon, 19 Nov 2012 13:14:48 -0800
+
 vyatta-cfg-firewall (0.13.65+oxnard14) unstable; urgency=low
 
   * Add show functions for allowed scripts for firewall groups
