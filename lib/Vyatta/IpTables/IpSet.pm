@@ -53,6 +53,7 @@ my $logger = 'logger -t IpSet.pm -p local0.warn --';
 # due to the long time it takes to make that many calls
 # to add each individual member to the set.
 my $addr_range_mask = 24;
+my $lockfile = "/opt/vyatta/config/.lock";
 
 sub new {
     my ($that, $name, $type) = @_;
@@ -82,7 +83,7 @@ sub debug {
 sub run_cmd {
     my ($self, $cmd) = @_;
 
-    my $rc = system("$cmd");
+    my $rc = system("sudo $cmd");
     if (defined $self->{_debug}) {
 	my $func = (caller(1))[3];
 	system("$logger [$func] [$cmd] = [$rc]");
@@ -211,20 +212,53 @@ sub flush {
   return;
 }
 
-sub reset_ipset {
-  # main function to do the reset operation
+sub rebuild_ipset() {
+  my ($self) = @_;
+  print "rebuilding ipset\n";
+  my $name = $self->{_name};
+  my $type = $self->{_type};
+  my $config = new Vyatta::Config;
+  
+  my @members = $config->returnOrigValues("firewall group $type-group $name $type");
+  print "firewall group $type-group $name @members\n";
+  # go through the firewall group config with this name, 
+  my $member;
+  foreach $member (@members) {
+    $self->add_member($member, $name);
+  } 
+}
 
+sub reset_ipset_named {
   my ($self) = @_;
   my $name = $self->{_name};
-    print " ipset type $self->{__type}\n";
+  print "reset ipset group $name\n";
+  # flush the ipset group first, then re-build the group from configuration
+  $self->flush();   
+  
+  $self->rebuild_ipset();
+}
+
+sub reset_ipset_all {
+    print "reset all ipset rules\n";
+}
+
+sub reset_ipset {
+  # main function to do the reset operation
+  my ($self) = @_;
+  my $name = $self->{_name};
+  print "type reset_ipset: $self->{_type}\n";
+
+  my $lockcmd = "touch $lockfile";
+  my $unlockcmd = "rm -f $lockfile";
+  $self->run_cmd($lockcmd);
+
   # reset one rule or all?
   if ($name eq 'all') {
-    print "reset all ipset rules\n";
-    #reset_ipset_all(); 
+    $self->reset_ipset_all(); 
   } else {
-    print "reset ipset rule $name\n";
-    #reset_ipset_named();
+    $self->reset_ipset_named();
   }
+  $self->run_cmd($unlockcmd); 
 }
 
 sub delete {

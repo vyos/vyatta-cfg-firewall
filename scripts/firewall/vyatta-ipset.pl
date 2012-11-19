@@ -317,6 +317,7 @@ GetOptions("action=s"   => \$action,
 die "undefined action" if ! defined $action;
 
 my $rc;
+print "type is $set_type\n";
 $rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
 
 $rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
