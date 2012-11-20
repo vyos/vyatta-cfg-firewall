@@ -280,7 +280,9 @@ sub reset_ipset {
   } else {
     $self->reset_ipset_named();
   }
-  $self->run_cmd($unlockcmd); 
+  my $rc = $self->run_cmd($unlockcmd); 
+  return "Error: call to ipset failed [$rc]" if $rc;
+  return; # undef
 }
 
 sub delete {
