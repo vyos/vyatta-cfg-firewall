@@ -1,3 +1,17 @@
+vyatta-cfg-firewall (0.13.90+pacifica5) unstable; urgency=low
+
+  [ Gaurav Sinha ]
+  * Fix rc usage as per ispet_delete and other commands
+  * Revert "Merge branch 'pacifica' of git.vyatta.com:/git/vyatta-cfg-
+    firewall into pacifica"
+
+  [ John Southworth ]
+  * Bugfix 7613: cleanup firewall groups correctly
+
+  [ Gaurav Sinha ]
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Tue, 20 Nov 2012 10:35:59 -0800
+
 vyatta-cfg-firewall (0.13.90+pacifica4) unstable; urgency=low
 
   [ root ]
