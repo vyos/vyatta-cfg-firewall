@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.65+oxnard16) unstable; urgency=low
+
+  * Fix rc usage as per ispet_delete and other commands
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 19 Nov 2012 18:07:29 -0800
+
 vyatta-cfg-firewall (0.13.65+oxnard15) unstable; urgency=low
 
   * Bugfix 7613: cleanup firewall groups correctly
