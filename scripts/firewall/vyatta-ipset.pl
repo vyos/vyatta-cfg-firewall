@@ -317,7 +317,10 @@ sub prune_deleted_sets {
       next if ($groups{$g} ne 'deleted');
       next if ($cfg->isEffective($g)); # don't prune if delete failed
       my $rc;
-      return $rc if (($rc = ipset_delete($g)));
+      # Try and delete, don't return error on failure. This subroutine is called when 
+      # firewall root node is being removed to prune ipsets that might have not been 
+      # deleted due to refcounts. 
+      $rc = ipset_delete($g);
     }
   }
 
@@ -331,7 +334,7 @@ sub prune_deleted_sets {
       $cfg->setLevel("firewall group $type-group");
       next if ($cfg->isEffective($set)); # don't prune if still in config
       my $rc;
-      return $rc if (($rc = ipset_delete($set)));
+      $rc = ipset_delete($set);
     }
   }
   exit 0;
