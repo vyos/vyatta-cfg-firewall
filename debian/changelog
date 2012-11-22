@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.91+daisy5) unstable; urgency=low
+
+  * fix for 8492. Don't declare error and bail out on attempt to
+    deletion of ipset.
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 21 Nov 2012 16:24:23 -0800
+
 vyatta-cfg-firewall (0.13.91+daisy4) unstable; urgency=low
 
   * Fix rc usage as per ispet_delete and other commands
