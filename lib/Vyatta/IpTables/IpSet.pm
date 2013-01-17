@@ -418,7 +418,7 @@ sub add_member {
 
     # service name or port name may contain a hyphen, which needs to be escaped
     # using square brackets in ipset, to avoid confusion with port ranges
-    if (($member =~ /^([^-]+)-([^-]+)$/) and ($hyphenated_port eq 'false')) {
+    if (($member =~ /^([^-]+)-([^-]+)$/) and ((defined ($hyphenated_port)) and ($hyphenated_port eq 'false'))) {
 	return $self->add_member_range($1, $2, $alias);
     }
 
@@ -461,7 +461,7 @@ sub delete_member {
 
     # service name or port name may contain a hyphen, which needs to be escaped
     # using square brackets in ipset, to avoid confusion with port ranges
-    if (($member =~ /^([^-]+)-([^-]+)$/) and ($hyphenated_port eq 'false')) {
+    if (($member =~ /^([^-]+)-([^-]+)$/) and ((defined($hyphenated_port)) and ($hyphenated_port eq 'false'))) {
 	return $self->delete_member_range($1, $2);
     }
 
