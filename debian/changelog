@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.90+pacifica9) unstable; urgency=low
+
+  * Fixing 8622
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Thu, 17 Jan 2013 13:42:53 -0800
+
 vyatta-cfg-firewall (0.13.90+pacifica8) unstable; urgency=low
 
   * fix for 8492. Don't declare error and bail out on attempt to
