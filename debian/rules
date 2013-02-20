@@ -60,7 +60,7 @@ install: build
 
 	$(MAKE) DESTDIR=$(PKGDIR) install
 
-	for p in vyatta-cfg-firewall vyatta-cfg-firewall-serial; do \
+	for p in vyatta-cfg-firewall vyatta-cfg-firewall-serial vyatta-cfg-firewall-wireless; do \
 	  install -D --mode=0644 debian/$$p.lintian-overrides \
 		debian/$$p/usr/share/lintian/overrides/$$p; \
 	done

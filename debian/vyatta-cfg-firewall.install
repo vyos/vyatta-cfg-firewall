@@ -12,5 +12,3 @@ opt/vyatta/share/vyatta-cfg/templates/interfaces/openvpn
 opt/vyatta/share/vyatta-cfg/templates/interfaces/pseudo-ethernet
 opt/vyatta/share/vyatta-cfg/templates/interfaces/tunnel
 opt/vyatta/share/vyatta-cfg/templates/interfaces/vti
-opt/vyatta/share/vyatta-cfg/templates/interfaces/wireless
-opt/vyatta/share/vyatta-cfg/templates/interfaces/wirelessmodem

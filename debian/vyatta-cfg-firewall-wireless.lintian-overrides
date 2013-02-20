@@ -1,0 +1,2 @@
+vyatta-cfg-firewall-serial: file-in-unusual-dir
+vyatta-cfg-firewall-serial: dir-or-file-in-opt
