@@ -38,12 +38,17 @@ Description: Vyatta firewall configuration templates/scripts
 Package: vyatta-cfg-firewall-serial
 Architecture: all
 Depends:  vyatta-cfg-firewall, vyatta-serial
-Replaces: vyatta-cfg-firewall
 Description: vyatta-cfg-firewall serial templates
  Vyatta firewall configuration templates for serial devices
 
 Package: vyatta-cfg-firewall-wireless
 Architecture: all
 Depends:  vyatta-cfg-firewall, vyatta-wireless
-Replaces: vyatta-cfg-firewall
 Description: vyatta-cfg-firewall wireless templates
+  Vyatta firewall configuration templates for wireless devices
+
+Package: vyatta-cfg-firewall-extra
+Architecture: all
+Depends:  vyatta-cfg-firewall
+Description: vyatta-cfg-firewall extra templates
+  Vyatta firewall configuration for pseudo devices

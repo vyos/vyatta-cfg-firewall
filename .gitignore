@@ -15,6 +15,7 @@ debian/vyatta-cfg-firewall
 debian/tmp
 debian/vyatta-cfg-firewall-serial
 debian/vyatta-cfg-firewall-wireless
+debian/vyatta-cfg-firewall-extra
 debian/*.debhelper.log
 debian/*.substvars
 scripts/firewall/firewall.init
