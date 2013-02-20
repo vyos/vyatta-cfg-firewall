@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.94) unstable; urgency=low
+
+  * Split off extra pseudo-devices into a sub package
+
+ -- Stephen Hemminger <stephen.hemminger@vyatta.com>  Wed, 20 Feb 2013 15:39:57 -0800
+
 vyatta-cfg-firewall (0.13.93) unstable; urgency=low
 
   * split off wireless config nodes
