@@ -10,6 +10,7 @@ sbin_SCRIPTS =
 curver_DATA = cfg-version/firewall@5
 
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
+sbin_SCRIPTS += scripts/firewall/vyatta-firewall-trap.pl
 sbin_SCRIPTS += scripts/firewall/firewall.init
 sbin_SCRIPTS += scripts/firewall/vyatta-ipset.pl
 sbin_SCRIPTS += scripts/firewall/vyatta-fw-global-state-policy.pl
