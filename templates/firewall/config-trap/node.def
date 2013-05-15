@@ -1,0 +1,10 @@
+type: txt
+
+help: SNMP trap generation on firewall configuration changes
+
+val_help: disable; Disable sending SNMP trap on firewall configuration change
+val_help: enable; Enable sending SNMP trap on firewall configuration change
+
+default: "disable"
+
+syntax:expression: $VAR(@) in "enable", "disable"; "config-trap must be enable or disable"
