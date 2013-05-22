@@ -71,6 +71,35 @@ my %interface_hash = (
     'wirelessmodem/node.tag' => '$VAR(../../../@)',
 );
 
+# Firewall node hashes
+my %firewall_hash = (
+    'adsl/node.tag/pvc/node.tag/bridged-ethernet' => 'adsl $VAR(../../../@) pvc $VAR(../../@) bridged-ethernet',
+    'adsl/node.tag/pvc/node.tag/classical-ipoa' => 'adsl $VAR(../../../@) pvc $VAR(../../@) classical-ipoa',
+    'adsl/node.tag/pvc/node.tag/pppoa/node.tag' => 'adsl $VAR(../../../@) pvc $VAR(../../@) pppoa $VAR(../@)',
+    'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'adsl $VAR(../../../@) pvc $VAR(../../@) pppoe $VAR(../@)',
+    'bonding/node.tag' => 'bonding $VAR(../@)',
+    'bonding/node.tag/vif/node.tag' => 'bonding $VAR(../../../@) vif $VAR(../@)',
+    'bridge/node.tag' => 'bridge $VAR(../@)',
+    'ethernet/node.tag' => 'ethernet $VAR(../@)',
+    'ethernet/node.tag/pppoa/node.tag' => 'ethernet $VAR(../../@) pppoa $VAR(../@)',
+    'ethernet/node.tag/pppoe/node.tag' => 'ethernet $VAR(../../@) pppoe $VAR(../@)',
+    'ethernet/node.tag/vif/node.tag' => 'ethernet $VAR(../../../@) vif $VAR(../@)',
+    'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'ethernet $VAR(../../../../@) vif $VAR(../../@) pppoe $VAR(../@)',
+    'input/node.tag' => 'input $VAR(../@)',
+    'multilink/node.tag/vif/node.tag' => 'multilink $VAR(../../../@) vif $VAR(../@)',
+    'openvpn/node.tag' => 'openvpn $VAR(../@)',
+    'pseudo-ethernet/node.tag' => 'pseudo-ethernet $VAR(../@)',
+    'pseudo-ethernet/node.tag/vif/node.tag' => 'pseudo-ethernet $VAR(../../../@) vif $VAR(../@)',
+    'serial/node.tag/cisco-hdlc/vif/node.tag' => 'serial $VAR(../../../@) cisco-hdlc vif $VAR(../@)',
+    'serial/node.tag/frame-relay/vif/node.tag' => 'serial $VAR(../../../@) frame-relay vif $VAR(../@)',
+    'serial/node.tag/ppp/vif/node.tag' => 'serial $VAR(../../../@) ppp vif $VAR(../@)',
+    'tunnel/node.tag' => 'tunnel $VAR(../@)',
+    'vti/node.tag' => 'vti $VAR(../@)',
+    'wireless/node.tag' => 'wireless $VAR(../@)',
+    'wireless/node.tag/vif/node.tag' => 'wireless $VAR(../../../@) vif $VAR(../@)',
+    'wirelessmodem/node.tag' => 'wirelessmodem $VAR(../@)',
+);
+
 # Hash table to check if the priority needs to set @ root
 # of the node.def which is generated.
 my %interface_prio = (
@@ -113,6 +142,9 @@ sub gen_firewall_template {
         print $tp "priority: $interface_prio{ $if_tree }\n";
     }
     print $tp "help: Firewall options\n";
+    die "ERROR: No firewall hash for ${if_tree}" unless $firewall_hash{"${if_tree}"};
+    print $tp 'end: ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="interfaces ';
+    print $tp $firewall_hash{"${if_tree}"} . ' firewall"' . "\n";
     close $tp
       or die "Can't write $path/$node_file: $!";
 }

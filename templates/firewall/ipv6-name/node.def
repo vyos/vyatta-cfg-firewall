@@ -24,6 +24,7 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall ipv6-n
      else
        exit 1;
      fi
+     ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall ipv6-name $VAR(@)"
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables "firewall ipv6-name"
 

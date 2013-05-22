@@ -18,8 +18,12 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall name" 
        then
           if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok "firewall name" ;
           then
-             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall name"
+             if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall name"; then
+                ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall name $VAR(@)"
+             fi
           fi
+       else
+          ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall name $VAR(@)"
        fi
      else
        exit 1;

@@ -32,3 +32,4 @@ end:
           --action=enable-disable-conntrack; then               \
           exit 1
         fi
+        ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall state-policy $VAR(@)"
