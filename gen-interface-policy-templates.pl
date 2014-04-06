@@ -58,6 +58,8 @@ my %interface_hash = (
     'bridge/node.tag' => '$VAR(../../@)',
     'openvpn/node.tag' => '$VAR(../../@)',
 
+    'l2tpv3/node.tag' => '$VAR(../../@)',
+
     'multilink/node.tag/vif/node.tag' => '$VAR(../../../@)',
 
     'serial/node.tag/cisco-hdlc/vif/node.tag' =>
