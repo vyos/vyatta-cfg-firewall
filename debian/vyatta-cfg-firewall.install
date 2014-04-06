@@ -14,3 +14,4 @@ opt/vyatta/share/vyatta-cfg/templates/interfaces/tunnel
 opt/vyatta/share/vyatta-cfg/templates/interfaces/vti
 opt/vyatta/share/vyatta-cfg/templates/interfaces/wireless
 opt/vyatta/share/vyatta-cfg/templates/interfaces/wirelessmodem
+opt/vyatta/share/vyatta-cfg/templates/interfaces/l2tpv3

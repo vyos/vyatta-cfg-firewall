@@ -59,6 +59,8 @@ my %interface_hash = (
     'bridge/node.tag' => '$VAR(../../../@)',
     'openvpn/node.tag' => '$VAR(../../../@)',
 
+    'l2tpv3/node.tag'  => '$VAR(../../../@)',
+
     'multilink/node.tag/vif/node.tag' => '$VAR(../../../../@)',
 
     'serial/node.tag/cisco-hdlc/vif/node.tag' =>
@@ -98,6 +100,7 @@ my %firewall_hash = (
     'wireless/node.tag' => 'wireless $VAR(../@)',
     'wireless/node.tag/vif/node.tag' => 'wireless $VAR(../../../@) vif $VAR(../@)',
     'wirelessmodem/node.tag' => 'wirelessmodem $VAR(../@)',
+    'l2tpv3/node.tag' => 'l2tpv3 $VAR(../@)'
 );
 
 # Hash table to check if the priority needs to set @ root
