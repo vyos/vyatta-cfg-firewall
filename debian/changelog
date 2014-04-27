@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.91+hydrogen2) unstable; urgency=low
+
+  * Bug #144: change priorities so route policy is after firewall groups
+
+ -- Daniil Baturin <daniil@baturin.org>  Sun, 27 Apr 2014 02:26:32 +0200
+
 vyatta-cfg-firewall (0.13.91+hydrogen1) unstable; urgency=low
 
   * New branch
