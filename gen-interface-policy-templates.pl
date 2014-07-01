@@ -34,24 +34,27 @@ my $debug = 0;
 # the partial pathname under the config template tree "interfaces/".
 #
 my %interface_hash = (
-    'adsl/node.tag/pvc/node.tag/bridged-ethernet' => '$VAR(../../../../@)',
-    'adsl/node.tag/pvc/node.tag/classical-ipoa'   => '$VAR(../../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoa/node.tag'   => 'pppoa$VAR(../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoe/node.tag'   => 'pppoe$VAR(../../@)',
+    'adsl/node.tag/pvc/node.tag/bridged-ethernet'    => '$VAR(../../../../@)',
+    'adsl/node.tag/pvc/node.tag/classical-ipoa'      => '$VAR(../../../../@)',
+    'adsl/node.tag/pvc/node.tag/pppoa/node.tag'      => 'pppoa$VAR(../../@)',
+    'adsl/node.tag/pvc/node.tag/pppoe/node.tag'      => 'pppoe$VAR(../../@)',
 
-    'bonding/node.tag'                           => '$VAR(../../@)',
-    'bonding/node.tag/vif/node.tag'              => '$VAR(../../../@).$VAR(../../@)',
-    'bonding/node.tag/vif/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag'                               => '$VAR(../../@)',
+    'bonding/node.tag/vif/node.tag'                  => '$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag/vif-s/node.tag/vif-c/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
 
     'ethernet/node.tag'                             => '$VAR(../../@)',
     'ethernet/node.tag/pppoe/node.tag'              => 'pppoe$VAR(../../@)',
     'ethernet/node.tag/vif/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../@)',
-    'ethernet/node.tag/vif/node.tag/vif/node.tag'   => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'   => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
 
     'pseudo-ethernet/node.tag'                           => '$VAR(../../@)',
     'pseudo-ethernet/node.tag/vif/node.tag'              => '$VAR(../../../@).$VAR(../../@)',
-    'pseudo-ethernet/node.tag/vif/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
+    'pseudo-ethernet/node.tag/vif-s/node.tag'              => '$VAR(../../../@).$VAR(../../@)',
+    'pseudo-ethernet/node.tag/vif-s/node.tag/vif-c/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
 
     'wireless/node.tag' => '$VAR(../../@)',
     'wireless/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
