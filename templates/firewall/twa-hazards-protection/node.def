@@ -1,0 +1,20 @@
+type: txt
+
+help: RFC1337 TCP TIME-WAIT assasination hazards protection
+
+val_help: enable; Enable RFC1337 TIME-WAIT hazards protection
+val_help: disable; Disable RFC1337 TIME-WAIT hazards protection
+
+default: "disable"
+
+syntax:expression: $VAR(@) in "enable", "disable"; "twa-hazards-protection must be enable or disable"
+
+update:
+	if [ x$VAR(@) == xenable ]; then
+	    sudo sh -c "echo 1 > /proc/sys/net/ipv4/tcp_rfc1337"
+        else
+	    sudo sh -c "echo 0 > /proc/sys/net/ipv4/tcp_rfc1337"
+	fi
+
+delete:
+	sudo sh -c "echo 0 > /proc/sys/net/ipv4/tcp_rfc1337"
