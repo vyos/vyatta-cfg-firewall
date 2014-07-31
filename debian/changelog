@@ -1,3 +1,19 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium4) unstable; urgency=low
+
+  [ Daniil Baturin ]
+  * Bug #144: change priorities so route policy is after firewall groups
+
+  [ Kim Hagen ]
+  * Add QinQ to interfaces in template generators.
+  * Add QinQ to interfaces in template generators node hashes.
+  * Set separate virual interface for QinQ.
+
+  [ Daniil Baturin ]
+  * Bug #108: add an option to enable RFC1337 TCP TIME-WAIT hazards
+    protection
+
+ -- Daniil Baturin <daniil@baturin.org>  Thu, 31 Jul 2014 20:59:45 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium3) unstable; urgency=low
 
   * Bug #170: add L2TPv3 interface type to policy template generator.
