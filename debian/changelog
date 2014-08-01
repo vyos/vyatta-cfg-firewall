@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium6) unstable; urgency=low
+
+  * Bug #128: do not call ipset for every port/address in range.
+
+ -- Daniil Baturin <daniil@baturin.org>  Sat, 02 Aug 2014 00:07:08 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium5) unstable; urgency=low
 
   * Bug #45: add port range validation script.
