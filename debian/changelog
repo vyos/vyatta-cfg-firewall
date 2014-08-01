@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium5) unstable; urgency=low
+
+  * Bug #45: add port range validation script.
+  * Bug #45: add port range validation to firewall templates.
+
+ -- Daniil Baturin <daniil@baturin.org>  Fri, 01 Aug 2014 22:15:54 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium4) unstable; urgency=low
 
   [ Daniil Baturin ]
