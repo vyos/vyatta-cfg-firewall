@@ -388,39 +388,11 @@ sub member_exists {
     return $rc ? 0 : 1;    
 }
 
-sub add_member_range {
-    my ($self, $start, $stop, $alias) = @_;    
-    
-    if ($self->{_type} eq 'port') {
-	foreach my $member ($start .. $stop) {
-	    my $rc = $self->add_member($member, $alias);
-	    return $rc if defined $rc;
-	}
-    } elsif ($self->{_type} eq 'address') {
-	# $start_ip++ won't work if it doesn't know the 
-	# prefix, so we'll make a big range.
-	my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
-	my $stop_ip  = new NetAddr::IP("$stop/$addr_range_mask");
-	for (; $start_ip <= $stop_ip; $start_ip++) {
-	    my $rc = $self->add_member($start_ip->addr(), $alias);
-	    return $rc if defined $rc;
-            last if $start_ip->cidr() eq $start_ip->broadcast();
-	}
-    }
-    return;
-}
-
 sub add_member {
     my ($self, $member, $alias, $hyphenated_port) = @_;
 
     return "Error: undefined group name" if ! defined $self->{_name};
     return "Error: group [$self->{_name}] doesn't exists\n" if !$self->exists();
-
-    # service name or port name may contain a hyphen, which needs to be escaped
-    # using square brackets in ipset, to avoid confusion with port ranges
-    if (($member =~ /^([^-]+)-([^-]+)$/) and ((defined ($hyphenated_port)) and ($hyphenated_port eq 'false'))) {
-	return $self->add_member_range($1, $2, $alias);
-    }
 
     if ($self->member_exists($member)) {
         my $set_name = $alias;
