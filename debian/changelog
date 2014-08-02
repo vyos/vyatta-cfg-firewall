@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium7) unstable; urgency=low
+
+  * Bug #115: disallow reserved firewall names in CLI validation.
+
+ -- Daniil Baturin <daniil@baturin.org>  Sat, 02 Aug 2014 02:25:10 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium6) unstable; urgency=low
 
   * Bug #128: do not call ipset for every port/address in range.
