@@ -11,6 +11,9 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
                    "Firewall rule set name cannot contain shell punctuation"
 syntax:expression: ! pattern $VAR(@) "^VZONE" ; \
                    "Firewall rule set name cannot start with 'VZONE'"
+syntax:expression: ! pattern $VAR(@) "(PREROUTING|POSTROUTING|CONNMARK|MARK\
+                     FILTER|FORWARD|INPUT|OUTPUT|VYATTA_.*_HOOK)" ; \
+                   "$VAR(@) is a reserved name"
 
 end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall name" "$VAR(@)" ;
      then
