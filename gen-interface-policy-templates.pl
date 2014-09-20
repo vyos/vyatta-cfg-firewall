@@ -66,6 +66,8 @@ my %interface_hash = (
 
     'l2tpv3/node.tag' => '$VAR(../../@)',
 
+    'vxlan/node.tag' => '$VAR(../../@)',
+
     'multilink/node.tag/vif/node.tag' => '$VAR(../../../@)',
 
     'serial/node.tag/cisco-hdlc/vif/node.tag' =>
