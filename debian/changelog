@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium8) unstable; urgency=low
+
+  * Add VXLAN to generated templates.
+
+ -- Daniil Baturin <daniil@baturin.org>  Sat, 20 Sep 2014 10:09:34 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium7) unstable; urgency=low
 
   * Bug #115: disallow reserved firewall names in CLI validation.
