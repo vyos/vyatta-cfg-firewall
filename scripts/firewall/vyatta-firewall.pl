@@ -363,9 +363,13 @@ sub add_route_table {
   if ($table_count < 1) {
     my $mark = 0x7FFFFFFF + $table;
     system("ip rule add pref $table fwmark $mark table $table");
+    system("ip -6 rule add pref $table fwmark $mark table $table");
     run_cmd("iptables -t mangle -N VYATTA_PBR_$table", 1);
     run_cmd("iptables -t mangle -I VYATTA_PBR_$table 1 -j MARK --set-mark $mark", 1);
     run_cmd("iptables -t mangle -I VYATTA_PBR_$table 2 -j ACCEPT", 1);
+    run_cmd("ip6tables -t mangle -N VYATTA_PBR_$table", 1);
+    run_cmd("ip6tables -t mangle -I VYATTA_PBR_$table 1 -j MARK --set-mark $mark", 1);
+    run_cmd("ip6tables -t mangle -I VYATTA_PBR_$table 2 -j ACCEPT", 1);
   }
 
   write_refcnt_file($policy_ref_file, @newlines);
@@ -394,10 +398,15 @@ sub remove_route_table {
       if ($ref < 1) {
         my $mark = 0x7FFFFFFF + $table;
         system("ip rule del pref $table fwmark $mark table $table");
+	system("ip -6 rule del pref $table fwmark $mark table $table");
         run_cmd("iptables -t mangle -D VYATTA_PBR_$table 2", 1);
         run_cmd("iptables -t mangle -D VYATTA_PBR_$table 1", 1);
         run_cmd("iptables -t mangle -F VYATTA_PBR_$table", 1);
         run_cmd("iptables -t mangle -X VYATTA_PBR_$table", 1);
+        run_cmd("ip6tables -t mangle -D VYATTA_PBR_$table 2", 1);
+        run_cmd("ip6tables -t mangle -D VYATTA_PBR_$table 1", 1);
+        run_cmd("ip6tables -t mangle -F VYATTA_PBR_$table", 1);
+        run_cmd("ip6tables -t mangle -X VYATTA_PBR_$table", 1);
       }
     }
 
