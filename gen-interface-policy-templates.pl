@@ -20,7 +20,7 @@
 #              templates.
 #
 # Portions copyright by VyOS maintainers and contributors, 2015.
-# 
+#
 # **** End License ****
 #
 use strict;
@@ -36,38 +36,33 @@ my $debug = 0;
 # the partial pathname under the config template tree "interfaces/".
 #
 my %interface_hash = (
-    'bonding/node.tag'                               => '$VAR(../../@)',
-    'bonding/node.tag/vif/node.tag'                  => '$VAR(../../../@).$VAR(../../@)',
-    'bonding/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
-    'bonding/node.tag/vif-s/node.tag/vif-c/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
-
-    'ethernet/node.tag'                             => '$VAR(../../@)',
-    'ethernet/node.tag/pppoe/node.tag'              => 'pppoe$VAR(../../@)',
-    'ethernet/node.tag/vif/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
-    'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../@)',
-    'ethernet/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
-    'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'   => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
-
-    'pseudo-ethernet/node.tag'                           => '$VAR(../../@)',
-    'pseudo-ethernet/node.tag/vif/node.tag'              => '$VAR(../../../@).$VAR(../../@)',
-    'pseudo-ethernet/node.tag/vif-s/node.tag'              => '$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag'                                       => '$VAR(../../@)',
+    'bonding/node.tag/vif-s/node.tag'                        => '$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag/vif-s/node.tag/vif-c/node.tag'         => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
+    'bonding/node.tag/vif/node.tag'                          => '$VAR(../../../@).$VAR(../../@)',
+    'bridge/node.tag'                                        => '$VAR(../../@)',
+    'dummy/node.tag'                                         => '$VAR(../../@)'
+    'ethernet/node.tag'                                      => '$VAR(../../@)',
+    'ethernet/node.tag/pppoe/node.tag'                       => 'pppoe$VAR(../../@)',
+    'ethernet/node.tag/vif-s/node.tag'                       => '$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'        => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif/node.tag'                         => '$VAR(../../../@).$VAR(../../@)',
+    'ethernet/node.tag/vif/node.tag/pppoe/node.tag'          => 'pppoe$VAR(../../@)',
+    'ethernet/node.tag/vrrp/vrrp-group/node.tag'             => '$VAR(../../../../@)v$VAR(../../@)',
+    'input/node.tag'                                         => '$VAR(../../@)',
+    'l2tpv3/node.tag'                                        => '$VAR(../../@)',
+    'multilink/node.tag/vif/node.tag'                        => '$VAR(../../../@)',
+    'openvpn/node.tag'                                       => '$VAR(../../@)',
+    'pseudo-ethernet/node.tag'                               => '$VAR(../../@)',
+    'pseudo-ethernet/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
     'pseudo-ethernet/node.tag/vif-s/node.tag/vif-c/node.tag' => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
-
-    'wireless/node.tag' => '$VAR(../../@)',
-    'wireless/node.tag/vif/node.tag' => '$VAR(../../../@).$VAR(../../@)',
-
-    'input/node.tag'  => '$VAR(../../@)',
-    'tunnel/node.tag' => '$VAR(../../@)',
-    'bridge/node.tag' => '$VAR(../../@)',
-    'openvpn/node.tag' => '$VAR(../../@)',
-
-    'l2tpv3/node.tag' => '$VAR(../../@)',
-
-    'vxlan/node.tag' => '$VAR(../../@)',
-
-    'wirelessmodem/node.tag' => '$VAR(../../@)',
-
-    'dummy/node.tag' => '$VAR(../../@)'
+    'pseudo-ethernet/node.tag/vif/node.tag'                  => '$VAR(../../../@).$VAR(../../@)',
+    'tunnel/node.tag'                                        => '$VAR(../../@)',
+    'vti/node.tag'                                           => '$VAR(../../@)',
+    'vxlan/node.tag'                                         => '$VAR(../../@)',
+    'wireless/node.tag'                                      => '$VAR(../../@)',
+    'wireless/node.tag/vif/node.tag'                         => '$VAR(../../../@).$VAR(../../@)',
+    'wirelessmodem/node.tag'                                 => '$VAR(../../@)',
 );
 
 # The subdirectory where the generated templates will go
