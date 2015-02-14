@@ -241,7 +241,7 @@ sub gen_template {
 type: txt
 help: $action $table_help_hash{$table} ruleset name for interface
 allowed: local -a params
-	eval "params=(\$(cli-shell-api listActiveNodes firewall $table))"
+	eval "params=(\$(cli-shell-api listNodes firewall $table))"
 	echo -n "\${params[@]}"
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
