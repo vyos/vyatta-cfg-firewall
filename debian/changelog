@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium6) unstable; urgency=low
+
+  * Bug #487: complete names for added but not commited firewall
+    rulesets.
+
+ -- Daniil Baturin <daniil@baturin.org>  Sat, 14 Feb 2015 20:45:34 +0100
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium5) unstable; urgency=low
 
   * Update maintainer address
