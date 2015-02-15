@@ -42,6 +42,9 @@ declare -a modules=(
     nf_nat_h323
     nf_nat_pptp)
 
+declare -a modulesv6=(
+    ip6t_NPT)
+
 ## setup firewall & nat conntrack modules
 start () {
     
@@ -103,6 +106,10 @@ start () {
 
     # set up IPV6 notrack and pre, post fw rules
     if [ -d /proc/sys/net/ipv6 ] ; then
+        for mod in ${modules_v6[@]} ; do 
+          modprobe --syslog $mod
+        done
+
 	# set up notrack chains/rules for IPv6
         ip6tables -t raw -N VYATTA_CT_PREROUTING_HOOK
         ip6tables -t raw -A VYATTA_CT_PREROUTING_HOOK -j RETURN
@@ -134,6 +141,19 @@ start () {
 	ip6tables -A INPUT -j VYATTA_POST_FW_IN_HOOK
 	ip6tables -A FORWARD -j VYATTA_POST_FW_FWD_HOOK
 	ip6tables -A OUTPUT -j VYATTA_POST_FW_OUT_HOOK
+        
+        # set up NPTv6 prerouting hook
+        ip6tables -t mangle -N VYOS_DNPT_HOOK
+        ip6tables -t mangle -A VYOS_DNPT_HOOK -j RETURN
+        ip6tables -t mangle -A PREROUTING -j VYOS_DNPT_HOOK
+        ip6tables -t mangle -N VYOS_SNPT_HOOK
+        ip6tables -t mangle -A VYOS_SNPT_HOOK -j RETURN
+        ip6tables -t mangle -A POSTROUTING -j VYOS_SNPT_HOOK
+        # NOTRACK hook : not needed, since every v6 connection is NOTRACK'ed for now (see a few lines up)
+        # ip6tables -t raw -N VYOS_NPT_HOOK
+        # ip6tables -t raw -A PREROUTING -j VYOS_NPT_HOOK
+
+
     else
 	logger -t "Vyatta firewall init" -p warning "Kernel IPv6 support disabled.  Not initializing IPv6 firewall"
     fi
