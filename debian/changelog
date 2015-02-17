@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium7) unstable; urgency=low
+
+  [ kouak ]
+  * Add SNPT and DNPT firewall hooks and load ip6t_NPT kernel module
+    (#387)
+
+  [ Daniil Baturin ]
+
+ -- Daniil Baturin <daniil@baturin.org>  Tue, 17 Feb 2015 09:55:08 +0100
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium6) unstable; urgency=low
 
   * Bug #487: complete names for added but not commited firewall
