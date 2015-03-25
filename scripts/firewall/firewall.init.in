@@ -103,6 +103,12 @@ start () {
     iptables -A INPUT -j VYATTA_POST_FW_IN_HOOK
     iptables -A FORWARD -j VYATTA_POST_FW_FWD_HOOK
     iptables -A OUTPUT -j VYATTA_POST_FW_OUT_HOOK
+    
+    # set up ipsec auto-exclude rules
+    iptables -N VYOS_VPN_IPSEC_FW_IN_HOOK
+    iptables -N VYOS_VPN_IPSEC_FW_HOOK
+    iptables -I FORWARD -j VYOS_VPN_IPSEC_FW_IN_HOOK
+    iptables -I INPUT -j VYOS_VPN_IPSEC_FW_HOOK
 
     # set up IPV6 notrack and pre, post fw rules
     if [ -d /proc/sys/net/ipv6 ] ; then
@@ -167,6 +173,8 @@ start () {
     iptables -t nat -N VYATTA_PRE_SNAT_HOOK
     iptables -t nat -A VYATTA_PRE_SNAT_HOOK -j RETURN
     iptables -t nat -A POSTROUTING -j VYATTA_PRE_SNAT_HOOK
+    iptables -t nat -N VYOS_VPN_IPSEC_SNAT_HOOK
+    iptables -t nat -I POSTROUTING 1 -j VYOS_VPN_IPSEC_SNAT_HOOK
 
     iptables -t raw -I PREROUTING -j VYATTA_CT_TIMEOUT
     iptables -t raw -I OUTPUT -j VYATTA_CT_TIMEOUT
