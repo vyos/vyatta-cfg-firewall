@@ -19,6 +19,8 @@
 # Description: Script to automatically generate per-interface firewall
 #              templates.
 #
+# Portions copyright by VyOS maintainers and contributors, 2015.
+# 
 # **** End License ****
 #
 use strict;
@@ -34,11 +36,6 @@ my $debug = 0;
 # the partial pathname under the config template tree "interfaces/".
 #
 my %interface_hash = (
-    'adsl/node.tag/pvc/node.tag/bridged-ethernet'    => '$VAR(../../../../@)',
-    'adsl/node.tag/pvc/node.tag/classical-ipoa'      => '$VAR(../../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoa/node.tag'      => 'pppoa$VAR(../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoe/node.tag'      => 'pppoe$VAR(../../@)',
-
     'bonding/node.tag'                               => '$VAR(../../@)',
     'bonding/node.tag/vif/node.tag'                  => '$VAR(../../../@).$VAR(../../@)',
     'bonding/node.tag/vif-s/node.tag'                => '$VAR(../../../@).$VAR(../../@)',
@@ -68,16 +65,9 @@ my %interface_hash = (
 
     'vxlan/node.tag' => '$VAR(../../@)',
 
-    'multilink/node.tag/vif/node.tag' => '$VAR(../../../@)',
-
-    'serial/node.tag/cisco-hdlc/vif/node.tag' =>
-      '$VAR(../../../../@).$VAR(../../@)',
-    'serial/node.tag/frame-relay/vif/node.tag' =>
-      '$VAR(../../../../@).$VAR(../../@)',
-    'serial/node.tag/ppp/vif/node.tag' =>
-      '$VAR(../../../../@).$VAR(../../@)',
-
     'wirelessmodem/node.tag' => '$VAR(../../@)',
+
+    'dummy/node.tag' => '$VAR(../../@)'
 );
 
 # The subdirectory where the generated templates will go

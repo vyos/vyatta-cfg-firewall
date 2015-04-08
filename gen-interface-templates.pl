@@ -19,6 +19,8 @@
 # Description: Script to automatically generate per-interface firewall
 #              templates.
 #
+# Portions copyright by VyOS maintainers and contributors, 2015.
+#
 # **** End License ****
 #
 use strict;
@@ -34,11 +36,6 @@ my $debug = 0;
 # the partial pathname under the config template tree "interfaces/".
 #
 my %interface_hash = (
-    'adsl/node.tag/pvc/node.tag/bridged-ethernet'     => '$VAR(../../../../../@)',
-    'adsl/node.tag/pvc/node.tag/classical-ipoa'       => '$VAR(../../../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoa/node.tag'       => 'pppoa$VAR(../../../@)',
-    'adsl/node.tag/pvc/node.tag/pppoe/node.tag'       => 'pppoe$VAR(../../../@)',
-
     'bonding/node.tag'                                => '$VAR(../../../@)',
     'bonding/node.tag/vif/node.tag'                   => '$VAR(../../../../@).$VAR(../../../@)',
     'bonding/node.tag/vif-s/node.tag'                 => '$VAR(../../../../@).$VAR(../../../@)',
@@ -69,53 +66,38 @@ my %interface_hash = (
 
     'vxlan/node.tag'   => '$VAR(../../../@)',
 
-    'multilink/node.tag/vif/node.tag' => '$VAR(../../../../@)',
-
-    'serial/node.tag/cisco-hdlc/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
-    'serial/node.tag/frame-relay/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
-    'serial/node.tag/ppp/vif/node.tag' =>
-      '$VAR(../../../../../@).$VAR(../../../@)',
-
     'wirelessmodem/node.tag' => '$VAR(../../../@)',
+
+    'dummy/node.tag' => '$VAR(../../../@)'
 );
 
 # Firewall node hashes
 my %firewall_hash = (
-    'adsl/node.tag/pvc/node.tag/bridged-ethernet' => 'adsl $VAR(../../../@) pvc $VAR(../../@) bridged-ethernet',
-    'adsl/node.tag/pvc/node.tag/classical-ipoa' => 'adsl $VAR(../../../@) pvc $VAR(../../@) classical-ipoa',
-    'adsl/node.tag/pvc/node.tag/pppoa/node.tag' => 'adsl $VAR(../../../@) pvc $VAR(../../@) pppoa $VAR(../@)',
-    'adsl/node.tag/pvc/node.tag/pppoe/node.tag' => 'adsl $VAR(../../../@) pvc $VAR(../../@) pppoe $VAR(../@)',
     'bonding/node.tag' => 'bonding $VAR(../@)',
     'bonding/node.tag/vif/node.tag' => 'bonding $VAR(../../../@) vif $VAR(../@)',
     'bonding/node.tag/vif-s/node.tag' => 'bonding $VAR(../../../@) vif-s $VAR(../@)',
     'bonding/node.tag/vif-s/node.tag/vif-c/node.tag' => 'bonding $VAR(../../../../@) vif-s $VAR(../../@) vif-c $VAR(../@)',
     'bridge/node.tag' => 'bridge $VAR(../@)',
     'ethernet/node.tag' => 'ethernet $VAR(../@)',
-    'ethernet/node.tag/pppoa/node.tag' => 'ethernet $VAR(../../@) pppoa $VAR(../@)',
     'ethernet/node.tag/pppoe/node.tag' => 'ethernet $VAR(../../@) pppoe $VAR(../@)',
     'ethernet/node.tag/vif/node.tag' => 'ethernet $VAR(../../../@) vif $VAR(../@)',
     'ethernet/node.tag/vif-s/node.tag' => 'ethernet $VAR(../../../@) vif-s $VAR(../@)',
     'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag' => 'ethernet $VAR(../../../../@) vif-s $VAR(../../@) vif-c $VAR(../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'ethernet $VAR(../../../../@) vif $VAR(../../@) pppoe $VAR(../@)',
     'input/node.tag' => 'input $VAR(../@)',
-    'multilink/node.tag/vif/node.tag' => 'multilink $VAR(../../../@) vif $VAR(../@)',
     'openvpn/node.tag' => 'openvpn $VAR(../@)',
     'pseudo-ethernet/node.tag' => 'pseudo-ethernet $VAR(../@)',
     'pseudo-ethernet/node.tag/vif/node.tag' => 'pseudo-ethernet $VAR(../../../@) vif $VAR(../@)',
     'pseudo-ethernet/node.tag/vif-s/node.tag' => 'pseudo-ethernet $VAR(../../../@) vif-s $VAR(../@)',
     'pseudo-ethernet/node.tag/vif-s/node.tag/vif-c/node.tag' => 'pseudo-ethernet $VAR(../../../../@) vif-s $VAR(../../@) vif-c $VAR(../@)',
-    'serial/node.tag/cisco-hdlc/vif/node.tag' => 'serial $VAR(../../../@) cisco-hdlc vif $VAR(../@)',
-    'serial/node.tag/frame-relay/vif/node.tag' => 'serial $VAR(../../../@) frame-relay vif $VAR(../@)',
-    'serial/node.tag/ppp/vif/node.tag' => 'serial $VAR(../../../@) ppp vif $VAR(../@)',
     'tunnel/node.tag' => 'tunnel $VAR(../@)',
     'vti/node.tag' => 'vti $VAR(../@)',
     'wireless/node.tag' => 'wireless $VAR(../@)',
     'wireless/node.tag/vif/node.tag' => 'wireless $VAR(../../../@) vif $VAR(../@)',
     'wirelessmodem/node.tag' => 'wirelessmodem $VAR(../@)',
     'l2tpv3/node.tag' => 'l2tpv3 $VAR(../@)',
-    'vxlan/node.tag' => 'vxlan $VAR(../@)'
+    'vxlan/node.tag' => 'vxlan $VAR(../@)',
+    'dummy/node.tag' => 'dummy $VAR(../@)'
 );
 
 # Hash table to check if the priority needs to set @ root

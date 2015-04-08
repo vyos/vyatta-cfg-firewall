@@ -3,7 +3,7 @@ Section: contrib/net
 Priority: extra
 Maintainer: VyOS Package Maintainers <maintainers@vyos.net>
 Build-Depends: debhelper (>= 5), autotools-dev
-Standards-Version: 3.7.2
+Standards-Version: 3.9.1
 
 Package: vyatta-cfg-firewall
 Architecture: all
@@ -22,9 +22,9 @@ Depends: sed (>= 4.1.5),
  whois,
  sudo,
  snmpd,
- ipset
-Replaces: vyatta-serial,
- vyatta-cfg-system,
+ ipset,
+ iptables
+Replaces: vyatta-cfg-system,
  vyatta-openvpn,
  vyatta-wirelessmodem
 Suggests: util-linux (>= 2.13-5),
@@ -32,13 +32,5 @@ Suggests: util-linux (>= 2.13-5),
  ethtool,
  ncurses-bin (>= 5.5-5),
  ntpdate
-Description: Vyatta firewall configuration templates/scripts
- Vyatta firewall configuration templates and scripts.
-
-Package: vyatta-cfg-firewall-serial
-Architecture: all
-Depends:  vyatta-cfg-firewall,
- vyatta-serial
-Replaces: vyatta-cfg-firewall
-Description: vyatta-cfg-firewall serial templates
- Vyatta firewall configuration templates for serial devices
+Description: VyOS firewall configuration templates/scripts
+ VyOS firewall configuration templates and scripts.
