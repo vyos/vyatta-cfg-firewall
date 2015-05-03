@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium9) unstable; urgency=low
+
+  * Bug #406: display uncommited firewall group names in completion.
+
+ -- Daniil Baturin <daniil@baturin.org>  Sun, 03 May 2015 20:26:36 +0200
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium8) unstable; urgency=low
 
   * Sanitize the package.
