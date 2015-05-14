@@ -25,6 +25,8 @@ my $policy_ref_file  = '/var/run/vyatta_policy_ref';
 my $FW_IN_HOOK = 'VYATTA_FW_IN_HOOK';
 my $FW_OUT_HOOK = 'VYATTA_FW_OUT_HOOK';
 my $FW_LOCAL_HOOK = 'VYATTA_FW_LOCAL_HOOK';
+# FW_LOCALOUT_HOOK is only used in mangle table for PBR of locally initiated traffic
+my $FW_LOCALOUT_HOOK = 'VYATTA_FW_LOCALOUT_HOOK';
 my $max_rule = 10000;
 
 my (@setup, @updateints, @updaterules);
@@ -43,7 +45,9 @@ GetOptions("setup=s{2}"        => \@setup,
 my %table_hash = ( 'firewall name'        => 'filter',
                    'firewall ipv6-name'   => 'filter',
                    'policy route'         => 'mangle',
-                   'policy ipv6-route'    => 'mangle' );
+                   'policy local-route'   => 'mangle',
+                   'policy ipv6-route'    => 'mangle',
+		   'policy ipv6-local-route'    => 'mangle');
 
 # mapping from config node to iptables command.  Note that this table
 # has the same keys as %table hash, so a loop iterating through the
@@ -52,13 +56,17 @@ my %table_hash = ( 'firewall name'        => 'filter',
 my %cmd_hash = ( 'firewall name'        => 'iptables',
                  'firewall ipv6-name'   => 'ip6tables',
                  'policy route'         => 'iptables',
-                 'policy ipv6-route'    => 'ip6tables');
+                 'policy local-route'   => 'iptables',
+                 'policy ipv6-route'    => 'ip6tables',
+		 'policy ipv6-local-route'      => 'ip6tables');
 
 # mapping from config node to IP version string.
 my %ip_version_hash = ( 'firewall name'        => 'ipv4',
                         'firewall ipv6-name'   => 'ipv6',
                         'policy route'         => 'ipv4',
-                        'policy ipv6-route'    => 'ipv6');
+                        'policy local-route'   => 'ipv4',
+                        'policy ipv6-route'    => 'ipv6',
+			'policy ipv6-local-route'       => 'ipv6');
 
 # mapping from firewall tree to builtin chain for input
 my %inhook_hash =  ( 'filter' => 'FORWARD',
@@ -71,6 +79,9 @@ my %outhook_hash = ( 'filter' => 'FORWARD',
 # mapping from firewall tree to builtin chain for local
 my %localhook_hash = ( 'filter' => 'INPUT' );
 
+# mapping from firewall tree to builtin chain for localout
+my %localouthook_hash = ( 'mangle' => 'OUTPUT' );
+
 # mapping from vyatta 'default-policy' to iptables jump target
 my %policy_hash = ( 'drop'    => 'DROP',
                     'reject'  => 'REJECT',
@@ -79,7 +90,9 @@ my %policy_hash = ( 'drop'    => 'DROP',
 my %other_tree = (  'firewall name'        => 'policy route',
                     'firewall ipv6-name'   => 'policy ipv6-route',
                     'policy route'         => 'firewall name',
-                    'policy ipv6-route'    => 'firewall ipv6-name');
+                    'policy local-route'   => 'firewall name',
+                    'policy ipv6-route'    => 'firewall ipv6-name',
+		    'policy ipv6-local-route'	=> 'firewall ipv6-name');
 
 
 # Send output of shell commands to syslog for debugging and so that
@@ -117,7 +130,15 @@ if ($#updateints == 4) {
   log_msg "updateints [$action][$int_name][$direction][$chain][$tree]";
   my ($table, $iptables_cmd) = (undef, undef);
 
-  my $tree2     = chain_configured(1, $chain, $tree);
+  my $tree_temp = $tree;
+  if ($tree_temp eq "policy local-route") {
+    $tree_temp = "policy route";
+  }
+  if ($tree_temp eq "policy ipv6-local-route") {
+    $tree_temp = "policy ipv6-route";
+  }
+
+  my $tree2     = chain_configured(1, $chain, $tree_temp);
   $table        = $table_hash{$tree};
   $iptables_cmd = $cmd_hash{$tree};
 
@@ -751,6 +772,9 @@ sub update_ints {
     /^out/   && do {
              $direction = $FW_OUT_HOOK;
              $interface = "--out-interface $int_name";
+	     if ($tree eq "policy local-route" || $tree eq "policy ipv6-local-route") {
+		$direction = $FW_LOCALOUT_HOOK;
+	     }
              last CASE;
              };
 
@@ -894,6 +918,12 @@ sub setup_iptables {
       my $lhook = $localhook_hash{$table};
       run_cmd("$iptables_cmd -t $table -N $FW_LOCAL_HOOK", 1);
       run_cmd("$iptables_cmd -t $table -I $lhook $insert_at -j $FW_LOCAL_HOOK", 1);
+    }
+    # add VYATTA_FW_LOCALOUT_HOOK only in mangle table for PBR of locally initiated traffic
+    if ($table eq 'mangle') {
+      my $lohook = $localouthook_hash{$table};
+      run_cmd("$iptables_cmd -t $table -N $FW_LOCALOUT_HOOK", 1);
+      run_cmd("$iptables_cmd -t $table -I $lohook $insert_at -j $FW_LOCALOUT_HOOK", 1);
     }
   }
 
