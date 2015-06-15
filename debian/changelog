@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium12) unstable; urgency=low
+
+  * vyatta-cfg-firewall: update dh_gencontrol with new development flag
+
+ -- Alex Harpin <development@landsofshadow.co.uk>  Mon, 15 Jun 2015 08:16:45 +0100
+ 
 vyatta-cfg-firewall (0.14.0+vyos2+lithium11) unstable; urgency=low
 
   * Missing comma in gen-interface-templates script interface hash.
