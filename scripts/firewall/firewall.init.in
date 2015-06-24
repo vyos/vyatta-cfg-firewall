@@ -69,6 +69,7 @@ start () {
     iptables -t raw -I VYATTA_CT_HELPER -p udp --dport 111 -j CT --helper rpc
     iptables -t raw -I VYATTA_CT_HELPER -p tcp --dport 1521 -j CT --helper tns 
     iptables -t raw -I VYATTA_CT_HELPER -p tcp --dport 1525 -j CT --helper tns 
+    iptables -t raw -I VYATTA_CT_HELPER -p tcp --dport 1536 -j CT --helper tns 
     iptables -t raw -A VYATTA_CT_HELPER -j RETURN
 
     # set up notrack chains/rules for IPv4
