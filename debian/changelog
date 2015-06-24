@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium13) unstable; urgency=low
+
+  * vyatta-cfg-firewall: add port 1536 to the initial ct helper chain
+
+ -- Alex Harpin <development@landsofshadow.co.uk>  Wed, 24 Jun 2015 08:13:39 +0100
+ 
 vyatta-cfg-firewall (0.14.0+vyos2+lithium12) unstable; urgency=low
 
   * vyatta-cfg-firewall: update dh_gencontrol with new development flag
