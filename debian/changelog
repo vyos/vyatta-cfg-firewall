@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.13.91+vyos1+helium10) unstable; urgency=low
+
+  * Bug #406: display uncommited firewall group names in completion.
+
+ -- Daniil Baturin <daniil@baturin.org>  Wed, 12 Aug 2015 04:05:10 +0200
+
 vyatta-cfg-firewall (0.13.91+vyos1+helium9) unstable; urgency=low
 
   * Bug #487: complete names for added but not commited firewall
