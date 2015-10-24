@@ -1,3 +1,10 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium14) unstable; urgency=low
+
+  [ Alex Harpin ]
+  * vyatta-cfg-firewall: temporarily disable p2p option in firewall config
+
+ -- Alex Harpin <development@landsofshadow.co.uk>  Sat, 24 Oct 2015 11:29:12 +0100
+ 
 vyatta-cfg-firewall (0.14.0+vyos2+lithium13) unstable; urgency=low
 
   * vyatta-cfg-firewall: add port 1536 to the initial ct helper chain
