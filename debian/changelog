@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium15) unstable; urgency=low
+
+  [ Alex Harpin ]
+  * vyatta-cfg-firewall: drop executable permissions on node.defs
+  * vyatta-cfg-firewall: check rules for errors before processing them
+  * vyatta-cfg-firewall: formatting changes for style consistency
+  * vyatta-cfg-firewall: update nfct commands to use the new syntax
+
+ -- Alex Harpin <development@landsofshadow.co.uk>  Sun, 29 Nov 2015 18:51:08 +0000
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium14) unstable; urgency=low
 
   [ Alex Harpin ]
