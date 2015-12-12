@@ -1,3 +1,11 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium16) unstable; urgency=low
+
+  [ Alex Harpin ]
+  * vyatta-cfg-firewall: update network-group check to allow "this" network
+  * vyatta-cfg-firewall: formatting changes for style consistency
+
+ -- Alex Harpin <development@landsofshadow.co.uk>  Sat, 12 Dec 2015 20:13:00 +0000
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium15) unstable; urgency=low
 
   [ Alex Harpin ]
