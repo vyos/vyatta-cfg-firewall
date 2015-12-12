@@ -361,10 +361,10 @@ sub check_member {
         }
         if ($member =~ /([\d.]+)\/(\d+)/) {
             my ($net, $mask) = ($1, $2);
-            return "Error: zero net invalid in network-group\n"
-                if $net eq '0.0.0.0';
+            return "Error: 0.0.0.0/0 invalid in network-group\n"
+                if (($net eq '0.0.0.0') and ($mask == 0));
             return "Error: invalid mask [$mask] - must be between 1-31\n"
-                if $mask < 1 or $mask > 31;
+                if (($mask < 1) or ($mask > 31));
         } else {
             return "Error: Invalid network group [$member]\n";
         }
