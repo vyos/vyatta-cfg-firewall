@@ -1,3 +1,9 @@
+vyatta-cfg-firewall (0.14.0+vyos2+lithium17) unstable; urgency=low
+
+  * Remove dead code from the IPset module.
+
+ -- Daniil Baturin <daniil@baturin.org>  Tue, 22 Dec 2015 21:38:37 +0100
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium16) unstable; urgency=low
 
   [ Alex Harpin ]
