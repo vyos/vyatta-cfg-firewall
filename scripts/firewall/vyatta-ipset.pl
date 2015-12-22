@@ -81,15 +81,6 @@ sub ipset_delete {
     return $group->delete();
 }
 
-sub ipset_check_member {
-    my ($set_name, $set_type, $member) = @_;
-
-    die "undefined type or member" if ! defined $set_type or ! defined $member;
-
-    my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
-    return $group->check_member($member);
-}
-
 sub ipset_add_member {
     my ($set_name, $member, $alias, $set_type) = @_;
     my $hyphenated_port = 'false'; 
@@ -389,9 +380,6 @@ $rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
 $rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
 
 $rc = ipset_delete($set_name) if $action eq 'delete-set';
-
-$rc = ipset_check_member($set_name, $set_type, $member) 
-    if $action eq 'check-member';
 
 $rc = ipset_add_member($set_name, $member, $alias, $set_type) if $action eq 'add-member';
 

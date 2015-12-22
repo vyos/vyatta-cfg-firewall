@@ -53,6 +53,7 @@ my $logger = 'logger -t IpSet.pm -p local0.warn --';
 # due to the long time it takes to make that many calls
 # to add each individual member to the set.
 my $addr_range_mask = 24;
+
 my $lockfile = "/opt/vyatta/config/.lock";
 
 # remove lock file to avoid commit blockade on interrupt
@@ -310,78 +311,6 @@ sub delete {
     my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
-}
-
-sub check_member_address {
-    my $member = shift;
-
-    if (!Vyatta::TypeChecker::validateType('ipv4', $member, 1)) {
-        return "Error: [$member] isn't valid IPv4 address\n";
-    }
-    if ($member eq '0.0.0.0') {
-        return "Error: zero IP address not valid in address-group\n";
-    }
-    return;
-}
-
-sub check_member {
-    my ($self, $member) = @_;
-
-    return "Error: undefined group name" if !defined $self->{_name};
-    return "Error: undefined group type" if !defined $self->{_type};
-
-    # We can't call $self->member_exists() here since this is a
-    # syntax check and the group may not have been created yet
-    # if there hasn't been a commit yet on this group.  Move the
-    # exists check to $self->add_member().
-
-    if ($self->{_type} eq 'address') {
-        if ($member =~ /^([^-]+)-([^-]+)$/) {
-            foreach my $address ($1, $2) {
-                my $rc = check_member_address($address);
-                return $rc if defined $rc;
-            }
-            my $start_ip = new NetAddr::IP($1);
-            my $stop_ip  = new NetAddr::IP($2);
-            if ($stop_ip <= $start_ip) {
-                return "Error: $1 must be less than $2\n";
-            }
-            my $start_net = new NetAddr::IP("$1/$addr_range_mask");
-            if (!$start_net->contains($stop_ip)) {
-                return "Error: address range must be within /$addr_range_mask\n";
-            }
-
-        } else {
-            my $rc = check_member_address($member);
-            return $rc if defined $rc;
-        }
-    } elsif ($self->{_type} eq 'network') {
-        if (!Vyatta::TypeChecker::validateType('ipv4net', $member, 1)) {
-            return "Error: [$member] isn't a valid IPv4 network\n";
-        }
-        if ($member =~ /([\d.]+)\/(\d+)/) {
-            my ($net, $mask) = ($1, $2);
-            return "Error: 0.0.0.0/0 invalid in network-group\n"
-                if (($net eq '0.0.0.0') and ($mask == 0));
-            return "Error: invalid mask [$mask] - must be between 1-31\n"
-                if (($mask < 1) or ($mask > 31));
-        } else {
-            return "Error: Invalid network group [$member]\n";
-        }
-    } elsif ($self->{_type} eq 'port') {
-        my ($success, $err) = (undef, "invalid port [$member]");
-        if ($member =~ /^(\d+)-(\d+)$/) {
-            ($success, $err) = Vyatta::Misc::isValidPortRange($member, '-');
-        } elsif ($member =~ /^\d/) {
-            ($success, $err) = Vyatta::Misc::isValidPortNumber($member);
-        } else {
-            ($success, $err) = Vyatta::Misc::isValidPortName($member);
-        }
-        return "Error: $err\n" if defined $err;
-    } else {
-        return "Error: invalid set type [$self->{_type}]";
-    }
-    return; #undef
 }
 
 sub member_exists {
