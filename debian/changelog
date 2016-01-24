@@ -1,3 +1,13 @@
+vyatta-cfg-firewall (0.14.0+vyos2+current1) unstable; urgency=medium
+
+  [ Thomas Jepp ]
+  * Fix build depends.
+  * Fix runtime depends.
+
+  [ Kim Hagen ]
+
+ -- Kim Hagen <kim.sidney@gmail.com>  Sun, 24 Jan 2016 15:00:40 -0500
+
 vyatta-cfg-firewall (0.14.0+vyos2+lithium16) unstable; urgency=low
 
   [ Alex Harpin ]
