@@ -74,8 +74,8 @@ sub set_ip_version {
 }
 
 sub setup_base {
-  my ($self, $level, $func) = @_;
-  my $config = new Vyatta::Config;
+  my ($self, $level, $func, $config_) = @_;
+  my $config = defined($config_) ? $config_ : new Vyatta::Config;
 
   $config->setLevel("$level");
 
@@ -112,16 +112,16 @@ sub setup_base {
 }
 
 sub setup {
-  my ($self, $level) = @_;
+  my ($self, $level, $config_) = @_;
 
-  $self->setup_base($level, 'returnValue');
+  $self->setup_base($level, 'returnValue', $config_);
   return 0;
 }
 
 sub setupOrig {
-  my ($self, $level) = @_;
+  my ($self, $level, $config_) = @_;
 
-  $self->setup_base($level, 'returnOrigValue');
+  $self->setup_base($level, 'returnOrigValue', $config_);
   return 0;
 }
 
