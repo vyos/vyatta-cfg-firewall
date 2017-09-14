@@ -107,16 +107,12 @@ sub gen_firewall_template {
 #
 my %table_help_hash = (
     "route"      => "IPv4 policy route",
-    "local-route" => "IPv4 policy route of local traffic",
     "ipv6-route" => "IPv6 policy route",
-    "ipv6-local-route" => "IPv6 policy route of local traffic",
 );
 
 my %config_association_hash = (
     "route"      => "\"policy route\"",
-    "local-route" => "\"policy local-route\"",
     "ipv6-route" => "\"policy ipv6-route\"",
-    "ipv6-local-route" => "\"policy ipv6-local-route\"",
 );
 
 # Generate the template file at the leaf of the per-interface firewall tree.
@@ -124,10 +120,10 @@ my %config_association_hash = (
 # ruleset on an interface for a particular ruleset type and direction.
 #
 sub gen_template {
-    my ( $if_tree, $direction, $table, $if_name ) = @_;
+    my ( $if_tree, $table, $if_name ) = @_;
 
     if ($debug) {
-        print "debug: table=$table direction=$direction\n";
+        print "debug: table=$table\n";
     }
 
     my $template_dir =
@@ -151,16 +147,16 @@ allowed: local -a params
 	echo -n "\${params[@]}"
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) $config_association_hash{$table}
+		update \$ifname in \$VAR(@) $config_association_hash{$table}
 
 update:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		update \$ifname $direction \$VAR(@) $config_association_hash{$table}
+		update \$ifname in \$VAR(@) $config_association_hash{$table}
 
 
 delete:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
-		delete \$ifname $direction \$VAR(@) $config_association_hash{$table}
+		delete \$ifname in \$VAR(@) $config_association_hash{$table}
 EOF
 
     close $tp
@@ -177,10 +173,8 @@ foreach my $if_tree ( keys %interface_hash ) {
     }
 
     gen_firewall_template($if_tree);
-    gen_template( $if_tree, "in", "route", $if_name );
-    gen_template( $if_tree, "out", "local-route", $if_name );
-    gen_template( $if_tree, "in", "ipv6-route", $if_name );
-    gen_template( $if_tree, "out", "ipv6-local-route", $if_name );
+    gen_template( $if_tree, "route", $if_name );
+    gen_template( $if_tree, "ipv6-route", $if_name );
 }
 
 print "Done.\n";
