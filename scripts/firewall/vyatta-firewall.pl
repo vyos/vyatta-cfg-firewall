@@ -526,41 +526,49 @@ sub update_rules {
     $config->setLevel("$tree $name rule");
     my %test_rule_hash = $config->listNodeStatus();
 
+    my $all_rules_deleted = 1;
+
     foreach my $test_rule (sort numerically keys %test_rule_hash) {
-        if ("$test_rule_hash{$test_rule}" eq 'static') {
-            next;
-        } elsif ("$test_rule_hash{$test_rule}" eq 'added') {
-            my $test_node = new Vyatta::IpTables::Rule;
-            $test_node->setup("$tree $name rule $test_rule");
-            $test_node->set_ip_version($ip_version_hash{$tree});
-            my ($err_str, @rule_strs) = $test_node->rule();
-            if (defined($err_str)) {
-                Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: $err_str\n");
-                exit 1;
-            }
-            my $test_chain = chain_configured(2, $name, $tree);
-            if (defined($test_chain)) {
-                # Chain name must be unique in both trees
-                Vyatta::Config::outputError([$tree,$name], "Firewall configuration error: Rule set name \"$name\" already used in \"$test_chain\"\n");
-                exit 1;
-            }
-        } elsif ("$test_rule_hash{$test_rule}" eq 'changed') {
-            my $test_node = new Vyatta::IpTables::Rule;
-            $test_node->setup("$tree $name rule $test_rule");
-            $test_node->set_ip_version($ip_version_hash{$tree});
-            my ($err_str, @rule_strs) = $test_node->rule();
-            if (defined($err_str)) {
-                Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: $err_str\n");
-                exit 1;
-            }
-        } elsif ("$test_rule_hash{$test_rule}" eq 'deleted') {
-            if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
-                # Disallow deleting a chain if it's still referenced
-                Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: Cannot delete rule set \"$name\" (still in use)\n");
-                exit 1;
+        if ("$test_rule_hash{$test_rule}" ne 'deleted') {
+            $all_rules_deleted = 0;
+
+            if ("$test_rule_hash{$test_rule}" eq 'static') {
+                next;
+            } elsif ("$test_rule_hash{$test_rule}" eq 'added') {
+                my $test_node = new Vyatta::IpTables::Rule;
+                $test_node->setup("$tree $name rule $test_rule");
+                $test_node->set_ip_version($ip_version_hash{$tree});
+                my ($err_str, @rule_strs) = $test_node->rule();
+                if (defined($err_str)) {
+                    Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: $err_str\n");
+                    exit 1;
+                }
+                my $test_chain = chain_configured(2, $name, $tree);
+                if (defined($test_chain)) {
+                    # Chain name must be unique in both trees
+                    Vyatta::Config::outputError([$tree,$name], "Firewall configuration error: Rule set name \"$name\" already used in \"$test_chain\"\n");
+                    exit 1;
+                }
+            } elsif ("$test_rule_hash{$test_rule}" eq 'changed') {
+                my $test_node = new Vyatta::IpTables::Rule;
+                $test_node->setup("$tree $name rule $test_rule");
+                $test_node->set_ip_version($ip_version_hash{$tree});
+                my ($err_str, @rule_strs) = $test_node->rule();
+                if (defined($err_str)) {
+                    Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: $err_str\n");
+                    exit 1;
+                }
             }
         }
     }
+
+
+    if ($all_rules_deleted and Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
+        # Disallow deleting a chain if it's still referenced
+        Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: Cannot delete rule set \"$name\" (still in use)\n");
+        exit 1;
+    }
+
 
     if ($nodes{$name} eq 'static') {
 
