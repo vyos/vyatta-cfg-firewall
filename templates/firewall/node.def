@@ -1,0 +1,3 @@
+priority: 199
+help: Firewall
+end: ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="$VAR(@)"
