@@ -1,0 +1,6 @@
+multi:
+type: txt
+help: Address-group member
+val_help: ipv6; IPv6 address to match
+
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type ipv6_addr_param $VAR(@)"

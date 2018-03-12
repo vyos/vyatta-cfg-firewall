@@ -1,0 +1,9 @@
+type: txt
+help: Group of addresses
+
+commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
+                           --action=check-set-type        \
+                           --set-name=$VAR(@)             \
+                           --set-type=address;"
+
+allowed: cli-shell-api listNodes firewall ipv6-group address-group
