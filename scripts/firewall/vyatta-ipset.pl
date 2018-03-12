@@ -67,9 +67,9 @@ sub ipset_reset {
 }
 
 sub ipset_create {
-    my ($set_name, $set_type) = @_;
+    my ($set_name, $set_type, $set_family) = @_;
 
-    my $group = new Vyatta::IpTables::IpSet($set_name, $set_type);
+    my $group = new Vyatta::IpTables::IpSet($set_name, $set_type, $set_family);
 
     return $group->create();
 }
@@ -244,11 +244,30 @@ sub ipset_is_group_used {
     exit 1;
 }
 
+sub ipset_is_group_defined {
+    my ($set_name, $set_type, $set_family) = @_;
+    my $cfg = new Vyatta::Config;
+
+    die "Error: undefined set_name\n" if ! defined $set_name;
+    die "Error: undefined set_type\n" if ! defined $set_type;
+    die "Error: undefined set_family\n" if ! defined $set_family;
+    
+    my $gpath = ($set_family eq 'inet') ? "firewall ipv6-group $set_type-group" : "firewall group $set_type-group";
+    my @groups = $cfg->listOrigNodes($gpath);
+    my $group;
+    foreach $group (@groups) {
+      if ($set_name eq $group) {
+         exit 1;
+      }
+    }
+    exit 0;
+}
+
 sub update_set {
-  my ($set_name, $set_type) = @_;
+  my ($set_name, $set_type, $set_family) = @_;
   my $cfg = new Vyatta::Config;
   my ($rc, $newset);
-  my $cpath = "firewall group $set_type-group $set_name";
+  my $cpath = ($set_family eq 'inet') ? "firewall group $set_type-group $set_name" : "firewall ipv6-group $set_type-group $set_name";
   if ($cfg->existsOrig($cpath)) {
     if (!$cfg->exists($cpath)) {
       # deleted
@@ -258,7 +277,7 @@ sub update_set {
   } else {
     if ($cfg->exists($cpath)) {
       # added
-      return $rc if (($rc = ipset_create($set_name, $set_type)));
+      return $rc if (($rc = ipset_create($set_name, $set_type, $set_family)));
       $newset = 1;
     } else {
       # doesn't exist! should not happen
@@ -367,11 +386,12 @@ sub show_port_groups {
 #
 # main
 #
-my ($action, $set_name, $set_type, $member, $set_copy, $alias);
+my ($action, $set_name, $set_type, $set_family, $member, $set_copy, $alias);
 
 GetOptions("action=s"   => \$action,
            "set-name=s" => \$set_name,
            "set-type=s" => \$set_type,
+           "set-family=s" => \$set_family,
            "member=s"   => \$member,
            "alias=s"    => \$alias,
            "set-copy=s" => \$set_copy,
@@ -386,7 +406,7 @@ show_network_groups() if $action eq 'show-network-groups';
 
 $rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
 
-$rc = ipset_create($set_name, $set_type) if $action eq 'create-set';
+$rc = ipset_create($set_name, $set_type, $set_family) if $action eq 'create-set';
 
 $rc = ipset_delete($set_name) if $action eq 'delete-set';
 
@@ -411,8 +431,9 @@ $rc = ipset_is_group_deleted($set_name, $set_type)
     if $action eq 'is-group-deleted';
 
 $rc = ipset_is_group_used($set_name, $set_type) if $action eq 'is-group-used';
+$rc = ipset_is_group_defined($set_name, $set_type, $set_family) if $action eq 'is-group-defined';
 
-$rc = update_set($set_name, $set_type) if $action eq 'update-set';
+$rc = update_set($set_name, $set_type, $set_family) if $action eq 'update-set';
 $rc = prune_deleted_sets() if $action eq 'prune-deleted-sets';
 
 if (defined $rc) {

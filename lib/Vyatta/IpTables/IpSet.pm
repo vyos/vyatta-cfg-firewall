@@ -35,6 +35,7 @@ use warnings;
 my %fields = (
     _name   => undef,
     _type   => undef,  # vyatta group type, not ipset type
+    _family => undef,
     _exists => undef,
     _negate => undef,
     _debug  => undef,
@@ -65,7 +66,7 @@ sub INT_handler {
 $SIG{'INT'} = 'INT_handler';
 
 sub new {
-    my ($that, $name, $type) = @_;
+    my ($that, $name, $type, $family) = @_;
 
     my $class = ref($that) || $that;
     my $self = {%fields,};
@@ -75,6 +76,7 @@ sub new {
     }
     $self->{_name} = $name;
     $self->{_type} = $type;
+    $self->{_family} = $family;
 
     bless $self, $class;
     return $self;
@@ -192,7 +194,7 @@ sub create {
         $ipset_param .= ' --from 1 --to 65535';
     }
 
-    my $cmd = "ipset -N $self->{_name} $ipset_param";
+    my $cmd = "ipset -N $self->{_name} $ipset_param family $self->{_family}";
     my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef

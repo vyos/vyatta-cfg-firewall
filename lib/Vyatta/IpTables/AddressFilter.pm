@@ -238,31 +238,25 @@ sub rule {
     my ($port_str, $port_err)= getPortRuleString($self->{_port}, $can_use_port,($self->{_srcdst} eq "source") ? "s" : "d",$self->{_protocol});
     return (undef, $port_err) if (!defined($port_str));
     $rule .= $port_str;
-
     # Handle groups last so we can check $group_ok
-    if ($self->{_ip_version} eq "ipv4") {
-
-        # so far ipset only supports IPv4
-        my %group_used = ('address' => 0, 'network' => 0);
-        foreach my $group_type ('address', 'network', 'port') {
-            my $var_name = '_' . $group_type . '_group';
-            if (defined($self->{$var_name})) {
-                $group_used{$group_type} = 1;
-                my $name = $self->{$var_name};
-                if (!$group_ok{$group_type}) {
-                    return (undef, "Can't mix $self->{_srcdst} $group_type group [$name] and $group_type");
-                }
-                my $group = new Vyatta::IpTables::IpSet($name, $group_type);
-                my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
-                return ($err_str,) if !defined $set_rule;
-                $rule .= $set_rule;
+    my %group_used = ('address' => 0, 'network' => 0);
+    foreach my $group_type ('address', 'network', 'port') {
+        my $var_name = '_' . $group_type . '_group';
+        if (defined($self->{$var_name})) {
+            $group_used{$group_type} = 1;
+            my $name = $self->{$var_name};
+            if (!$group_ok{$group_type}) {
+                return (undef, "Can't mix $self->{_srcdst} $group_type group [$name] and $group_type");
             }
-        }
-        if ($group_used{address} and $group_used{network}) {
-            return (undef,"Can't combine network and address group for $self->{_srcdst}\n");
+            my $group = new Vyatta::IpTables::IpSet($name, $group_type);
+            my ($set_rule, $err_str) = $group->rule($self->{_srcdst});
+            return ($err_str,) if !defined $set_rule;
+            $rule .= $set_rule;
         }
     }
-
+    if ($group_used{address} and $group_used{network}) {
+        return (undef,"Can't combine network and address group for $self->{_srcdst}\n");
+    }
     return ($rule, undef);
 }
 
