@@ -1,7 +1,7 @@
 tag:
 priority: 200
 type: txt
-help: Firewall address-group
+help: Firewall ipv6-address-group
 
 syntax:expression: pattern $VAR(@) "^[[:graph:]]{1,31}$" ; \
        "Firewall group name must be 31 characters or less"
