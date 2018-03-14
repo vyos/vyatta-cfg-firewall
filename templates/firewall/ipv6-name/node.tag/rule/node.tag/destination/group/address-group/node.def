@@ -6,4 +6,4 @@ commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --set-name=$VAR(@)             \
                            --set-type=address;"
 
-allowed: cli-shell-api listNodes firewall ipv6-group address-group
+allowed: cli-shell-api listNodes firewall group ipv6-address-group
