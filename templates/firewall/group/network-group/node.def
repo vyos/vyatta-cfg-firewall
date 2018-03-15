@@ -16,7 +16,7 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
        "Firewall group name cannot contain shell punctuation"
 
 syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-defined --set-name=$VAR(@) \
-        --set-type=address --set-family=inet"; \
+        --set-type=network --set-family=inet"; \
       "Firewall group name already used as Ipv6 group address"
 
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \

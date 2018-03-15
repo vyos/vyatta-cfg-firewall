@@ -252,7 +252,7 @@ sub ipset_is_group_defined {
     die "Error: undefined set_type\n" if ! defined $set_type;
     die "Error: undefined set_family\n" if ! defined $set_family;
     
-    my $gpath = ($set_family eq 'inet') ? "firewall ipv6-group $set_type-group" : "firewall group $set_type-group";
+    my $gpath = ($set_family eq 'inet') ? "firewall group ipv6-$set_type-group" : "firewall group $set_type-group";
     my @groups = $cfg->listOrigNodes($gpath);
     my $group;
     foreach $group (@groups) {
@@ -267,7 +267,7 @@ sub update_set {
   my ($set_name, $set_type, $set_family) = @_;
   my $cfg = new Vyatta::Config;
   my ($rc, $newset);
-  my $cpath = ($set_family eq 'inet') ? "firewall group $set_type-group $set_name" : "firewall ipv6-group $set_type-group $set_name";
+  my $cpath = ($set_family eq 'inet') ? "firewall group $set_type-group $set_name" : "firewall group ipv6-$set_type-group $set_name";
   if ($cfg->existsOrig($cpath)) {
     if (!$cfg->exists($cpath)) {
       # deleted

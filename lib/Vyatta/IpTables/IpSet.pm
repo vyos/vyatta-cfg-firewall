@@ -471,7 +471,7 @@ sub get_firewall_references {
     my @fw_refs = ();
     return @fw_refs if !$self->exists();
     my $config = new Vyatta::Config;
-    foreach my $tree ('name', 'modify') {
+    foreach my $tree ('name', 'ipv6-name', 'modify') {
         my $path = "firewall $tree ";
         $config->setLevel($path);
         my @names = $config->$lfunc();

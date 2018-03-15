@@ -1,7 +1,7 @@
 tag:
 priority: 200
 type: txt
-help: Firewall address-group
+help: Firewall ipv6-address-group
 
 syntax:expression: pattern $VAR(@) "^[[:graph:]]{1,31}$" ; \
        "Firewall group name must be 31 characters or less"
@@ -21,5 +21,5 @@ syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-defi
 
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
         --set-name="$VAR(@)" --set-type=address --set-family=inet6; then
-       ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group address-group $VAR(@)"
+       ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group ipv6-address-group $VAR(@)"
      fi
