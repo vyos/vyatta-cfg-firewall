@@ -190,11 +190,13 @@ sub create {
     my $ipset_param = $grouptype_hash{$self->{_type}};
     return "Error: invalid group type\n" if !defined $ipset_param;
 
+    my $cmd = "ipset -N $self->{_name} $ipset_param family $self->{_family}";
+
     if ($self->{_type} eq 'port') {
         $ipset_param .= ' --from 1 --to 65535';
+        $cmd = "ipset -N $self->{_name} $ipset_param";
     }
 
-    my $cmd = "ipset -N $self->{_name} $ipset_param family $self->{_family}";
     my $rc = $self->run_cmd($cmd);
     return "Error: call to ipset failed [$rc]" if $rc;
     return; # undef
