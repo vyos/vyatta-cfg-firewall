@@ -194,7 +194,7 @@ sub create {
 
     if ($self->{_type} eq 'port') {
         $ipset_param .= ' --from 1 --to 65535';
-        my $cmd = "ipset -N $self->{_name} $ipset_param";
+        $cmd = "ipset -N $self->{_name} $ipset_param";
     }
 
     my $rc = $self->run_cmd($cmd);
