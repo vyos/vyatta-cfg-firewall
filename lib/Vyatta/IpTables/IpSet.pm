@@ -137,6 +137,25 @@ sub get_type {
     return $self->{_type};
 }
 
+sub get_family {
+    my ($self) = @_;
+    return $self->{_family} if defined $self->{_family};
+    return if !$self->exists();
+    my @lines = `ipset -L $self->{_name}`;
+    my $family;
+    foreach my $line (@lines) {
+        if ($line =~ /^Header: family (\w+) hashsize/) {
+            $family = $1;
+            $self->{_family} = $family;
+            last;
+        } elsif ($line =~ /^Type: bitmap:port$/){
+            $self->{_family} = "inet";
+            last;
+        }
+    }
+    return $self->{_family};
+}
+
 sub alphanum_split {
     my ($str) = @_;
     my @list = split m/(?=(?<=\D)\d|(?<=\d)\D)/, $str;
