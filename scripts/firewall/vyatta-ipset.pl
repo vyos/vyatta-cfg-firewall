@@ -350,6 +350,8 @@ sub prune_deleted_sets {
     # only try groups with no references
     if ($group->exists() && ($group->references() == 0)) {
       my $type = $group->get_type();
+      my $family = $group->get_family();
+      ($family eq 'inet') ? $cfg->setLevel("firewall group $type-group") : $cfg->setLevel("firewall group ipv6-$type-group");
       $cfg->setLevel("firewall group $type-group");
       next if ($cfg->isEffective($set)); # don't prune if still in config
       my $rc;
