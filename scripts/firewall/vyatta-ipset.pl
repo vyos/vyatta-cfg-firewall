@@ -352,7 +352,6 @@ sub prune_deleted_sets {
       my $type = $group->get_type();
       my $family = $group->get_family();
       ($family eq 'inet') ? $cfg->setLevel("firewall group $type-group") : $cfg->setLevel("firewall group ipv6-$type-group");
-      $cfg->setLevel("firewall group $type-group");
       next if ($cfg->isEffective($set)); # don't prune if still in config
       my $rc;
       $rc = ipset_delete($set);
