@@ -24,7 +24,8 @@ Depends: sed (>= 4.1.5),
  snmpd,
  ipset,
  iptables,
- libswitch-perl
+ libswitch-perl,
+ libsnmp-perl
 Replaces: vyatta-cfg-system,
  vyatta-openvpn,
  vyatta-wirelessmodem
