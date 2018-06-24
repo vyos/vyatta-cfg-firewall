@@ -2,6 +2,7 @@ type: txt
 help: Routing table to forward packet with
 val_help: u32:1-200 ; Table number
 val_help: main ; Main table
+allowed: echo main `cli-shell-api listNodes protocols static table`
 syntax:expression: exec "
   if [[ $VAR(@) =~ ^-?[0-9]+$ ]] ; then 
     if [ $VAR(@) -lt 1 -o $VAR(@) -gt 200 ] ; then

@@ -14,17 +14,21 @@ syntax:expression: ! pattern $VAR(@) "^VZONE" ; \
 
 end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall ipv6-name" "$VAR(@)" ;
      then
-       if [ ${COMMIT_ACTION} = 'DELETE' ] ; 
+       if [ ${COMMIT_ACTION} = 'DELETE' ] ;
        then
           if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown-ok "firewall ipv6-name" ;
           then
-             sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall ipv6-name"
+             if sudo /opt/vyatta/sbin/vyatta-firewall.pl --teardown "firewall ipv6-name"; then
+                ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall ipv6-name $VAR(@)"
+             fi
           fi
+       else
+          ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall ipv6-name $VAR(@)"
        fi
      else
        exit 1;
      fi
-     ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall ipv6-name $VAR(@)"
+     sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=prune-deleted-sets
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup ip6tables "firewall ipv6-name"
 

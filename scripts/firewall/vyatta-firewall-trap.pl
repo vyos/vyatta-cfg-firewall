@@ -280,7 +280,7 @@ my $config = new Vyatta::Config;
 exit 0 if ! is_trap_enabled($config);
 
 # Detect system startup  (i.e., no snmpd running) and just exit.
-my $snmpd_service = `/usr/sbin/invoke-rc.d snmpd status 2> /dev/null`;
+my $snmpd_service = `systemctl status snmpd.service 2> /dev/null`;
 exit 0 if (! $snmpd_service =~ m/snmpd is running/);
 
 # If no trap-targets configured just exit.

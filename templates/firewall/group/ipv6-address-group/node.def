@@ -1,7 +1,7 @@
 tag:
 priority: 200
 type: txt
-help: Firewall network-group
+help: Firewall ipv6-address-group
 
 syntax:expression: pattern $VAR(@) "^[[:graph:]]{1,31}$" ; \
        "Firewall group name must be 31 characters or less"
@@ -16,11 +16,10 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
        "Firewall group name cannot contain shell punctuation"
 
 syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-defined --set-name=$VAR(@) \
-        --set-type=network --set-family=inet"; \
-      "Firewall group name already used as Ipv6 group address"
+        --set-type=address --set-family=inet6"; \
+      "Firewall group name already used as Ipv4 group address"
 
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
-        --set-name="$VAR(@)" --set-type=network --set-family=inet; then
-        ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group network-group $VAR(@)"
+        --set-name="$VAR(@)" --set-type=address --set-family=inet6; then
+       ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group ipv6-address-group $VAR(@)"
      fi
-

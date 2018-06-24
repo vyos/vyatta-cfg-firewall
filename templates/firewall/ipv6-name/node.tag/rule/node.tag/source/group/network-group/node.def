@@ -1,9 +1,8 @@
 type: txt
-help: Group of addresses
+help: Group of networks
 
 commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-set-type        \
                            --set-name=$VAR(@)             \
-                           --set-type=address;"
-
-allowed: cli-shell-api listNodes firewall group address-group
+                           --set-type=network;"
+allowed: cli-shell-api listNodes firewall group ipv6-network-group
