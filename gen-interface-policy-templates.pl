@@ -48,7 +48,6 @@ my %interface_hash = (
     'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'        => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
     'ethernet/node.tag/vif/node.tag'                         => '$VAR(../../../@).$VAR(../../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag'          => 'pppoe$VAR(../../@)',
-    'ethernet/node.tag/vrrp/vrrp-group/node.tag'             => '$VAR(../../../../@)v$VAR(../../@)',
     'input/node.tag'                                         => '$VAR(../../@)',
     'l2tpv3/node.tag'                                        => '$VAR(../../@)',
     'multilink/node.tag/vif/node.tag'                        => '$VAR(../../../@)',
