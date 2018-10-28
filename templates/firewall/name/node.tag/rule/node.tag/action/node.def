@@ -2,12 +2,11 @@ type:  txt
 
 help: Rule action [REQUIRED]
 
-syntax:expression: $VAR(@) in "drop", "reject", "accept", "inspect";
-                   "action must be one of drop, reject, accept, or inspect"
+syntax:expression: $VAR(@) in "drop", "reject", "accept";
+                   "action must be one of drop, reject or accept"
 
-allowed: echo "drop reject accept inspect"
+allowed: echo "drop reject accept"
 
 val_help: drop     ; Rule action to drop
 val_help: reject   ; Rule action to reject
 val_help: accept   ; Rule action to accept
-val_help: inspect  ; Rule action to inspect

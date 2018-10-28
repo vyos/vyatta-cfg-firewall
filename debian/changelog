@@ -1,8 +1,8 @@
-vyatta-cfg-firewall (1.2.0-1) stable; urgency=medium
+vyatta-cfg-firewall (0.14.0+vyos2+current2) unstable; urgency=medium
 
-  * New branch.
+  * T59: Inspect action still exists in firewall and should be removed
 
- -- Daniil Baturin <daniil@baturin.org>  Fri, 28 Sep 2018 21:32:05 +0200
+ -- hagbard <vyos.dev@derith.de>  Fri, 26 Oct 2018 11:54:38 -0700
 
 vyatta-cfg-firewall (0.14.0+vyos2+current1) unstable; urgency=medium
 
