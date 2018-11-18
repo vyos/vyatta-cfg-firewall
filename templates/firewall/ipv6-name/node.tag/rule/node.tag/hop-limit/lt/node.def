@@ -1,0 +1,5 @@
+type: u32
+help: Value to match a hop limit less than or equal to it
+val_help: u32:0-255; Hop limit less than value
+syntax:expression: $VAR(@) >= 0 && $VAR(@) <= 255; "lt must be between 0 and 255"
+commit:expression: ($VAR(../eq/) == "") && ($VAR(../gt/) == ""); "you may only define one comparison (eq|lt|gt)"
