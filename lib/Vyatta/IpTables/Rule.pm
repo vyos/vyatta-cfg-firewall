@@ -574,6 +574,9 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
             $recent_rule1 .= " --hitcount $self->{_recent_cnt} ";
         }
 
+        $recent_rule1 .= " --name $self->{_name}-$self->{_rule_number} ";
+        $recent_rule2 .= " --name $self->{_name}-$self->{_rule_number} ";
+
         $recent_rule = $rule;
 
         if ($rule =~ m/\-m\s+set\s+\-\-match\-set/) {
