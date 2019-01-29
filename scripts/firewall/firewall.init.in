@@ -150,6 +150,12 @@ start () {
         ip6tables -t mangle -N VYOS_SNPT_HOOK
         ip6tables -t mangle -A VYOS_SNPT_HOOK -j RETURN
         ip6tables -t mangle -A POSTROUTING -j VYOS_SNPT_HOOK
+        ip6tables -t nat -N VYOS_DNPT_HOOK
+        ip6tables -t nat -A VYOS_DNPT_HOOK -j RETURN
+        ip6tables -t nat -A PREROUTING -j VYOS_DNPT_HOOK
+        ip6tables -t nat -N VYOS_SNPT_HOOK
+        ip6tables -t nat -A VYOS_SNPT_HOOK -j RETURN
+        ip6tables -t nat -A POSTROUTING -j VYOS_SNPT_HOOK
         # NOTRACK hook : not needed, since every v6 connection is NOTRACK'ed for now (see a few lines up)
         # ip6tables -t raw -N VYOS_NPT_HOOK
         # ip6tables -t raw -A PREROUTING -j VYOS_NPT_HOOK
