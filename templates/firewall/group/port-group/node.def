@@ -16,6 +16,6 @@ syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
        "Firewall group name cannot contain shell punctuation"
 
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
-        --set-name="$VAR(@)" --set-type=port; then
+        --set-name="$VAR(@)" --set-type=port --set-family=inet; then
         ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group port-group $VAR(@)"
      fi

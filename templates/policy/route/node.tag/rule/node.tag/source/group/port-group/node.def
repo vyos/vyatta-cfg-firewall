@@ -5,4 +5,4 @@ commit:expression: exec "sudo /opt/vyatta/sbin/vyatta-ipset.pl \
                            --action=check-set-type        \
                            --set-name=$VAR(@)             \
                            --set-type=port;"
-allowed: cli-shell-api listActiveNodes firewall group port-group
+allowed: cli-shell-api listNodes firewall group port-group

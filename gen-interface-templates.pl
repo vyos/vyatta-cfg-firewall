@@ -48,7 +48,6 @@ my %interface_hash = (
     'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'        => '$VAR(../../../../../@).$VAR(../../../../@).$VAR(../../../@)',
     'ethernet/node.tag/vif/node.tag'                         => '$VAR(../../../../@).$VAR(../../../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag'          => 'pppoe$VAR(../../../@)',
-    'ethernet/node.tag/vrrp/vrrp-group/node.tag'             => '$VAR(../../../../../@)v$VAR(../../../@)',
     'input/node.tag'                                         => '$VAR(../../../@)',
     'l2tpv3/node.tag'                                        => '$VAR(../../../@)',
     'multilink/node.tag/vif/node.tag'                        => '$VAR(../../../../@)',
@@ -63,6 +62,7 @@ my %interface_hash = (
     'wireless/node.tag'                                      => '$VAR(../../../@)',
     'wireless/node.tag/vif/node.tag'                         => '$VAR(../../../../@).$VAR(../../../@)',
     'wirelessmodem/node.tag'                                 => '$VAR(../../../@)',
+    'wireguard/node.tag'                                     => '$VAR(../../../@)',
 );
 
 # Firewall node hashes
@@ -79,7 +79,6 @@ my %firewall_hash = (
     'ethernet/node.tag/vif-s/node.tag/vif-c/node.tag'        => 'ethernet $VAR(../../../../@) vif-s $VAR(../../@) vif-c $VAR(../@)',
     'ethernet/node.tag/vif/node.tag'                         => 'ethernet $VAR(../../../@) vif $VAR(../@)',
     'ethernet/node.tag/vif/node.tag/pppoe/node.tag'          => 'ethernet $VAR(../../../../@) vif $VAR(../../@) pppoe $VAR(../@)',
-    'ethernet/node.tag/vrrp/vrrp-group/node.tag'             => 'ethernet $VAR(../../../@) vrrp vrrp-group $VAR(../@)',
     'input/node.tag'                                         => 'input $VAR(../@)',
     'l2tpv3/node.tag'                                        => 'l2tpv3 $VAR(../@)',
     'multilink/node.tag/vif/node.tag'                        => 'multilink $VAR(../../../@) vif $VAR(../@)',
@@ -94,6 +93,7 @@ my %firewall_hash = (
     'wireless/node.tag'                                      => 'wireless $VAR(../@)',
     'wireless/node.tag/vif/node.tag'                         => 'wireless $VAR(../../../@) vif $VAR(../@)',
     'wirelessmodem/node.tag'                                 => 'wirelessmodem $VAR(../@)',
+    'wireguard/node.tag'                                     => 'wireless $VAR(../@)',
 );
 
 # Hash table to check if the priority needs to set @ root

@@ -2,7 +2,7 @@ Source: vyatta-cfg-firewall
 Section: contrib/net
 Priority: extra
 Maintainer: VyOS Package Maintainers <maintainers@vyos.net>
-Build-Depends: debhelper (>= 5), autotools-dev
+Build-Depends: debhelper (>= 5), autotools-dev, autoconf, automake, cpio
 Standards-Version: 3.9.1
 
 Package: vyatta-cfg-firewall
@@ -14,7 +14,6 @@ Depends: sed (>= 4.1.5),
  vyatta-cfg (>= 0.15.33),
  vyatta-cfg-system (>= 0.19.125),
  vyatta-bash | bash (>= 3.1),
- vyatta-util,
  sysv-rc,
  ntp,
  rsyslog | system-log-daemon,
@@ -23,7 +22,9 @@ Depends: sed (>= 4.1.5),
  sudo,
  snmpd,
  ipset,
- iptables
+ iptables,
+ libswitch-perl,
+ libsnmp-perl
 Replaces: vyatta-cfg-system,
  vyatta-openvpn,
  vyatta-wirelessmodem

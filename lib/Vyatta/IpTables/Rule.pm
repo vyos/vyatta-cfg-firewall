@@ -59,7 +59,12 @@ my %fields = (
     },
     _disable     => undef,
     _ip_version  => undef,
-    _comment     => undef
+    _comment     => undef,
+    _hop_limit  => {
+        _eq      => undef,
+        _lt      => undef,
+        _gt      => undef,
+    }
 );
 
 my %dummy_rule = (
@@ -112,7 +117,12 @@ my %dummy_rule = (
     },
     _disable     => undef,
     _ip_version  => undef,
-    _comment     => undef
+    _comment     => undef,
+    _hop_limit  => {
+        _eq      => undef,
+        _lt      => undef,
+        _gt      => undef,
+    }
 );
 
 my $DEBUG = 'false';
@@ -206,6 +216,10 @@ sub setup_base {
 
     $self->{_disable} = $config->$exists_func("disable");
 
+    $self->{_hop_limit}->{_eq} = $config->$val_func("hop-limit eq");
+    $self->{_hop_limit}->{_lt} = $config->$val_func("hop-limit lt");
+    $self->{_hop_limit}->{_gt} = $config->$val_func("hop-limit gt");
+
     # TODO: need $config->exists("$level source") in Vyatta::Config.pm
     $src->$addr_setup("$level source");
     $dst->$addr_setup("$level destination");
@@ -255,6 +269,7 @@ sub print {
     print "mod table: $self->{_mod_table}\n"     if defined $self->{_mod_table};
     print "mod dscp: $self->{_mod_dscp}\n"       if defined $self->{_mod_dscp};
     print "mod tcp-mss: $self->{_mod_tcpmss}\n"  if defined $self->{_mod_tcpmss};
+    print "hop-limit: $self->{_hop_limit}\n"     if defined $self->{_hop_limit};
 
     $src->print();
     $dst->print();
@@ -423,6 +438,16 @@ sub rule {
         }
     }
 
+    # Setup HL rule if configured
+    #
+    if ( defined($self->{_hop_limit}->{_eq}) ) {
+        $rule .= " -m hl --hl-eq $self->{_hop_limit}->{_eq}";
+    } elsif ( defined($self->{_hop_limit}->{_lt}) ) {
+        $rule .= " -m hl --hl-lt $self->{_hop_limit}->{_lt}";
+    } elsif ( defined($self->{_hop_limit}->{_gt}) ) {
+        $rule .= " -m hl --hl-gt $self->{_hop_limit}->{_gt}";
+    }
+
     # add the source and destination rules
     ($srcrule, $err_str) = $src->rule();
     return ($err_str,) if (!defined($srcrule));
@@ -548,6 +573,9 @@ first character capitalized eg. Mon,Thu,Sat For negation, add ! in front eg. !Mo
         if (defined($self->{_recent_cnt})) {
             $recent_rule1 .= " --hitcount $self->{_recent_cnt} ";
         }
+
+        $recent_rule1 .= " --name $self->{_name}-$self->{_rule_number} ";
+        $recent_rule2 .= " --name $self->{_name}-$self->{_rule_number} ";
 
         $recent_rule = $rule;
 

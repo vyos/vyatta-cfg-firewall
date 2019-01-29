@@ -1,0 +1,8 @@
+multi:
+type: ipv6net
+help: Network-group member
+val_help: ipv6net; IPv6 Subnet to match
+
+syntax:expression: exec "/opt/vyatta/sbin/vyatta-validate-type ipv6_addr_param $VAR(@)"
+
+syntax:expression: exec "ipaddrcheck --verbose --is-ipv6-net $VAR(@)"
