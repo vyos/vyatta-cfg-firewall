@@ -553,6 +553,12 @@ sub update_rules {
                 Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: $err_str\n");
                 exit 1;
             }
+        } elsif ("$test_rule_hash{$test_rule}" eq 'deleted') {
+            if (Vyatta::IpTables::Mgr::chain_referenced($table, $name, $iptables_cmd)) {
+                # Disallow deleting a chain if it's still referenced
+                Vyatta::Config::outputError([$tree,$name],"Firewall configuration error: Cannot delete rule set \"$name\" (still in use)\n");
+                exit 1;
+            }
         }
     }
 
