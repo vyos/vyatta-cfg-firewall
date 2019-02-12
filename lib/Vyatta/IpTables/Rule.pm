@@ -51,7 +51,6 @@ my %fields = (
         _stoptime  => undef,
         _monthdays => undef,
         _weekdays  => undef,
-        _utc       => undef,
     },
     _limit       => {
         _rate     => undef,
@@ -109,7 +108,6 @@ my %dummy_rule = (
         _stoptime  => undef,
         _monthdays => undef,
         _weekdays  => undef,
-        _utc       => undef,
     },
     _limit       => {
         _rate     => undef,
@@ -209,7 +207,6 @@ sub setup_base {
     $self->{_time}->{_stoptime}  = $config->$val_func("time stoptime");
     $self->{_time}->{_monthdays} = $config->$val_func("time monthdays");
     $self->{_time}->{_weekdays}  = $config->$val_func("time weekdays");
-    $self->{_time}->{_utc}       = $config->$exists_func("time utc");
 
     $self->{_limit}->{_rate}  = $config->$val_func("limit rate");
     $self->{_limit}->{_burst} = $config->$val_func("limit burst");
@@ -496,9 +493,6 @@ sub rule {
     }
 
     my $time = undef;
-    if (defined($self->{_time}->{_utc})) {
-        $time .= " --utc ";
-    }
     if (defined($self->{_time}->{_startdate})) {
         my $check_date = validate_date($self->{_time}->{_startdate}, "startdate");
         if (!($check_date eq "")) {
