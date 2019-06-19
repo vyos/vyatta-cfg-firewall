@@ -15,6 +15,9 @@ syntax:expression: pattern $VAR(@) "^[^!]" ; \
 syntax:expression: pattern $VAR(@) "^[^|;&$<>]*$" ; \
        "Firewall group name cannot contain shell punctuation"
 
+commit:expression:exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=check-duplicates --set-name=$VAR(@) --set-type=port --set-family=inet"; \
+       "There are duplicates inside port-group $VAR(@)"
+
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
         --set-name="$VAR(@)" --set-type=port --set-family=inet; then
         ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group port-group $VAR(@)"

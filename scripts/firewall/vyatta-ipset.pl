@@ -384,6 +384,47 @@ sub show_port_groups {
     print "$group\n";
   }
 }
+
+# check set in configuration for duplicate elements
+sub check_duplicates {
+  my ($set_name, $set_type, $set_family) = @_;
+  my $cfg = new Vyatta::Config;
+  my $cpath = ($set_family eq 'inet') ? "firewall group $set_type-group $set_name" : "firewall group ipv6-$set_type-group $set_name";
+
+  # get items array
+  my @vals = $cfg->returnValues("$cpath $set_type");
+
+  # check duplicates in port-group
+  if ($set_type eq "port") {
+    # define hash with ports as keys
+    my %portlist;
+
+    for my $item (@vals) {
+      # check if this is a port range
+      if ($item =~ /([\d]+)-([\d]+)/) {
+        foreach my $port ($1..$2) {
+          return "Port $port exist in more than one item\n" if (exists $portlist{$port});
+          $portlist{$port} = undef;
+        }
+
+      # check if this is an alphabetic port name
+      } elsif ($item =~ /^\D+/) {
+        my $port = getservbyname($item, "");
+        return "Port $port exist in more than one item\n" if (exists $portlist{$port});
+        $portlist{$port} = undef;
+
+      # process simple numeric ports
+      } else {
+        return "Port $item exist in more than one item\n" if (exists $portlist{$item});
+        $portlist{$item} = undef;
+      }
+    }
+  }
+
+  # do not return anything if there are no duplicates
+  return;
+}
+
 #
 # main
 #
@@ -436,6 +477,8 @@ $rc = ipset_is_group_defined($set_name, $set_type, $set_family) if $action eq 'i
 
 $rc = update_set($set_name, $set_type, $set_family) if $action eq 'update-set';
 $rc = prune_deleted_sets() if $action eq 'prune-deleted-sets';
+
+$rc = check_duplicates($set_name, $set_type, $set_family) if $action eq 'check-duplicates';
 
 if (defined $rc) {
     print $rc;

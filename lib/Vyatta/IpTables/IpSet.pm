@@ -410,10 +410,24 @@ sub check_member {
 sub member_exists {
     my ($self, $member) = @_;
 
-    my $cmd = "ipset -T $self->{_name} $member -q";
-    my $rc = $self->run_cmd($cmd);
-    return $rc ? 0 : 1;
+    # check if a member is a port range and roll through all members it is
+    if ($member =~ /([\d]+)-([\d]+)/) {
+        foreach my $port ($1..$2) {
+            # test port with ipset
+            my $cmd = "ipset -T $self->{_name} $port -q";
+            my $rc = $self->run_cmd($cmd);
+            # return true if port was found
+            return 1 if !$rc;
+        }
+        # return false if ports was not found in set
+        return 0;
+    } else {
+        my $cmd = "ipset -T $self->{_name} $member -q";
+        my $rc = $self->run_cmd($cmd);
+        return $rc ? 0 : 1;
+    }
 }
+
 
 sub add_member {
     my ($self, $member, $alias, $hyphenated_port) = @_;
