@@ -93,7 +93,7 @@ my %firewall_hash = (
     'wireless/node.tag'                                      => 'wireless $VAR(../@)',
     'wireless/node.tag/vif/node.tag'                         => 'wireless $VAR(../../../@) vif $VAR(../@)',
     'wirelessmodem/node.tag'                                 => 'wirelessmodem $VAR(../@)',
-    'wireguard/node.tag'                                     => 'wireless $VAR(../@)',
+    'wireguard/node.tag'                                     => 'wireguard $VAR(../@)',
 );
 
 # Hash table to check if the priority needs to set @ root
