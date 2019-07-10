@@ -224,15 +224,17 @@ allowed: local -a params
 create: ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
 		update \$ifname $direction \$VAR(@) \"firewall $table\"
+	sudo python3 /usr/lib/python3/dist-packages/vyos/config_hooks.py -hook vrrp_firewall_sync
 
 update:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
 		update \$ifname $direction \$VAR(@) \"firewall $table\"
-
+	sudo python3 /usr/lib/python3/dist-packages/vyos/config_hooks.py -hook vrrp_firewall_sync
 
 delete:	ifname=$if_name
 	sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-interfaces \\
 		delete \$ifname $direction \$VAR(@) \"firewall $table\"
+	sudo python3 /usr/lib/python3/dist-packages/vyos/config_hooks.py -hook vrrp_firewall_sync
 EOF
 
     close $tp
