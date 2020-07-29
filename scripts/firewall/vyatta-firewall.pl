@@ -293,7 +293,7 @@ sub write_refcnt_file {
         print $FILE join("\n", @lines), "\n";
         close($FILE);
     } else {
-        system("rm $refcnt_file");
+        unlink($refcnt_file) if -e $refcnt_file;
     }
 }
 
