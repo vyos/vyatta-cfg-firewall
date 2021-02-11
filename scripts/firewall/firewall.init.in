@@ -37,7 +37,6 @@ declare -a modules=(
     nf_nat
     nf_nat_ftp
     nf_nat_tftp
-    nf_nat_proto_gre
     nf_nat_sip
     nf_nat_h323
     nf_nat_pptp)
