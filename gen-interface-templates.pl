@@ -138,6 +138,7 @@ sub gen_firewall_template {
         print $tp "priority: $interface_prio{ $if_tree }\n";
     }
     print $tp "help: Firewall options\n";
+    print $tp "priority: 615\n";
     die "ERROR: No firewall hash for ${if_tree}" unless $firewall_hash{"${if_tree}"};
     print $tp 'end: ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="interfaces ';
     print $tp $firewall_hash{"${if_tree}"} . ' firewall"' . "\n";
