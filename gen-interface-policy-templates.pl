@@ -141,6 +141,7 @@ sub gen_template {
 
     print $tp <<EOF;
 type: txt
+priority: 615
 help: $table_help_hash{$table} ruleset for interface
 allowed: local -a params
 	eval "params=(\$(cli-shell-api listNodes policy $table))"
