@@ -442,41 +442,43 @@ GetOptions("action=s"     => \$action,
 die "undefined action" if ! defined $action;
 
 my $rc;
-show_port_groups() if $action eq 'show-port-groups';
+show_port_groups()    if $action eq 'show-port-groups';
 show_address_groups() if $action eq 'show-address-groups';
 show_network_groups() if $action eq 'show-network-groups';
 
-$rc = ipset_reset($set_name, $set_type) if $action eq 'reset-set';
+$rc = ipset_reset($set_name, $set_type)                         if $action eq 'reset-set';
 
-$rc = ipset_create($set_name, $set_type, $set_family) if $action eq 'create-set';
+$rc = ipset_create($set_name, $set_type, $set_family)           if $action eq 'create-set';
 
-$rc = ipset_delete($set_name) if $action eq 'delete-set';
+$rc = ipset_delete($set_name)                                   if $action eq 'delete-set';
 
-$rc = ipset_check_member($set_name, $set_type, $member) if $action eq 'check-member';
+$rc = ipset_check_member($set_name, $set_type, $member)         if $action eq 'check-member';
 
-$rc = ipset_add_member($set_name, $member, $alias, $set_type) if $action eq 'add-member';
+$rc = ipset_add_member($set_name, $member, $alias, $set_type)   if $action eq 'add-member';
 
-$rc = ipset_delete_member($set_name, $member) if $action eq 'delete-member';
+$rc = ipset_delete_member($set_name, $member)                   if $action eq 'delete-member';
 
-$rc = ipset_check_set_type($set_name, $set_type) if $action eq 'check-set-type';
+$rc = ipset_check_set_type($set_name, $set_type)                if $action eq 'check-set-type';
 
-$rc = ipset_show_members($set_name) if $action eq 'show-set-members';
+$rc = ipset_show_members($set_name)                             if $action eq 'show-set-members';
 
-$rc = ipset_show_sets() if $action eq 'show-sets';
+$rc = ipset_show_sets()                                         if $action eq 'show-sets';
 
-$rc = ipset_is_set_empty($set_name) if $action eq 'is-set-empty'; 
+$rc = ipset_is_set_empty($set_name)                             if $action eq 'is-set-empty'; 
 
-$rc = ipset_copy_set($set_name, $set_type, $set_copy) if $action eq 'copy-set';
+$rc = ipset_copy_set($set_name, $set_type, $set_copy)           if $action eq 'copy-set';
 
-$rc = ipset_is_group_deleted($set_name, $set_type) if $action eq 'is-group-deleted';
+$rc = ipset_is_group_deleted($set_name, $set_type)              if $action eq 'is-group-deleted';
 
-$rc = ipset_is_group_used($set_name, $set_type) if $action eq 'is-group-used';
+$rc = ipset_is_group_used($set_name, $set_type)                 if $action eq 'is-group-used';
+
 $rc = ipset_is_group_defined($set_name, $set_type, $set_family) if $action eq 'is-group-defined';
 
-$rc = update_set($set_name, $set_type, $set_family) if $action eq 'update-set';
-$rc = prune_deleted_sets() if $action eq 'prune-deleted-sets';
+$rc = update_set($set_name, $set_type, $set_family)             if $action eq 'update-set';
 
-$rc = check_duplicates($set_name, $set_type, $set_family) if $action eq 'check-duplicates';
+$rc = prune_deleted_sets()                                      if $action eq 'prune-deleted-sets';
+
+$rc = check_duplicates($set_name, $set_type, $set_family)       if $action eq 'check-duplicates';
 
 if (defined $rc) {
     print $rc;

@@ -280,13 +280,13 @@ die "undefined action" if ! defined $action;
 
 my ($error, $warning);
 
-($error, $warning) = setup_state_policy() if $action eq 'setup-state-policy';
+($error, $warning) = setup_state_policy()                 if $action eq 'setup-state-policy';
 
-($error, $warning) = teardown_state_policy() if $action eq 'teardown-state-policy';
+($error, $warning) = teardown_state_policy()              if $action eq 'teardown-state-policy';
 
-($error, $warning) = set_state_actions() if $action eq 'set-state-actions';
+($error, $warning) = set_state_actions()                  if $action eq 'set-state-actions';
 
-($error, $warning) = enable_disable_conntrack($state) if $action eq 'enable-disable-conntrack';
+($error, $warning) = enable_disable_conntrack($state)     if $action eq 'enable-disable-conntrack';
 
 ($error, $warning) = state_policy_validity_checks($state) if $action eq 'state-policy-validity-checks';
 
