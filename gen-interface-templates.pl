@@ -185,8 +185,8 @@ my %direction_term_hash = (
 # it in help messages.
 #
 my %table_help_hash = (
-    "name"        => "IPv4 firewall",
-    "ipv6-name"   => "IPv6 firewall",
+    "name"      => "IPv4 firewall",
+    "ipv6-name" => "IPv6 firewall",
 );
 
 # Generate the template file at the leaf of the per-interface firewall tree.

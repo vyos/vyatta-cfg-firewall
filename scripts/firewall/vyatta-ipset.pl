@@ -430,13 +430,13 @@ sub check_duplicates {
 #
 my ($action, $set_name, $set_type, $set_family, $member, $set_copy, $alias);
 
-GetOptions("action=s"   => \$action,
-           "set-name=s" => \$set_name,
-           "set-type=s" => \$set_type,
+GetOptions("action=s"     => \$action,
+           "set-name=s"   => \$set_name,
+           "set-type=s"   => \$set_type,
            "set-family=s" => \$set_family,
-           "member=s"   => \$member,
-           "alias=s"    => \$alias,
-           "set-copy=s" => \$set_copy,
+           "member=s"     => \$member,
+           "alias=s"      => \$alias,
+           "set-copy=s"   => \$set_copy,
 );
 
 die "undefined action" if ! defined $action;
@@ -452,8 +452,7 @@ $rc = ipset_create($set_name, $set_type, $set_family) if $action eq 'create-set'
 
 $rc = ipset_delete($set_name) if $action eq 'delete-set';
 
-$rc = ipset_check_member($set_name, $set_type, $member) 
-    if $action eq 'check-member';
+$rc = ipset_check_member($set_name, $set_type, $member) if $action eq 'check-member';
 
 $rc = ipset_add_member($set_name, $member, $alias, $set_type) if $action eq 'add-member';
 
@@ -469,8 +468,7 @@ $rc = ipset_is_set_empty($set_name) if $action eq 'is-set-empty';
 
 $rc = ipset_copy_set($set_name, $set_type, $set_copy) if $action eq 'copy-set';
 
-$rc = ipset_is_group_deleted($set_name, $set_type) 
-    if $action eq 'is-group-deleted';
+$rc = ipset_is_group_deleted($set_name, $set_type) if $action eq 'is-group-deleted';
 
 $rc = ipset_is_group_used($set_name, $set_type) if $action eq 'is-group-used';
 $rc = ipset_is_group_defined($set_name, $set_type, $set_family) if $action eq 'is-group-defined';
