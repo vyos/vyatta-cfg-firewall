@@ -22,8 +22,8 @@ my $fw_stateful_file = '/var/run/vyatta_fw_stateful';
 my $fw_tree_file     = '/var/run/vyatta_fw_trees';
 my $policy_ref_file  = '/var/run/vyatta_policy_ref';
 
-my $FW_IN_HOOK = 'VYATTA_FW_IN_HOOK';
-my $FW_OUT_HOOK = 'VYATTA_FW_OUT_HOOK';
+my $FW_IN_HOOK    = 'VYATTA_FW_IN_HOOK';
+my $FW_OUT_HOOK   = 'VYATTA_FW_OUT_HOOK';
 my $FW_LOCAL_HOOK = 'VYATTA_FW_LOCAL_HOOK';
 
 # FW_LOCALOUT_HOOK is only used in mangle table for PBR of locally initiated traffic
@@ -34,23 +34,23 @@ my (@setup, @updateints, @updaterules);
 my ($teardown, $teardown_ok);
 
 GetOptions(
-    "setup=s{2}"        => \@setup,
-    "teardown=s"        => \$teardown,
-    "teardown-ok=s"     => \$teardown_ok,
-    "update-rules=s{2}" => \@updaterules,
+    "setup=s{2}"             => \@setup,
+    "teardown=s"             => \$teardown,
+    "teardown-ok=s"          => \$teardown_ok,
+    "update-rules=s{2}"      => \@updaterules,
     "update-interfaces=s{5}" => \@updateints,
-    "debug"             => \$debug_flag,
-    "syslog"            => \$syslog_flag
+    "debug"                  => \$debug_flag,
+    "syslog"                 => \$syslog_flag
 );
 
 # mapping from config node to iptables/ip6tables table
 my %table_hash = (
-    'firewall name'        => 'filter',
-    'firewall ipv6-name'   => 'filter',
-    'policy route'         => 'mangle',
-    'policy local-route'   => 'mangle',
-    'policy ipv6-route'    => 'mangle',
-    'policy ipv6-local-route'    => 'mangle'
+    'firewall name'           => 'filter',
+    'firewall ipv6-name'      => 'filter',
+    'policy route'            => 'mangle',
+    'policy local-route'      => 'mangle',
+    'policy ipv6-route'       => 'mangle',
+    'policy ipv6-local-route' => 'mangle'
 );
 
 # mapping from config node to iptables command.  Note that this table
@@ -58,22 +58,22 @@ my %table_hash = (
 # keys of %table_hash can use the same keys to find the value associated
 # with the key in this table.
 my %cmd_hash = (
-    'firewall name'        => 'iptables',
-    'firewall ipv6-name'   => 'ip6tables',
-    'policy route'         => 'iptables',
-    'policy local-route'   => 'iptables',
-    'policy ipv6-route'    => 'ip6tables',
-    'policy ipv6-local-route'      => 'ip6tables'
+    'firewall name'           => 'iptables',
+    'firewall ipv6-name'      => 'ip6tables',
+    'policy route'            => 'iptables',
+    'policy local-route'      => 'iptables',
+    'policy ipv6-route'       => 'ip6tables',
+    'policy ipv6-local-route' => 'ip6tables'
 );
 
 # mapping from config node to IP version string.
 my %ip_version_hash = (
-    'firewall name'        => 'ipv4',
-    'firewall ipv6-name'   => 'ipv6',
-    'policy route'         => 'ipv4',
-    'policy local-route'   => 'ipv4',
-    'policy ipv6-route'    => 'ipv6',
-    'policy ipv6-local-route'       => 'ipv6'
+    'firewall name'           => 'ipv4',
+    'firewall ipv6-name'      => 'ipv6',
+    'policy route'            => 'ipv4',
+    'policy local-route'      => 'ipv4',
+    'policy ipv6-route'       => 'ipv6',
+    'policy ipv6-local-route' => 'ipv6'
 );
 
 # mapping from firewall tree to builtin chain for input
@@ -102,12 +102,12 @@ my %policy_hash = (
 );
 
 my %other_tree = (
-    'firewall name'        => 'policy route',
-    'firewall ipv6-name'   => 'policy ipv6-route',
-    'policy route'         => 'firewall name',
-    'policy local-route'   => 'firewall name',
-    'policy ipv6-route'    => 'firewall ipv6-name',
-    'policy ipv6-local-route'	=> 'firewall ipv6-name'
+    'firewall name'           => 'policy route',
+    'firewall ipv6-name'      => 'policy ipv6-route',
+    'policy route'            => 'firewall name',
+    'policy local-route'      => 'firewall name',
+    'policy ipv6-route'       => 'firewall ipv6-name',
+    'policy ipv6-local-route' => 'firewall ipv6-name'
 );
 
 # Send output of shell commands to syslog for debugging and so that
@@ -496,9 +496,9 @@ sub flush_route_table {
 }
 
 sub update_rules {
-    my ($tree, $name) = @_;	        # name, modify, ipv6-name or ipv6-modify
-    my $table = $table_hash{$tree};	# "filter" or "mangle"
-    my $iptables_cmd = $cmd_hash{$tree};  # "iptables" or "ip6tables"
+    my ($tree, $name) = @_;	             # name, modify, ipv6-name or ipv6-modify
+    my $table = $table_hash{$tree};	     # "filter" or "mangle"
+    my $iptables_cmd = $cmd_hash{$tree}; # "iptables" or "ip6tables"
     my $config = new Vyatta::Config;
     my %nodes = ();
 

@@ -9,7 +9,7 @@ my $src = new Vyatta::IpTables::AddressFilter;
 my $dst = new Vyatta::IpTables::AddressFilter;
 
 my %fields = (
-    _name	       => undef,
+    _name	     => undef,
     _rule_number => undef,
     _protocol    => undef,
     _state       => {
@@ -54,16 +54,16 @@ my %fields = (
         _utc       => undef,
     },
     _limit       => {
-        _rate     => undef,
-        _burst    => undef,
+        _rate  => undef,
+        _burst => undef,
     },
     _disable     => undef,
     _ip_version  => undef,
     _comment     => undef,
-    _hop_limit  => {
-        _eq      => undef,
-        _lt      => undef,
-        _gt      => undef,
+    _hop_limit   => {
+        _eq => undef,
+        _lt => undef,
+        _gt => undef,
     }
 );
 
@@ -112,16 +112,16 @@ my %dummy_rule = (
         _utc       => undef,
     },
     _limit       => {
-        _rate     => undef,
-        _burst    => undef,
+        _rate  => undef,
+        _burst => undef,
     },
     _disable     => undef,
     _ip_version  => undef,
     _comment     => undef,
     _hop_limit  => {
-        _eq      => undef,
-        _lt      => undef,
-        _gt      => undef,
+        _eq => undef,
+        _lt => undef,
+        _gt => undef,
     }
 );
 

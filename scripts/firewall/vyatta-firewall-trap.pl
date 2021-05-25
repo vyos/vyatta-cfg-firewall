@@ -46,9 +46,9 @@ my $syslog_flag = 1;
 
 my $cfglevel;
 
-GetOptions("level=s"      => \$cfglevel,
-           "debug"        => \$debug_flag,
-           "syslog"       => \$syslog_flag
+GetOptions("level=s" => \$cfglevel,
+           "debug"   => \$debug_flag,
+           "syslog"  => \$syslog_flag
 );
 
 openlog("firewall-trap", "pid", "user") if $syslog_flag;
