@@ -26,8 +26,7 @@ Depends: sed (>= 4.1.5),
  libswitch-perl,
  libsnmp-perl
 Replaces: vyatta-cfg-system,
- vyatta-openvpn,
- vyatta-wirelessmodem
+ vyatta-openvpn
 Suggests: util-linux (>= 2.13-5),
  net-tools,
  ethtool,

@@ -60,7 +60,7 @@ my %interface_hash = (
     'vxlan/node.tag'                                         => '$VAR(../../../@)',
     'wireless/node.tag'                                      => '$VAR(../../../@)',
     'wireless/node.tag/vif/node.tag'                         => '$VAR(../../../../@).$VAR(../../../@)',
-    'wirelessmodem/node.tag'                                 => '$VAR(../../../@)',
+    'wwan/node.tag'                                          => '$VAR(../../../@)',
     'wireguard/node.tag'                                     => '$VAR(../../../@)',
 );
 
@@ -90,7 +90,7 @@ my %firewall_hash = (
     'vxlan/node.tag'                                         => 'vxlan $VAR(../@)',
     'wireless/node.tag'                                      => 'wireless $VAR(../@)',
     'wireless/node.tag/vif/node.tag'                         => 'wireless $VAR(../../../@) vif $VAR(../@)',
-    'wirelessmodem/node.tag'                                 => 'wirelessmodem $VAR(../@)',
+    'wwan/node.tag'                                          => 'wwan $VAR(../@)',
     'wireguard/node.tag'                                     => 'wireguard $VAR(../@)',
 );
 
