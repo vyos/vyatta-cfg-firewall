@@ -60,7 +60,7 @@ my %interface_hash = (
     'vxlan/node.tag'                                         => '$VAR(../../@)',
     'wireless/node.tag'                                      => '$VAR(../../@)',
     'wireless/node.tag/vif/node.tag'                         => '$VAR(../../../@).$VAR(../../@)',
-    'wirelessmodem/node.tag'                                 => '$VAR(../../@)',
+    'wwan/node.tag'                                          => '$VAR(../../@)',
     'wireguard/node.tag'                                     => '$VAR(../../@)',
 );
 
