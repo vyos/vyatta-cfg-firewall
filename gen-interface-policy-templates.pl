@@ -49,6 +49,7 @@ my %interface_hash = (
     'input/node.tag'                                         => '$VAR(../../@)',
     'l2tpv3/node.tag'                                        => '$VAR(../../@)',
     'multilink/node.tag/vif/node.tag'                        => '$VAR(../../../@)',
+    'macsec/node.tag'                                        => '$VAR(../../@)',
     'openvpn/node.tag'                                       => '$VAR(../../@)',
     'pppoe/node.tag'                                         => '$VAR(../../@)',
     'pseudo-ethernet/node.tag'                               => '$VAR(../../@)',
