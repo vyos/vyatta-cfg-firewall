@@ -7,7 +7,7 @@ modprobe_DATA = etc/modprobe.d/vyatta_xt_recent.conf
 modprobe_DATA += etc/modprobe.d/vyatta_ipset.conf
 
 sbin_SCRIPTS =
-curver_DATA = cfg-version/firewall@5
+curver_DATA = cfg-version/firewall@6
 
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall.pl
 sbin_SCRIPTS += scripts/firewall/vyatta-firewall-trap.pl
