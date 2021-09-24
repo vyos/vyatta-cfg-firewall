@@ -41,6 +41,7 @@ my %interface_hash = (
     'bonding/node.tag/vif-s/node.tag/vif-c/node.tag'         => '$VAR(../../../../@).$VAR(../../../@).$VAR(../../@)',
     'bonding/node.tag/vif/node.tag'                          => '$VAR(../../../@).$VAR(../../@)',
     'bridge/node.tag'                                        => '$VAR(../../@)',
+    'bridge/node.tag/vif/node.tag'                           => '$VAR(../../../@).$VAR(../../@)',
     'dummy/node.tag'                                         => '$VAR(../../@)',
     'ethernet/node.tag'                                      => '$VAR(../../@)',
     'ethernet/node.tag/vif-s/node.tag'                       => '$VAR(../../../@).$VAR(../../@)',
