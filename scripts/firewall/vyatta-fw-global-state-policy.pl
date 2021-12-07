@@ -33,12 +33,12 @@ use Getopt::Long;
 use Sys::Syslog qw(:standard :macros);
 
 # mapping from config node to iptables command
-our %cmd_hash = ( 'name'        => '/sbin/iptables',
-                  'ipv6-name'   => '/sbin/ip6tables');
+our %cmd_hash = ( 'name'      => '/sbin/iptables',
+                  'ipv6-name' => '/sbin/ip6tables');
 
 # mapping from config node to iptables/ip6tables table
-our %table_hash = ( 'name'        => 'filter',
-                    'ipv6-name'   => 'filter');
+our %table_hash = ( 'name'      => 'filter',
+                    'ipv6-name' => 'filter');
 
 # pre FW hooks in iptables' INPUT, OUTPUT and FORWARD chains
 our %pre_fw_hooks_hash = ( 'INPUT'   => 'VYATTA_PRE_FW_IN_HOOK',
@@ -56,15 +56,15 @@ our %state_policy_chains_hash = ( 'INPUT'   => 'VYATTA_STATE_POLICY_IN_HOOK',
                                   'OUTPUT'  => 'VYATTA_STATE_POLICY_OUT_HOOK');
 
 # state actions
-our %state_action_hash = ( 'drop'    => 'DROP',
-                           'reject'  => 'REJECT',
-                           'accept'  => 'JUMP_TO_INDIVIDUAL_POST_FW_HOOK',
-			   'log'     => 'LOG');
+our %state_action_hash = ( 'drop'   => 'DROP',
+                           'reject' => 'REJECT',
+                           'accept' => 'JUMP_TO_INDIVIDUAL_POST_FW_HOOK',
+			                     'log'    => 'LOG');
 
 # state actions' log abbreviations
-our %state_log_abbr_hash = ( 'drop'    => 'D',
-                             'reject'  => 'R',
-                             'accept'  => 'A');
+our %state_log_abbr_hash = ( 'drop'   => 'D',
+                             'reject' => 'R',
+                             'accept' => 'A');
 
 # imp to maintain order of this array since this is the
 # order we want to insert rules into state-policy chains
@@ -271,22 +271,22 @@ sub state_policy_validity_checks {
 
 my ($action, $state, $state_action);
 
-GetOptions("action=s"         => \$action,
-	   "state=s"          => \$state,
-           "state-action=s"   => \$state_action,
+GetOptions("action=s"       => \$action,
+	         "state=s"        => \$state,
+           "state-action=s" => \$state_action,
 );
 
 die "undefined action" if ! defined $action;
 
 my ($error, $warning);
 
-($error, $warning) = setup_state_policy() if $action eq 'setup-state-policy';
+($error, $warning) = setup_state_policy()                 if $action eq 'setup-state-policy';
 
-($error, $warning) = teardown_state_policy() if $action eq 'teardown-state-policy';
+($error, $warning) = teardown_state_policy()              if $action eq 'teardown-state-policy';
 
-($error, $warning) = set_state_actions() if $action eq 'set-state-actions';
+($error, $warning) = set_state_actions()                  if $action eq 'set-state-actions';
 
-($error, $warning) = enable_disable_conntrack($state) if $action eq 'enable-disable-conntrack';
+($error, $warning) = enable_disable_conntrack($state)     if $action eq 'enable-disable-conntrack';
 
 ($error, $warning) = state_policy_validity_checks($state) if $action eq 'state-policy-validity-checks';
 
