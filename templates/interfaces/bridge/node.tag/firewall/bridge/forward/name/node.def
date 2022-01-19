@@ -1,0 +1,5 @@
+type: txt
+help: Inbound IPv4 firewall ruleset name for interface
+allowed: local -a params
+	eval "params=($(cli-shell-api listNodes firewall name))"
+	echo -n "${params[@]}"

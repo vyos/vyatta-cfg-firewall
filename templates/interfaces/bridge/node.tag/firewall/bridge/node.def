@@ -1,0 +1,3 @@
+help: Firewall bridge options
+priority: 616
+end: ${vyos_conf_scripts_dir}/firewall-interface-bridge.py $VAR(../../@)
