@@ -23,3 +23,4 @@ end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
         --set-name="$VAR(@)" --set-type=address --set-family=inet; then
        ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group address-group $VAR(@)"
      fi
+     sudo sh -c "${vyshim} ${vyos_conf_scripts_dir}/firewall-bridge.py"

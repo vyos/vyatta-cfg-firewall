@@ -32,6 +32,7 @@ end: if sudo /opt/vyatta/sbin/vyatta-firewall.pl --update-rules "firewall name" 
        exit 1;
      fi
      sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=prune-deleted-sets
+     sudo sh -c "${vyshim} ${vyos_conf_scripts_dir}/firewall-bridge.py"
 
 create: sudo /opt/vyatta/sbin/vyatta-firewall.pl --setup iptables "firewall name"
 
