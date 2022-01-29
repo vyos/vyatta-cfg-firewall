@@ -28,7 +28,7 @@ my $FW_LOCAL_HOOK = 'VYATTA_FW_LOCAL_HOOK';
 
 # FW_LOCALOUT_HOOK is only used in mangle table for PBR of locally initiated traffic
 my $FW_LOCALOUT_HOOK = 'VYATTA_FW_LOCALOUT_HOOK';
-my $max_rule = 10000;
+my $max_rule = 1000000;
 
 my (@setup, @updateints, @updaterules);
 my ($teardown, $teardown_ok);
