@@ -288,7 +288,7 @@ sub update_set {
   # added or potentially changed => iterate members
   # to ensure that vyatta config and ipset stay in-sync, do the following:
   # 1. copy orig set to tmp set
-  my $tmpset = "$set_name-$$";
+  my $tmpset = substr `uuidgen 2>/dev/null`, 0, 31;
   if (($rc = ipset_copy_set($set_name, $set_type, $tmpset))) {
     # copy failed
     if ($newset) {
