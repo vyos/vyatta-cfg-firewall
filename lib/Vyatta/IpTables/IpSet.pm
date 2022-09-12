@@ -28,6 +28,7 @@ use Vyatta::Config;
 use Vyatta::TypeChecker;
 use Vyatta::Misc;
 use NetAddr::IP;
+use XML::LibXML;
 
 use strict;
 use warnings;
@@ -49,11 +50,9 @@ our %grouptype_hash = (
 
 my $logger = 'logger -t IpSet.pm -p local0.warn --';
 
-# Currently we restrict an address range to a /24 even
-# though ipset would support a /16.  The main reason is
-# due to the long time it takes to make that many calls
-# to add each individual member to the set.
-my $addr_range_mask = 24;
+# Restrict an address range to a /16
+# because this is the maximum size of ipset
+my $addr_range_mask = 16;
 my $lockfile = "/opt/vyatta/config/.lock";
 
 # remove lock file to avoid commit blockade on interrupt
@@ -92,7 +91,7 @@ sub debug {
 sub run_cmd {
     my ($self, $cmd) = @_;
 
-    my $rc = system("sudo $cmd");
+    my $rc = system("$cmd");
     if (defined $self->{_debug}) {
         my $func = (caller(1))[3];
         system("$logger [$func] [$cmd] = [$rc]");
@@ -407,24 +406,46 @@ sub check_member {
     return; #undef
 }
 
+# return a hash with all set members
+sub members_list {
+    my ($self) = @_;
+
+    my %elements_list = ();
+
+    my $ipset_cmd = "ipset -o xml -L $self->{_name} 2> /dev/null";
+    my $ipset_output = qx/$ipset_cmd/;
+    # return an empty hash if a command failed
+    if ($?) {
+        return %elements_list;
+    }
+    # parse the output otherwise
+    my $parsed_out = XML::LibXML->load_xml(string => $ipset_output);
+    foreach my $node ($parsed_out->findnodes('/ipsets/ipset/members/member/elem/text()')) {
+        $elements_list{$node} = undef;
+    }
+
+    return %elements_list;
+}
+
+# check if a member is already in a set
+# return 1 if it exists, 0 if not
 sub member_exists {
     my ($self, $member) = @_;
 
-    # check if a member is a port range and roll through all members it is
+    # get current members
+    my %members_current = $self->members_list();
+
+    # check if a member is a port range and check each element of a range
     if ($member =~ /([\d]+)-([\d]+)/) {
         foreach my $port ($1..$2) {
-            # test port with ipset
-            my $cmd = "ipset -T $self->{_name} $port -q";
-            my $rc = $self->run_cmd($cmd);
-            # return true if port was found
-            return 1 if !$rc;
+            # check a port
+            return 1 if exists $members_current{$port};
         }
         # return false if ports was not found in set
         return 0;
     } else {
-        my $cmd = "ipset -T $self->{_name} $member -q";
-        my $rc = $self->run_cmd($cmd);
-        return $rc ? 0 : 1;
+        return 1 if exists $members_current{$member};
+        return 0;
     }
 }
 
@@ -449,21 +470,29 @@ sub add_member {
 sub delete_member_range {
     my ($self, $start, $stop) = @_;
 
+    my %members_current = $self->members_list();
+
+    # check if all elements exist, this is necessary to remove a range in one command
     if ($self->{_type} eq 'port') {
+        # check if all ports exist
         foreach my $member ($start .. $stop) {
-            my $rc = $self->delete_member($member);
-            return $rc if defined $rc;
+            if (not exists $members_current{$member}) {
+                return "Error: member [$member] does not exist in [$self->{_name}]\n";
+            }
         }
     } elsif ($self->{_type} eq 'address') {
-        my $start_ip = new NetAddr::IP("$start/$addr_range_mask");
-        my $stop_ip  = new NetAddr::IP("$stop/$addr_range_mask");
+        my $start_ip = new NetAddr::IP("$start/0");
+        my $stop_ip  = new NetAddr::IP("$stop/0");
+        # check if all IP addresses exist
         for (; $start_ip <= $stop_ip; $start_ip++) {
-            my $rc = $self->delete_member($start_ip->addr());
-            return $rc if defined $rc;
-            last if $start_ip->cidr() eq $start_ip->broadcast();
+            my $current_addr = $start_ip->addr();
+            if (not exists $members_current{$current_addr}) {
+                return "Error: member [$current_addr] does not exist in [$self->{_name}]\n";
+            }
         }
     }
-    return;
+    # remove whole range at once
+    return $self->delete_member_unsafe("$start-$stop");
 }
 
 sub delete_member {
@@ -479,12 +508,20 @@ sub delete_member {
     }
 
     if (!$self->member_exists($member)) {
-        return "Error: member [$member] doesn't exists in [$self->{_name}]\n";
+        return "Error: member [$member] does not exist in [$self->{_name}]\n";
     }
+    return $self->delete_member_unsafe($member);
+}
+
+# delete a member without additional checks,
+# assuming all of them already were performed
+sub delete_member_unsafe {
+    my ($self, $member) = @_;
+
     my $cmd = "ipset -D $self->{_name} $member";
     my $rc = $self->run_cmd($cmd);
-    return "Error: call to ipset failed [$rc]" if $rc;
-    return; # undef
+    return "Error: call to ipset [$cmd] returned [$rc] exit code" if $rc;
+    return;
 }
 
 sub get_description {

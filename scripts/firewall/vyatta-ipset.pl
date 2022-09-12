@@ -33,6 +33,7 @@ use Vyatta::Misc;
 use Vyatta::IpTables::IpSet;
 use Sort::Versions;
 use IO::Prompt;
+use NetAddr::IP;
 
 use warnings;
 use strict;
@@ -403,20 +404,48 @@ sub check_duplicates {
       # check if this is a port range
       if ($item =~ /([\d]+)-([\d]+)/) {
         foreach my $port ($1..$2) {
-          return "Port $port exist in more than one item\n" if (exists $portlist{$port});
+          return "Port $port exists in more than one configuration enrty\n" if (exists $portlist{$port});
           $portlist{$port} = undef;
         }
 
       # check if this is an alphabetic port name
       } elsif ($item =~ /^\D+/) {
         my $port = getservbyname($item, "");
-        return "Port $port exist in more than one item\n" if (exists $portlist{$port});
+        return "Port $port exists in more than one configuration enrty\n" if (exists $portlist{$port});
         $portlist{$port} = undef;
 
       # process simple numeric ports
       } else {
-        return "Port $item exist in more than one item\n" if (exists $portlist{$item});
+        return "Port $item exists in more than one configuration enrty\n" if (exists $portlist{$item});
         $portlist{$item} = undef;
+      }
+    }
+  }
+  # check duplicates in address-group
+  if ($set_type eq "address") {
+    # define hash with addresses as keys
+    my %addresslist;
+
+    for my $item (@vals) {
+      # check if this is an address range
+      if ($item =~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+        my $first_ip = new NetAddr::IP("$1/0");
+        my $last_ip = new NetAddr::IP("$2/0");
+
+        for (; $first_ip <= $last_ip; $first_ip++) {
+            my $current_addr = $first_ip->addr();
+            # check if an address already listed
+            if (exists $addresslist{$current_addr}) {
+                return "Address $current_addr exists in more than one configuration enrty\n";
+            }
+            # add an address to a list
+            $addresslist{$current_addr} = undef;
+        }
+      # process single addresses
+      } else {
+        return "Address $item exists in more than one configuration enrty\n" if (exists $addresslist{$item});
+        # add an address to a list
+        $addresslist{$item} = undef;
       }
     }
   }
