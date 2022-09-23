@@ -19,6 +19,10 @@ syntax:expression: exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=is-group-defi
         --set-type=address --set-family=inet"; \
       "Firewall group name already used as Ipv6 group address"       
 
+commit:expression:exec "/opt/vyatta/sbin/vyatta-ipset.pl --action=check-duplicates --set-name=$VAR(@) \
+        --set-type=address --set-family=inet"; \
+       "There are duplicates inside address-group $VAR(@)"
+
 end: if sudo /opt/vyatta/sbin/vyatta-ipset.pl --action=update-set \
         --set-name="$VAR(@)" --set-type=address --set-family=inet; then
        ${vyatta_sbindir}/vyatta-firewall-trap.pl --level="firewall group address-group $VAR(@)"
