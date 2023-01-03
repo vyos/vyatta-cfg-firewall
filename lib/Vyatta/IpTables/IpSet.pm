@@ -420,7 +420,19 @@ sub members_list {
     }
     # parse the output otherwise
     my $parsed_out = XML::LibXML->load_xml(string => $ipset_output);
+    my $set_type = $parsed_out->findvalue('/ipsets/ipset/type');
+    my $set_family = $parsed_out->findvalue('/ipsets/ipset/header/family');
     foreach my $node ($parsed_out->findnodes('/ipsets/ipset/members/member/elem/text()')) {
+        # modify networks with /32 and /128 netmasks to match CLI items later
+        # an example: '192.0.2.0' -> '192.0.2.0/32', '2001:db8::' -> '2001:db8::/128'
+        if ($set_type eq 'hash:net') {
+            if (($set_family eq 'inet') and ($node !~ /.*\/\d+/ )) {
+                $node = "${node}/32";
+            }
+            if (($set_family eq 'inet6') and ($node !~ /.*\/\d+/ )) {
+                $node = "${node}/128";
+            }
+        }
         $elements_list{$node} = undef;
     }
 
